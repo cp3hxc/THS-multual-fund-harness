@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only command surface for the DeepSeek Harness fund agent."""
+"""Read-only command surface for the fund strategy Agent."""
 from __future__ import annotations
 
 import argparse

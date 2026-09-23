@@ -1,4 +1,4 @@
-"""Contract tests for the fixed DeepSeek Harness MCP entry."""
+"""Contract tests for the fixed Codex strategy Agent MCP entry."""
 import json
 import tempfile
 import unittest

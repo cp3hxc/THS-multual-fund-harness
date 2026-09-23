@@ -44,10 +44,6 @@
     },
     "extraResources": [
       { "from": "build/backend", "to": "backend" },
-      { "from": "fund-ai-workbench.html", "to": "workbench/fund-ai-workbench.html" },
-      { "from": "workbench.css", "to": "workbench/workbench.css" },
-      { "from": "workbench.js", "to": "workbench/workbench.js" },
-      { "from": "strategy-invest.css", "to": "workbench/strategy-invest.css" },
       { "from": "panda-strategy-agent.html", "to": "workbench/panda-strategy-agent.html" },
       { "from": "panda-strategy-agent.css", "to": "workbench/panda-strategy-agent.css" },
       { "from": "panda-strategy-agent-fixes.css", "to": "workbench/panda-strategy-agent-fixes.css" },

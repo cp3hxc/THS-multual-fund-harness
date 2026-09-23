@@ -2,14 +2,36 @@
 import copy
 import json
 import tempfile
+import threading
 import unittest
+from http.server import HTTPServer
 from pathlib import Path
 from types import SimpleNamespace
+from urllib.error import HTTPError
+from urllib.request import urlopen
 from unittest.mock import patch
 import server as app
 
 
 class Contracts(unittest.TestCase):
+    def test_root_serves_current_dark_agent_and_legacy_page_is_not_available(self):
+        httpd = HTTPServer(('127.0.0.1', 0), app.Handler)
+        thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+        thread.start()
+        try:
+            with urlopen(f'http://127.0.0.1:{httpd.server_port}/') as response:
+                html = response.read().decode('utf-8')
+                self.assertEqual(response.status, 200)
+                self.assertIn('content="dark"', html)
+                self.assertIn('panda-strategy-agent.js', html)
+            with self.assertRaises(HTTPError) as error:
+                urlopen(f'http://127.0.0.1:{httpd.server_port}/fund-ai-workbench.html')
+            self.assertEqual(error.exception.code, 404)
+        finally:
+            httpd.shutdown()
+            httpd.server_close()
+            thread.join(timeout=2)
+
     def test_live_business_envelope_is_unwrapped(self):
         for payload in [{'ok': True, 'data': {'funds': []}},
                         {'ok': True, 'data': {'status_code': '0000', 'data': {'funds': []}}},

@@ -1533,11 +1533,7 @@ class Handler(BaseHTTPRequestHandler):
             self.guard()
             p = urlparse(self.path)
             q = {k: v[0] for k, v in parse_qs(p.query).items()}
-            static = {'/': ('fund-ai-workbench.html', 'text/html; charset=utf-8'),
-                      '/fund-ai-workbench.html': ('fund-ai-workbench.html', 'text/html; charset=utf-8'),
-                      '/workbench.css': ('workbench.css', 'text/css; charset=utf-8'),
-                      '/strategy-invest.css': ('strategy-invest.css', 'text/css; charset=utf-8'),
-                      '/workbench.js': ('workbench.js', 'text/javascript; charset=utf-8'),
+            static = {'/': ('panda-strategy-agent.html', 'text/html; charset=utf-8'),
                       '/panda-strategy-agent.html': ('panda-strategy-agent.html', 'text/html; charset=utf-8'),
                       '/panda-strategy-agent.css': ('panda-strategy-agent.css', 'text/css; charset=utf-8'),
                       '/panda-strategy-agent-fixes.css': ('panda-strategy-agent-fixes.css', 'text/css; charset=utf-8'),

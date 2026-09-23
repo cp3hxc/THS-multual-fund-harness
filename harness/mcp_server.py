@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Native MCP tool surface for the Codex/DeepSeek Harness fund workbench.
+"""Native MCP tool surface for the Codex strategy Agent.
 
 The protocol is JSON-RPC over newline-delimited stdio.  stdout is reserved for
 MCP messages; diagnostics go to stderr. The MCP surface exposes account reads,

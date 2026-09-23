@@ -33,7 +33,6 @@ jobs:
       - run: npm run test:desktop
       - run: node --check desktop/main.js
       - run: node --check desktop/agent-runtime.js
-      - run: node --check workbench.js
       - run: node --check panda-strategy-agent.js
       - run: node --check scripts/setup.js
       - run: node --check scripts/run.js
@@ -60,6 +59,6 @@ jobs:
       - run: npm run build:desktop
       - uses: actions/upload-artifact@v4
         with:
-          name: fund-ai-workbench-${{ matrix.os }}
+          name: paradoxaifund-agent-${{ matrix.os }}
           path: dist/*
           if-no-files-found: error
