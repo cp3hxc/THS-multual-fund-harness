@@ -1,0 +1,3 @@
+- id: agent-presets
+  config:
+    default: fund-workbench

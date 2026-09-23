@@ -1,0 +1,37 @@
+{
+  "name": "fund-ai-workbench-desktop",
+  "version": "1.0.0",
+  "private": true,
+  "author": "Paradox",
+  "description": "场外基金 AI 工作台 Codex Harness Agent 桌面应用",
+  "main": "desktop/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:mac": "electron-builder --mac dir --arm64",
+    "test:desktop": "node --test test_desktop_runtime.js"
+  },
+  "devDependencies": {
+    "electron": "44.4.1",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "com.paradox.fund-ai-workbench",
+    "productName": "基金 AI 工作台",
+    "asar": true,
+    "files": [
+      "desktop/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.finance",
+      "icon": "desktop/assets/icon.icns",
+      "identity": null,
+      "target": [
+        {
+          "target": "dir",
+          "arch": ["arm64"]
+        }
+      ]
+    }
+  }
+}

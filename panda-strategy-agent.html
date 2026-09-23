@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>ParadoxAI · 场外基金策略 Agent</title>
+  <link rel="stylesheet" href="panda-strategy-agent.css">
+  <link rel="stylesheet" href="panda-strategy-agent-fixes.css">
+  <script src="panda-strategy-agent.js" defer></script>
+</head>
+<body>
+  <div class="panda-app">
+    <aside class="panda-sidebar">
+      <div class="panda-brand"><div><strong class="ths-finance-brand">同花顺<span>理财</span></strong><small>场外基金策略 Agent</small></div></div>
+      <button class="panda-workbench-nav active" data-nav="workbench" type="button"><span class="nav-symbol">▣</span>对话工作台</button>
+      <button class="panda-new" id="agent-new" type="button"><span>＋</span>新增会话</button>
+      <div class="panda-section-label">最近对话</div>
+      <div id="panda-sessions" class="panda-session-list"><span>桌面版启动后显示会话</span></div>
+      <div class="panda-section-label">工作区</div>
+      <nav class="panda-nav" aria-label="ParadoxAI 主导航">
+        <button data-nav="library"><span class="nav-symbol">◈</span>策略库</button>
+        <button data-nav="holdings"><span class="nav-symbol">◫</span>我的持仓</button>
+        <button data-nav="watchlist"><span class="nav-symbol">☆</span>我的自选</button>
+        <button data-nav="plans"><span class="nav-symbol">▤</span>我的计划</button>
+        <button data-nav="history"><span class="nav-symbol">◷</span>运行历史</button>
+        <button data-nav="account"><span class="nav-symbol">◎</span>账户与连接</button>
+      </nav>
+      <div class="panda-sidebar-bottom">
+        <div class="panda-credit"><span>模型服务</span><strong id="panda-model-status">正在连接</strong></div>
+        <button class="panda-quiet" data-nav="settings">模型与推理设置</button>
+        <div class="panda-data-note"><i></i><span>真实 Agent 模式<small>交易仍由用户本人完成</small></span></div>
+      </div>
+    </aside>
+    <main class="panda-main">
+      <header class="panda-topbar"><div class="panda-top-actions"><span id="panda-data-status">正在连接本地数据</span><button class="icon-button" data-nav="settings" aria-label="设置">⚙</button></div></header>
+      <section id="panda-content" class="panda-content" aria-live="polite"></section>
+    </main>
+  </div>
+  <aside id="agent-panel" class="panda-agent-panel" aria-label="ParadoxAI Agent" hidden>
+    <div id="agent-shell" class="panda-agent-shell">
+      <div class="panda-agent-head"><div><strong>◆ ParadoxAI Agent</strong><small id="agent-provider">正在连接模型</small></div><div><button id="agent-rename" title="重命名会话" type="button">重命名</button><button id="agent-pin" title="置顶会话" type="button">☆</button><button id="agent-archive" title="归档会话" type="button">归档</button><button id="agent-delete" title="删除会话" type="button">删除</button></div></div>
+      <div id="agent-status" class="panda-agent-status">正在启动 Agent…</div>
+      <div id="agent-messages" class="panda-agent-messages" aria-live="polite"></div>
+      <div id="agent-question" class="panda-agent-question" hidden></div>
+      <form id="agent-form" class="panda-agent-composer">
+        <textarea id="agent-input" maxlength="12000" placeholder="说说你的目标，或让 Agent 分析持仓、选择策略、修改参数并回测"></textarea>
+        <div class="panda-agent-controls"><label><input id="agent-data-consent" type="checkbox">账户权限：只读查询</label><button class="panda-agent-setting" type="button" data-nav="settings">模型 / 推理</button><span id="agent-run-state">就绪</span><button id="agent-stop" class="panda-button quiet" type="button" hidden>停止</button><button id="agent-send" class="panda-button primary">发送 ↑</button></div>
+      </form>
+    </div>
+  </aside>
+  <dialog id="panda-dialog"><div id="panda-dialog-content"></div></dialog>
+</body>
+</html>
