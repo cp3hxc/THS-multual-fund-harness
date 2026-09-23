@@ -1,0 +1,65 @@
+name: Cross-platform checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.os }} · Python ${{ matrix.python }} · Node ${{ matrix.node }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+        python: ['3.12']
+        node: ['22']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm run setup
+      - run: npm run test:python
+      - run: npm run test:desktop
+      - run: node --check desktop/main.js
+      - run: node --check desktop/agent-runtime.js
+      - run: node --check workbench.js
+      - run: node --check panda-strategy-agent.js
+      - run: node --check scripts/setup.js
+      - run: node --check scripts/run.js
+      - run: node --check scripts/package.js
+      - run: node --check scripts/python-tests.js
+
+  package:
+    name: ${{ matrix.os }} installer
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build:desktop
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fund-ai-workbench-${{ matrix.os }}
+          path: dist/*
+          if-no-files-found: error

@@ -6,8 +6,13 @@
   "description": "场外基金 AI 工作台 Codex Harness Agent 桌面应用",
   "main": "desktop/main.js",
   "scripts": {
-    "start": "electron .",
-    "build:mac": "electron-builder --mac dir --arm64",
+    "setup": "node scripts/setup.js",
+    "start": "node scripts/run.js desktop",
+    "start:web": "node scripts/run.js web",
+    "test:python": "node scripts/python-tests.js",
+    "build:desktop": "node scripts/package.js",
+    "build:mac": "node scripts/package.js mac",
+    "build:win": "node scripts/package.js win",
     "test:desktop": "node --test test_desktop_runtime.js"
   },
   "devDependencies": {
@@ -26,12 +31,29 @@
       "category": "public.app-category.finance",
       "icon": "desktop/assets/icon.icns",
       "identity": null,
-      "target": [
-        {
-          "target": "dir",
-          "arch": ["arm64"]
-        }
-      ]
-    }
+      "target": ["dmg"]
+    },
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    },
+    "extraResources": [
+      { "from": "build/backend", "to": "backend" },
+      { "from": "fund-ai-workbench.html", "to": "workbench/fund-ai-workbench.html" },
+      { "from": "workbench.css", "to": "workbench/workbench.css" },
+      { "from": "workbench.js", "to": "workbench/workbench.js" },
+      { "from": "strategy-invest.css", "to": "workbench/strategy-invest.css" },
+      { "from": "panda-strategy-agent.html", "to": "workbench/panda-strategy-agent.html" },
+      { "from": "panda-strategy-agent.css", "to": "workbench/panda-strategy-agent.css" },
+      { "from": "panda-strategy-agent-fixes.css", "to": "workbench/panda-strategy-agent-fixes.css" },
+      { "from": "panda-strategy-agent.js", "to": "workbench/panda-strategy-agent.js" },
+      { "from": "assets/paradoxai-mark.png", "to": "workbench/assets/paradoxai-mark.png" },
+      { "from": "harness/skills/fund-workbench/SKILL.md", "to": "workbench/harness/skills/fund-workbench/SKILL.md" }
+    ]
   }
 }

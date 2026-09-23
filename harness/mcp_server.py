@@ -27,6 +27,9 @@ sys.path.insert(0, str(ROOT))
 
 import server  # noqa: E402
 from fund_data import FuyaoError, portfolio_analysis  # noqa: E402
+from workbench_runtime import ROOT as WORKBENCH_ROOT, venv_python  # noqa: E402
+
+ROOT = WORKBENCH_ROOT
 
 WEB_URL = "http://127.0.0.1:8765"
 WEB_PROCESS = None
@@ -109,11 +112,18 @@ def ensure_web() -> Dict[str, Any]:
                 return {"url": WEB_URL, "running": True, "started": False}
     except Exception:
         pass
-    log_dir = ROOT / ".runtime"
+    log_dir = server.RUNTIME
     log_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
     log = open(log_dir / "workbench.log", "a", encoding="utf-8")
-    WEB_PROCESS = subprocess.Popen([str(ROOT / ".venv/bin/python"), str(ROOT / "server.py")],
-                                   cwd=ROOT, stdout=log, stderr=log, start_new_session=True)
+    if getattr(sys, "frozen", False):
+        server_exe = Path(os.environ.get("FUND_WORKBENCH_SERVER", ""))
+        if not server_exe.is_file():
+            raise server.AppError("未找到桌面版基金服务，请重新安装应用。", 503)
+        command = [str(server_exe)]
+    else:
+        command = [str(venv_python(ROOT)), str(ROOT / "server.py")]
+    process_options = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == "nt" else {"start_new_session": True}
+    WEB_PROCESS = subprocess.Popen(command, cwd=ROOT, stdout=log, stderr=log, **process_options)
     for _ in range(20):
         try:
             with urllib.request.urlopen(WEB_URL + "/api/bootstrap", timeout=.5) as response:
@@ -189,7 +199,7 @@ def start_login(force: bool = False) -> Dict[str, Any]:
             if force:
                 command.append("--force")
             with server.FINANCE_LOCK:
-                process = subprocess.run(command, capture_output=True, text=True, timeout=320)
+                process = subprocess.run(command, capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=320)
             payload = json.loads(process.stdout or "{}")
             success = bool(payload.get("ok"))
             message = ("账户切换成功，可以读取新账户。" if force else "授权成功，可以读取真实持仓。") if success else "授权未完成，请重新发起扫码。"
