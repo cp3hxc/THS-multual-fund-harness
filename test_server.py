@@ -107,8 +107,8 @@ class Contracts(unittest.TestCase):
 
     def test_trade_record_accepts_live_scalar_record_id(self):
         agreements = [{'title': '协议', 'agreementUrl': 'https://example.com/a'}]
-        with patch('server.cli_run', return_value='TEST-RECORD-ID') as run:
-            self.assertEqual(app._trade_record(agreements, 'BUY'), 'TEST-RECORD-ID')
+        with patch('server.cli_run', return_value='153000123') as run:
+            self.assertEqual(app._trade_record(agreements, 'BUY'), '153000123')
         args = run.call_args.args[0]
         self.assertEqual(args[:2], ['fund', 'trade-record'])
 
