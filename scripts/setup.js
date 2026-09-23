@@ -25,9 +25,9 @@ function commandCandidates() {
   if (preferred) return [{ command: preferred, prefix: [] }];
   if (process.platform === 'win32') {
     return [
-      { command: 'py', prefix: ['-3'] },
       { command: 'python', prefix: [] },
-      { command: 'python3', prefix: [] }
+      { command: 'python3', prefix: [] },
+      { command: 'py', prefix: ['-3'] }
     ];
   }
   return [{ command: 'python3', prefix: [] }, { command: 'python', prefix: [] }];
@@ -40,9 +40,7 @@ function findPython() {
     });
     if (result.status !== 0) continue;
     const match = `${result.stdout || ''}${result.stderr || ''}`.match(/Python\s+(\d+)\.(\d+)/);
-    if (!match || Number(match[1]) < 3 || (Number(match[1]) === 3 && Number(match[2]) < 10)) {
-      throw new Error('需要 Python 3.10 或更高版本。');
-    }
+    if (!match || Number(match[1]) < 3 || (Number(match[1]) === 3 && Number(match[2]) < 10)) continue;
     return candidate;
   }
   throw new Error('没有找到 Python 3.10+。请安装 Python，或设置 FUND_PYTHON 指向 Python 可执行文件。');

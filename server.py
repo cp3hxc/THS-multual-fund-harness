@@ -385,6 +385,7 @@ def _agreement_url(jump):
 
 
 def _trade_record(agreements, source_type):
+    RUNTIME.mkdir(mode=0o700, parents=True, exist_ok=True)
     fd, path = tempfile.mkstemp(dir=RUNTIME, prefix='agreement-', suffix='.json')
     try:
         with os.fdopen(fd, 'w', encoding='utf-8', newline='\n') as f:
