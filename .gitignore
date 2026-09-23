@@ -1,0 +1,32 @@
+.venv/
+.runtime/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage*
+htmlcov/
+qa/
+.DS_Store
+node_modules/
+dist/
+build/
+*.log
+*.pid
+
+# Local account credentials and private configuration. Keep .env.example shareable.
+.env
+.env.*
+!.env.example
+**/*.key
+**/*.pem
+**/*.p12
+**/*.pfx
+**/credentials.json
+**/auth.json
+.aijijin/
+
+# Historical account snapshots used only as local design references.
+/reference/fund-ai-workbench.original.html
+/reference/fund-ai-workbench.clean.html
