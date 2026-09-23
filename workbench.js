@@ -33,7 +33,7 @@ async function api(path, body) {
     return data.data;
   } catch(e) {
     if(e.name==='AbortError') throw new Error('请求超时，请稍后手动重试。');
-    if(e instanceof TypeError) throw new Error('本地服务未连接。请双击 start.command，再打开本地工作台。');
+    if(e instanceof TypeError) throw new Error('本地服务未连接。请运行 npm run start:web，再打开本地工作台。');
     throw e;
   } finally {clearTimeout(timeout);}
 }
@@ -593,7 +593,7 @@ function renderDesktopSettings(){
       <div class="settings-notice"><strong>${subscriptionConnected?'已检测到 ChatGPT 登录':'尚未检测到桌面 Agent 的 ChatGPT 登录'}</strong><br>${subscriptionConnected?`新会话使用 ${esc(settings.subscriptionModel||'gpt-6-astra')} · ${effortLabel(settings.subscriptionEffort)}推理。`:'点击订阅卡片后会打开官方登录页面；首次启动已安全复用本机有效 Codex 登录（如存在）。'}</div>
       ${subscriptionPicker}
       ${providers?`<div class="section-label">已保存的 API 服务</div><div class="provider-list">${providers}</div>`:''}
-      <div class="section-label">新增 Responses API 服务</div><form id="desktop-provider-form"><div class="form-grid"><div class="field"><label for="desktop-provider-name">服务名称</label><input id="desktop-provider-name" name="name" required maxlength="60" placeholder="例如 OpenAI API"></div><div class="field"><label for="desktop-provider-model">模型 ID</label><input id="desktop-provider-model" name="model" required placeholder="服务商提供的模型 ID"></div><div class="field"><label for="desktop-provider-effort">推理强度</label><select id="desktop-provider-effort" name="effort"><option value="high" selected>高</option><option value="medium">中</option><option value="low">低</option><option value="xhigh">很高</option></select><small>服务商不支持时，兼容性检测会明确报错。</small></div><div class="field full"><label for="desktop-provider-url">API Base URL</label><input id="desktop-provider-url" name="baseUrl" type="url" required value="https://api.openai.com/v1"><small>仅支持 HTTPS Responses 协议；不支持 Chat Completions 转换。</small></div><div class="field full"><label for="desktop-provider-key">API Key</label><input id="desktop-provider-key" name="apiKey" type="password" autocomplete="off" required><small>由 macOS 系统加密保存，不进入页面存储、对话或日志。</small></div></div><div class="form-footer"><button class="button primary">加密保存并用于新会话</button>${active?button('检测当前 API 兼容性','desktop-test-provider','','subtle'):''}</div></form>
+      <div class="section-label">新增 Responses API 服务</div><form id="desktop-provider-form"><div class="form-grid"><div class="field"><label for="desktop-provider-name">服务名称</label><input id="desktop-provider-name" name="name" required maxlength="60" placeholder="例如 OpenAI API"></div><div class="field"><label for="desktop-provider-model">模型 ID</label><input id="desktop-provider-model" name="model" required placeholder="服务商提供的模型 ID"></div><div class="field"><label for="desktop-provider-effort">推理强度</label><select id="desktop-provider-effort" name="effort"><option value="high" selected>高</option><option value="medium">中</option><option value="low">低</option><option value="xhigh">很高</option></select><small>服务商不支持时，兼容性检测会明确报错。</small></div><div class="field full"><label for="desktop-provider-url">API Base URL</label><input id="desktop-provider-url" name="baseUrl" type="url" required value="https://api.openai.com/v1"><small>仅支持 HTTPS Responses 协议；不支持 Chat Completions 转换。</small></div><div class="field full"><label for="desktop-provider-key">API Key</label><input id="desktop-provider-key" name="apiKey" type="password" autocomplete="off" required><small>由当前操作系统安全存储加密，不进入页面存储、对话或日志。</small></div></div><div class="form-footer"><button class="button primary">加密保存并用于新会话</button>${active?button('检测当前 API 兼容性','desktop-test-provider','','subtle'):''}</div></form>
       <div class="audit-note">兼容性检测分别检查连接、流式文本、基金工具调用和工具结果续接。切换服务商只影响新会话，已有会话继续使用创建时的服务商。账户查询须在每个会话首次发送前单独授权。</div></div></div>`;
 }
 
@@ -745,7 +745,7 @@ async function desktopSaveSubscription(){
   if(!connected)try{const login=await desktopCall(window.fundDesktop.startSubscriptionLogin());if(login.started)toast('已打开官方登录页面；完成后返回工作台。');}catch(e){toast(e.message);}
   D.status=await desktopCall(window.fundDesktop.getStatus());render();
 }
-async function desktopSaveProvider(data){D.settings=await desktopCall(window.fundDesktop.saveProvider({mode:'api',...data}));D.sessions=await desktopCall(window.fundDesktop.listSessions());toast('API Key 已由 macOS 加密保存；新会话将使用该服务。');}
+async function desktopSaveProvider(data){D.settings=await desktopCall(window.fundDesktop.saveProvider({mode:'api',...data}));D.sessions=await desktopCall(window.fundDesktop.listSessions());toast('API Key 已由当前操作系统加密保存；新会话将使用该服务。');}
 async function desktopSelectProvider(id){D.settings=await desktopCall(window.fundDesktop.saveProvider({mode:'api',selectId:id}));render();toast('已切换新会话使用的模型服务。');}
 async function desktopTestProvider(target){target.disabled=true;toast('正在检测连接、流式响应和基金工具调用…');try{const r=await desktopCall(window.fundDesktop.testProvider());toast(r.connection&&r.textStream&&r.toolCall&&r.toolResult&&r.completed?'兼容性检测通过。':'检测未全部通过，请核对服务商的 Responses 工具能力。');}finally{target.disabled=false;}}
 
@@ -793,7 +793,7 @@ document.addEventListener('change',e=>{
 });
 async function boot(){
   try{const b=await api('/api/bootstrap');Object.assign(S,{csrf:b.csrf,state:b.state,templates:b.templates,strategyCatalog:b.strategyCatalog||[],strategyPlans:b.state.strategyPlans||[],strategyEvents:b.state.strategyEvents||[],strategyRuns:b.state.strategyRuns||[],ai:b.ai,modelMode:b.ai.mode,sdkVersion:b.sdkVersion});startStrategyMonitor();if(D.enabled)await desktopInit();routeChanged();loadHoldings();checkStrategyPlansOnStartup();}
-  catch(e){$('#content').innerHTML=head('LOCAL WORKSPACE','启动本地工作台','真实数据接入需要本机服务。')+`<div class="card">${empty('请先启动服务',esc(e.message)+'<br>双击本项目的 start.command，然后访问 http://127.0.0.1:8765。')}</div>`;if($('#sync-status'))$('#sync-status').textContent='本地服务未连接';}
+  catch(e){$('#content').innerHTML=head('LOCAL WORKSPACE','启动本地工作台','真实数据接入需要本机服务。')+`<div class="card">${empty('请先启动服务',esc(e.message)+'<br>运行 npm run start:web，然后访问 http://127.0.0.1:8765。')}</div>`;if($('#sync-status'))$('#sync-status').textContent='本地服务未连接';}
 }
 window.addEventListener('hashchange',routeChanged);
 boot();

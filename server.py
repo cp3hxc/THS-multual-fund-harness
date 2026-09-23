@@ -10,7 +10,6 @@ from __future__ import annotations
 import argparse
 import copy
 import datetime as dt
-import fcntl
 import importlib.metadata
 import ipaddress
 import json
@@ -20,6 +19,7 @@ import secrets
 import shutil
 import socket
 import subprocess
+import sys
 import tempfile
 import threading
 import time
@@ -30,10 +30,10 @@ from urllib.parse import parse_qs, unquote, urlparse
 
 from fund_data import FuyaoClient, FuyaoError, portfolio_analysis
 from strategy_engine import catalog as strategy_catalog, get_strategy, latest_signal, run_backtest, run_showcase, validate_params
+from workbench_runtime import ROOT, file_lock, venv_script
 
-ROOT = Path(__file__).resolve().parent
-RUNTIME = ROOT / '.runtime'
-CLI = ROOT / '.venv/bin/aijijin'
+RUNTIME = Path(os.environ.get('FUND_WORKBENCH_DATA_DIR', ROOT / '.runtime')).expanduser().resolve()
+CLI = Path(os.environ.get('FUND_WORKBENCH_CLI', venv_script('aijijin'))).expanduser()
 STATE_PATH = RUNTIME / 'state.json'
 LOCK = threading.RLock()
 FINANCE_LOCK = threading.Lock()
@@ -105,15 +105,15 @@ def now():
 def state_read():
     RUNTIME.mkdir(mode=0o700, exist_ok=True)
     with LOCK, open(STATE_PATH.with_suffix('.lock'), 'a+') as lock:
-        fcntl.flock(lock, fcntl.LOCK_SH)
-        return _state_read_unlocked()
+        with file_lock(lock, shared=True):
+            return _state_read_unlocked()
 
 
 def _state_read_unlocked():
     """Read state while the caller holds the process and file lock."""
     if STATE_PATH.exists():
         try:
-            data = json.loads(STATE_PATH.read_text())
+            data = json.loads(STATE_PATH.read_text(encoding='utf-8'))
             if all(isinstance(data.get(k), list) for k in ('strategies', 'watchlist', 'drafts')):
                 data.setdefault('strategyPlans', [])
                 data.setdefault('strategyEvents', [])
@@ -131,7 +131,7 @@ def _state_write_unlocked(data):
     """Atomically replace state while the caller holds an exclusive file lock."""
     fd, temp = tempfile.mkstemp(dir=RUNTIME, prefix='state-')
     try:
-        with os.fdopen(fd, 'w') as f:
+        with os.fdopen(fd, 'w', encoding='utf-8', newline='\n') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
         os.chmod(temp, 0o600)
         os.replace(temp, STATE_PATH)
@@ -144,18 +144,18 @@ def state_update(mutator):
     """Run one cross-process read/modify/write transaction."""
     RUNTIME.mkdir(mode=0o700, exist_ok=True)
     with LOCK, open(STATE_PATH.with_suffix('.lock'), 'a+') as lock:
-        fcntl.flock(lock, fcntl.LOCK_EX)
-        data = _state_read_unlocked()
-        result = mutator(data)
-        _state_write_unlocked(data)
-        return result
+        with file_lock(lock):
+            data = _state_read_unlocked()
+            result = mutator(data)
+            _state_write_unlocked(data)
+            return result
 
 
 def state_write(data):
     RUNTIME.mkdir(mode=0o700, exist_ok=True)
     with LOCK, open(STATE_PATH.with_suffix('.lock'), 'a+') as lock:
-        fcntl.flock(lock, fcntl.LOCK_EX)
-        _state_write_unlocked(data)
+        with file_lock(lock):
+            _state_write_unlocked(data)
 
 
 def require_code(code):
@@ -199,11 +199,11 @@ def cli_run(args, timeout=60):
     if command not in READ_COMMANDS | WRITE_COMMANDS:
         raise AppError('当前版本未开放该基金接口。', 403)
     if not CLI.exists():
-        raise AppError('基金接口环境未安装，请运行 start.command。', 503)
+        raise AppError('基金接口环境未安装，请运行 npm run setup。', 503)
     try:
         # Serialize credential refresh across browser requests. Never use a shell.
         with FINANCE_LOCK:
-            p = subprocess.run([str(CLI)] + args, capture_output=True, text=True, timeout=timeout)
+            p = subprocess.run([str(CLI)] + args, capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=timeout)
         payload = json.loads(p.stdout)
     except subprocess.TimeoutExpired:
         raise AppError('基金接口响应超时，请稍后手动刷新。', 504, 'timeout')
@@ -385,9 +385,10 @@ def _agreement_url(jump):
 
 
 def _trade_record(agreements, source_type):
+    RUNTIME.mkdir(mode=0o700, parents=True, exist_ok=True)
     fd, path = tempfile.mkstemp(dir=RUNTIME, prefix='agreement-', suffix='.json')
     try:
-        with os.fdopen(fd, 'w') as f:
+        with os.fdopen(fd, 'w', encoding='utf-8', newline='\n') as f:
             json.dump({'agreements': agreements, 'sourceType': source_type}, f, ensure_ascii=False)
         os.chmod(path, 0o600)
         result = cli_run(['fund', 'trade-record', '--json-file', path])
@@ -906,7 +907,7 @@ def codex_status():
     if not exe:
         return {'installed': False, 'connected': False, 'message': '未检测到 Codex CLI'}
     try:
-        p = subprocess.run([exe, 'login', 'status'], capture_output=True, text=True, timeout=10)
+        p = subprocess.run([exe, 'login', 'status'], capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=10)
         connected = p.returncode == 0 and 'ChatGPT' in p.stdout + p.stderr
         return {'installed': True, 'connected': connected,
                 'message': '已通过 ChatGPT 登录' if connected else '需要 ChatGPT 订阅登录'}
@@ -1029,10 +1030,10 @@ def ai_chat(body, config=None):
             cmd += ['-']
             env = {k: v for k, v in os.environ.items() if k not in ('OPENAI_API_KEY', 'CODEX_API_KEY', 'CODEX_THREAD_ID')}
             try:
-                p = subprocess.run(cmd, input=prompt, capture_output=True, text=True, timeout=180, env=env)
+                p = subprocess.run(cmd, input=prompt, capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=180, env=env)
                 if p.returncode or not out.exists():
                     raise AppError('订阅模型请求失败，请检查 Codex 登录、可用模型与订阅额度。', 502)
-                reply = out.read_text()
+                reply = out.read_text(encoding='utf-8')
             except subprocess.TimeoutExpired:
                 raise AppError('订阅模型响应超时，未自动重试。', 504)
     if not isinstance(reply, str) or not reply.strip():
@@ -1678,7 +1679,7 @@ class Handler(BaseHTTPRequestHandler):
                         if force:
                             command.append('--force')
                         with FINANCE_LOCK:
-                            p = subprocess.run(command, capture_output=True, text=True, timeout=320)
+                            p = subprocess.run(command, capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=320)
                         result = json.loads(p.stdout or '{}')
                         success = bool(result.get('ok'))
                         message = ('账户切换成功，正在读取新账户。' if force else '授权成功，正在读取账户。') if success else '授权未完成，请重新发起扫码。'
@@ -1706,9 +1707,10 @@ def main():
     parser.add_argument('--open-browser', action='store_true')
     parser.add_argument('--open-path', default='/', help='打开浏览器时使用的站内路径')
     args = parser.parse_args()
-    version = importlib.metadata.version('aijijin-sdk')
-    if tuple(int(x) for x in version.split('.')[:3]) < (0, 2, 3):
-        raise SystemExit('请使用 start.command 安装的项目环境（aijijin-sdk >= 0.2.3）。')
+    if not getattr(sys, 'frozen', False):
+        version = importlib.metadata.version('aijijin-sdk')
+        if tuple(int(x) for x in version.split('.')[:3]) < (0, 2, 3):
+            raise SystemExit('请先运行 npm run setup 安装项目环境（aijijin-sdk >= 0.2.3）。')
     server = ThreadingHTTPServer(('127.0.0.1', args.port), Handler)
     if args.open_browser:
         import webbrowser

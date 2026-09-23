@@ -48,7 +48,11 @@ class CodexAgentRuntime extends EventEmitter {
       const child = spawn(this.options.codexPath, ['app-server'], {
         cwd: this.options.cwd,
         env: this.options.env,
-        stdio: ['pipe', 'pipe', 'pipe']
+        stdio: ['pipe', 'pipe', 'pipe'],
+        // npm installs Codex as a .cmd shim on Windows. Its argument here is
+        // fixed, and shell mode is needed only for that platform shim.
+        shell: process.platform === 'win32' && /\.cmd$/i.test(this.options.codexPath),
+        windowsHide: true
       });
       this.process = child;
       let settled = false;
@@ -171,7 +175,8 @@ class CodexAgentRuntime extends EventEmitter {
       mcp_servers: {
         fund_workbench: {
           command: this.options.pythonPath,
-          args: ['-u', this.options.mcpScript],
+          args: this.options.mcpArgs ?? ['-u', this.options.mcpScript],
+          env: this.options.mcpEnv || {},
           cwd: this.options.cwd,
           required: true,
           startup_timeout_sec: 15,
@@ -295,7 +300,16 @@ class CodexAgentRuntime extends EventEmitter {
   }
 
   stop() {
-    if (this.process && !this.process.killed) this.process.kill('SIGTERM');
+    if (this.process && !this.process.killed) {
+      if (process.platform === 'win32' && this.process.pid) {
+        const killer = spawn('taskkill.exe', ['/PID', String(this.process.pid), '/T', '/F'], {
+          stdio: 'ignore', windowsHide: true
+        });
+        killer.unref();
+      } else {
+        this.process.kill('SIGTERM');
+      }
+    }
     this.process = null;
     this.ready = null;
     this.pendingUserInputs.clear();

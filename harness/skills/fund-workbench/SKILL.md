@@ -18,13 +18,22 @@ Harness 固定工具覆盖 HTML 的全部主要功能：工作台入口、首页
 
 询问账户概览、最新表现、昨日表现或日收益时，优先调用 `get_account_brief`。它会一次返回基金资产、估算日收益率、涨跌分布、主要贡献与拖累、待确认资金和批量净值日期；不要为了补日期逐只重复调用 `get_fund_accounts`。只有用户明确询问某只基金的交易账户或可用份额时，才调用 `get_fund_accounts`。
 
-只有在 MCP 工具暂不可用并需要诊断时，才使用以下命令行回退：
+只有在 MCP 工具暂不可用并需要诊断时，才使用以下命令行回退。先运行 `npm run setup`；macOS 使用 `.venv/bin/python`，Windows PowerShell 使用 `.venv\Scripts\python.exe`：
 
+macOS：
 ```bash
 ./.venv/bin/python harness/fund_tool.py holdings
 ./.venv/bin/python harness/fund_tool.py analysis
 ./.venv/bin/python harness/fund_tool.py orders --days 30
 ./.venv/bin/python harness/fund_tool.py strategies
+```
+
+Windows PowerShell：
+```powershell
+.venv\Scripts\python.exe harness/fund_tool.py holdings
+.venv\Scripts\python.exe harness/fund_tool.py analysis
+.venv\Scripts\python.exe harness/fund_tool.py orders --days 30
+.venv\Scripts\python.exe harness/fund_tool.py strategies
 ```
 
 数据口径：

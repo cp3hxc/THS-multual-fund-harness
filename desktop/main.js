@@ -7,15 +7,14 @@ const path = require('node:path');
 const http = require('node:http');
 const { CodexAgentRuntime, PUBLIC_TOOLS } = require('./agent-runtime');
 
+function venvPython(root = ROOT) {
+  return process.env.FUND_PYTHON || path.join(root, '.venv', process.platform === 'win32' ? 'Scripts' : 'bin',
+    process.platform === 'win32' ? 'python.exe' : 'python');
+}
+
 function resolveWorkbenchRoot() {
+  if (app.isPackaged) return path.join(process.resourcesPath, 'workbench');
   if (process.env.FUND_WORKBENCH_ROOT) return path.resolve(process.env.FUND_WORKBENCH_ROOT);
-  if (app.isPackaged) {
-    const configPath = path.join(process.resourcesPath, 'fund-workbench-root.json');
-    try {
-      const configuredRoot = JSON.parse(fs.readFileSync(configPath, 'utf8')).root;
-      if (typeof configuredRoot === 'string' && path.isAbsolute(configuredRoot)) return configuredRoot;
-    } catch { /* Fall through to the source-relative path for a useful startup error. */ }
-  }
   return path.resolve(__dirname, '..');
 }
 
@@ -45,6 +44,32 @@ const appData = () => app.getPath('userData');
 const settingsPath = () => path.join(appData(), 'settings.json');
 const sessionsPath = () => path.join(appData(), 'sessions.json');
 const codexHome = () => path.join(appData(), 'codex-home');
+
+function backendExecutable(name) {
+  return path.join(process.resourcesPath, 'backend', `${name}${process.platform === 'win32' ? '.exe' : ''}`);
+}
+
+function mcpCommand() {
+  return app.isPackaged ? backendExecutable('fund-workbench-mcp') : venvPython();
+}
+
+function mcpArgs() {
+  return app.isPackaged ? [] : ['-u', path.join(ROOT, 'harness/mcp_server.py')];
+}
+
+function runtimeDirectory() {
+  return app.isPackaged ? path.join(appData(), 'runtime') : path.join(ROOT, '.runtime');
+}
+
+function runtimeEnvironment() {
+  const env = { FUND_WORKBENCH_ROOT: ROOT, PYTHONUTF8: process.env.PYTHONUTF8 || '1' };
+  if (app.isPackaged) {
+    env.FUND_WORKBENCH_DATA_DIR = runtimeDirectory();
+    env.FUND_WORKBENCH_CLI = backendExecutable('aijijin');
+    env.FUND_WORKBENCH_SERVER = backendExecutable('fund-workbench-server');
+  }
+  return env;
+}
 
 function atomicWriteJson(file, value) {
   fs.mkdirSync(path.dirname(file), { recursive: true, mode: 0o700 });
@@ -110,8 +135,9 @@ function writeCodexConfig(settings) {
     'skill_mcp_dependency_install = false',
     '',
     '[mcp_servers.fund_workbench]',
-    `command = ${tomlString(path.join(ROOT, '.venv/bin/python'))}`,
-    `args = ["-u", ${tomlString(path.join(ROOT, 'harness/mcp_server.py'))}]`,
+    `command = ${tomlString(mcpCommand())}`,
+    `args = [${mcpArgs().map(tomlString).join(', ')}]`,
+    `env = { ${Object.entries(runtimeEnvironment()).map(([key, value]) => `${key} = ${tomlString(value)}`).join(', ')} }`,
     `cwd = ${tomlString(ROOT)}`,
     'required = true',
     'startup_timeout_sec = 15',
@@ -138,14 +164,19 @@ function importExistingCodexLogin() {
 }
 
 function codexExecutable() {
+  const npmBin = process.platform === 'win32'
+    ? path.join(process.env.APPDATA || path.join(os.homedir(), 'AppData', 'Roaming'), 'npm')
+    : path.join(os.homedir(), '.npm-global', 'bin');
   const candidates = [
     process.env.CODEX_BIN,
-    path.join(os.homedir(), '.npm-global/bin/codex'),
-    '/opt/homebrew/bin/codex',
-    '/usr/local/bin/codex'
+    path.join(npmBin, process.platform === 'win32' ? 'codex.cmd' : 'codex'),
+    ...(process.platform === 'win32' ? [] : ['/opt/homebrew/bin/codex', '/usr/local/bin/codex'])
   ].filter(Boolean);
   for (const candidate of candidates) if (fs.existsSync(candidate)) return candidate;
-  try { return execFileSync('/usr/bin/which', ['codex'], { encoding: 'utf8' }).trim(); } catch { return ''; }
+  try {
+    const lookup = process.platform === 'win32' ? 'where.exe' : 'which';
+    return execFileSync(lookup, ['codex'], { encoding: 'utf8' }).split(/\r?\n/)[0].trim();
+  } catch { return ''; }
 }
 
 function createRuntime() {
@@ -154,9 +185,14 @@ function createRuntime() {
   importExistingCodexLogin();
   const env = {
     ...process.env,
+    ...runtimeEnvironment(),
     CODEX_HOME: codexHome(),
     FUND_WORKBENCH_DESKTOP: '1',
-    PATH: `${path.join(os.homedir(), '.npm-global/bin')}:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin`
+    PATH: [
+      path.join(os.homedir(), process.platform === 'win32' ? 'AppData/Roaming/npm' : '.npm-global/bin'),
+      ...(process.platform === 'win32' ? [] : ['/opt/homebrew/bin', '/usr/local/bin']),
+      process.env.PATH || ''
+    ].filter(Boolean).join(path.delimiter)
   };
   for (const provider of settings.providers) env[provider.envKey] = decryptKey(provider);
   const codexPath = codexExecutable();
@@ -165,7 +201,9 @@ function createRuntime() {
     codexPath,
     cwd: ROOT,
     env,
-    pythonPath: path.join(ROOT, '.venv/bin/python'),
+    pythonPath: mcpCommand(),
+    mcpArgs: mcpArgs(),
+    mcpEnv: runtimeEnvironment(),
     mcpScript: path.join(ROOT, 'harness/mcp_server.py'),
     skillPath: path.join(ROOT, 'harness/skills/fund-workbench/SKILL.md'),
     enabledTools: TOOLS
@@ -201,13 +239,18 @@ function workbenchHealthy() {
 
 async function ensureWorkbench() {
   if (await workbenchHealthy()) return;
-  const python = path.join(ROOT, '.venv/bin/python');
-  if (!fs.existsSync(python)) throw new Error('项目虚拟环境不存在，请先运行 start.command。');
-  const logDir = path.join(ROOT, '.runtime');
+  const packaged = app.isPackaged;
+  const executable = packaged ? backendExecutable('fund-workbench-server') : venvPython();
+  if (!fs.existsSync(executable)) {
+    throw new Error(packaged ? '安装包中的基金服务不存在，请重新安装应用。' : '项目虚拟环境不存在，请先运行 npm run setup。');
+  }
+  const logDir = runtimeDirectory();
   fs.mkdirSync(logDir, { recursive: true, mode: 0o700 });
   const logFd = fs.openSync(path.join(logDir, 'desktop-service.log'), 'a', 0o600);
-  pythonProcess = spawn(python, [path.join(ROOT, 'server.py'), '--port', '8765'], {
-    cwd: ROOT, detached: false, stdio: ['ignore', logFd, logFd]
+  const args = packaged ? ['--port', '8765'] : [path.join(ROOT, 'server.py'), '--port', '8765'];
+  pythonProcess = spawn(executable, args, {
+    cwd: ROOT, env: { ...process.env, ...runtimeEnvironment() },
+    detached: false, stdio: ['ignore', logFd, logFd], windowsHide: true
   });
   ownsPythonProcess = true;
   pythonProcess.once('exit', () => {
@@ -586,5 +629,14 @@ app.on('window-all-closed', () => app.quit());
 app.on('before-quit', () => {
   isQuitting = true;
   runtime?.stop();
-  if (ownsPythonProcess && pythonProcess && pythonProcess.exitCode === null) pythonProcess.kill('SIGTERM');
+  if (ownsPythonProcess && pythonProcess && pythonProcess.exitCode === null) {
+    if (process.platform === 'win32' && pythonProcess.pid) {
+      const killer = spawn('taskkill.exe', ['/PID', String(pythonProcess.pid), '/T', '/F'], {
+        stdio: 'ignore', windowsHide: true
+      });
+      killer.unref();
+    } else {
+      pythonProcess.kill('SIGTERM');
+    }
+  }
 });

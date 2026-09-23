@@ -4,14 +4,16 @@
 
 本目录保留原基金工作台，同时提供一套独立的 PandaAI 风格策略研究入口。原工作台的功能设计与接口问题见 [优化说明](优化说明.md)。
 
-## 同事克隆后的首次配置
+## Windows 和 macOS 首次配置
 
-项目代码已包含固定版本的同花顺 SDK 安装包及 npm 锁文件。运行脚本会在本机建立 Python 虚拟环境并安装依赖，不需要手动下载项目依赖。需要 macOS、Python 3、Node.js/npm；策略 Agent 桌面版还需要已安装并登录的 Codex CLI。桌面打包脚本面向 Apple Silicon Mac。
+仓库提供 Windows 与 macOS 共用的 Node 启动器、独立 Python 虚拟环境和双系统 CI。运行源码需要 Python 3.10+、Node.js 22.12+；桌面 Agent 还需要本人安装并登录 Codex CLI。源码版首次启动会在项目目录创建 `.venv`，并安装仓库中的固定版本同花顺 SDK。开发环境需联网安装 Python SDK 依赖和 npm 包。
 
-1. 克隆私有仓库后，在项目目录运行 `./start.command`（浏览器工作台）、`./start-panda-strategy.command`（策略 Agent），或 `./start-desktop.command`（Codex 桌面工作台）。首次运行会准备本地依赖。
-2. 在“接入设置”中按页面提示完成同花顺扫码授权。授权由同花顺 SDK 保存到当前 macOS 用户目录，不会写入项目仓库。
-3. 需要真实复权净值数据时，在项目目录创建 `.runtime/fuyao.key`，将自己的扶摇 API Key 放入该文件。文件权限应为 `0600`；也可以用环境变量 `FUYAO_API_KEY`。不要把密钥写进源码、`.env`、截图、Issue 或 PR。
-4. 使用 Codex Agent 时，确保 Codex CLI 已由本人安装并登录。每位同事使用各自的模型登录、扶摇 Key 和同花顺授权；不要共享凭据文件。
+1. 克隆私有仓库后，在项目目录运行 `npm run setup`。桌面版先运行 `npm ci`。
+2. 浏览器工作台运行 `npm run start:web`；桌面 Agent 运行 `npm start`。也可以用 macOS 的 `start.command` / `start-panda-strategy.command`，或 Windows PowerShell 的 `start.ps1` / `start-panda-strategy.ps1`。
+3. 在“接入设置”中按页面提示完成同花顺扫码授权。授权和模型设置保存在当前操作系统用户的本机目录，不要复制到仓库。
+4. 源码版需要真实复权净值数据时，可在项目目录创建 `.runtime/fuyao.key`，也可使用环境变量 `FUYAO_API_KEY`。安装包版请使用环境变量配置扶摇 Key。不要把密钥写进源码、`.env`、截图、Issue 或 PR。
+
+每位同事使用自己的模型登录、扶摇 Key 和同花顺授权。安装包把工作台数据放在当前操作系统的应用数据目录；源码版数据放在项目 `.runtime/`，权限沿用项目目录。不要共享 `.runtime/`、`.venv/` 或模型登录态。
 
 仓库根目录的 `.gitignore` 会排除 `.runtime/`、虚拟环境、依赖构建产物、常见密钥/授权文件，以及本机历史持仓页面快照。提交前仍需检查 `git status`，不要使用 `git add -f` 强制加入个人数据。
 
@@ -19,42 +21,44 @@
 
 ## 桌面应用
 
-首次构建并安装到“应用程序”：
+可以从源码在本机分别构建 Windows 和 macOS 安装包。构建必须使用目标系统本机和 Python 3.10+；先运行 `npm ci`，然后：
 
 ```sh
-./build-desktop.command
+npm run build:desktop
 ```
 
-之后可从 `/Applications/基金 AI 工作台.app` 双击启动。开发中也可双击 `start-desktop.command`，它会在需要时构建并打开项目内的应用。
+构建结果位于 `dist/`：Mac 生成与当前构建机架构一致的 DMG，Windows x64 生成 NSIS 安装程序。两个系统的安装包都包含基金服务和同花顺 SDK 命令行，不再依赖项目源码或系统 Python。使用真实模型对话仍需本人安装并登录 Codex CLI；首次使用时，各自配置扶摇密钥和同花顺扫码授权。
 
-桌面应用会自动启动 Python 基金服务和 Codex App Server，退出时只清理由它启动的子进程。它使用专属的 Codex 数据目录和会话索引，不会把其他 Codex 任务混入工作台。
+也可以用 `npm run build:mac` 或 `npm run build:win` 指定本机目标；构建必须在对应系统本机执行。GitHub Actions 会分别构建并保存两种安装包作为工作流产物，不会自动发布公开 Release。
+
+桌面应用会自动启动基金服务和 Codex App Server，退出时只清理由它启动的子进程。它使用专属的 Codex 数据目录和会话索引，不会把其他 Codex 任务混入工作台。
 
 ## 浏览器模式
 
-在 macOS 上双击 `start.command`；或者在项目目录运行：
+在项目目录运行：
 
 ```sh
-./start.command
+npm run start:web
 ```
 
 浏览器访问 <http://127.0.0.1:8765>。真实接口需要本地 Python 服务，不能仅双击 HTML 获取账户数据。保持启动服务的终端运行；停止时按 Ctrl+C。
 
 ## PandaAI 风格场外基金策略 Agent
 
-这是独立于原基金工作台的新入口，沿用 PandaAI 的深色导航、持续对话、策略编辑双栏、运行阶段和回测历史交互。双击 `start-panda-strategy.command`，或在项目目录运行：
+这是独立于原基金工作台的新入口，沿用 PandaAI 的深色导航、持续对话、策略编辑双栏、运行阶段和回测历史交互。桌面依赖安装后，在项目目录运行：
 
 ```sh
-./start-panda-strategy.command
+npm start
 ```
 
 命令会启动 Electron 桌面版并直接进入场外基金 Agent。它使用真实 Codex 会话、模型与推理强度选择、历史会话恢复、置顶/重命名/归档、工具进度和中断；浏览器地址 <http://127.0.0.1:8765/panda-strategy-agent.html> 仅用于无模型的页面预览。策略参数调整只作用于 Skill 支持的范围，保存计划前仍需确认标的和资金安排。
 
-首次启动会建立项目虚拟环境并使用附件中的 `aijijin-sdk 0.2.3`。已存在且有效的同花顺授权可直接复用；需要登录时，在“接入设置”点“扫码登录”，由官方 CLI 打开授权页面。
+源码运行时会建立项目虚拟环境并使用仓库中的 `aijijin-sdk 0.2.3`。已存在且有效的同花顺授权可直接复用；需要登录时，在“接入设置”点“扫码登录”，由 SDK CLI 打开授权页面。
 
 端口占用时可指定其他端口：
 
 ```sh
-.venv/bin/python server.py --port 8766 --open-browser
+npm run start:web -- --port 8766
 ```
 
 ## 已实现
@@ -75,7 +79,7 @@
 - 账户日常问题使用聚合简报工具，一次返回最新收益率、涨跌分布、贡献/拖累、待确认资金和批量净值日期，减少重复工具调用。
 - ChatGPT / Codex 订阅、OpenAI API Key 及 Responses 兼容第三方 API；每个会话固定模型服务。
 - 账户数据授权按会话和服务商记录；未授权时仅开放非账户工具。
-- API Key 使用 Electron `safeStorage` 交给 macOS 系统加密，不进入前端存储、对话或日志。
+- API Key 使用 Electron `safeStorage` 交给当前操作系统的安全存储加密，不进入前端存储、对话或日志。
 - 扶摇真实复权净值与沪深300基准：当前权重组合曲线、年化波动、最大回撤、夏普比率、资产配置和相关性矩阵。
 - Codex 与页面共用统一业务服务，策略、自选和待办使用跨进程文件锁防止覆盖。
 
@@ -101,7 +105,7 @@ Agent 使用 [harness/fund_tool.py](harness/fund_tool.py) 读取持仓、历史�
 
 专属 Agent preset 还会启动 [harness/mcp_server.py](harness/mcp_server.py)，固定注册 `mcp__fund_workbench__*` 原生工具。它们覆盖账户简报、持仓、组合分析、订单、五套投资策略、真实回测、策略版本、自选、交易待办、连接状态与扫码登录。Harness 对话本身承接 HTML 的“问 AI”功能，模型和接入方式由 Harness 顶部的模型选择器管理。
 
-其中策略、自选和交易待办工具只修改 `.runtime/state.json`；申购、赎回、撤单和支付提交工具没有注册到 Harness，避免模型代替用户完成最终确认。可视化页面仍保留为固定入口，由 `mcp__fund_workbench__open_workbench` 或 <http://127.0.0.1:8765> 打开。
+其中策略、自选和交易待办工具只修改 `.runtime/state.json`；申购、赎回、撤单和支付提交工具没有注册到 Harness，避免模型代替用户完成最终确认。DeepSeek Harness 的 preset 安装入口目前仍是 macOS 专用，不属于 Windows/macOS 共用启动流程。
 
 扶摇密钥从环境变量 `FUYAO_API_KEY` 或被 git 忽略且权限为 `0600` 的 `.runtime/fuyao.key` 读取。密钥不会进入 HTML、Harness preset、skill、日志或模型提示词。
 
@@ -122,12 +126,12 @@ API 与订阅的凭据、权限和额度独立。兼容性检测使用无账户�
 ## 验证
 
 ```sh
-.venv/bin/python -m unittest -v test_server.py
-.venv/bin/python -m unittest -v test_fund_data.py
-.venv/bin/python -m unittest -v test_mcp_server.py
+npm run test:python
 node --check workbench.js
 npm run test:desktop
 ```
+
+GitHub Actions 会在 macOS 和 Windows 上执行上述 Python、Electron 运行时和 JavaScript 检查。
 
 行为测试覆盖真实响应嵌套、业务失败、隐私字段裁剪、待确认订单、游标分页、风险限制、账户与订单锁定、一次性提交、批量撤单的部分失败结果、防重复交易、费率单位、可赎回份额、策略预算冲突和 AI 数据授权。测试通过模拟 CLI 验证交易命令，不会提交真实基金订单，也不会调用收费模型。
 

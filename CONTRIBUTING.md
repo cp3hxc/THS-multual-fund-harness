@@ -10,4 +10,6 @@
 - 新增的个人配置文件已加入 `.gitignore`；可共享的示例配置应使用虚构值并命名为 `.env.example`。
 - PR 的变更文件列表不包含被忽略文件，也没有通过 `git add -f` 绕过忽略规则。
 
-本机配置保存在项目 `.runtime/` 或当前 macOS 用户目录下；不要为了让同事复现问题而复制该目录或授权文件。请在 PR 描述中使用去标识化的说明和截图。
+本机配置保存在项目 `.runtime/` 或当前操作系统用户目录下；不要为了让同事复现问题而复制该目录或授权文件。请在 PR 描述中使用去标识化的说明和截图。
+
+跨系统协作时统一使用 UTF-8 和 Git 默认换行规则。提交前先运行 `npm run setup` 与 `npm run test:python`；涉及 Electron 的改动再运行 `npm run test:desktop`。不要提交 `.venv/`、`node_modules/`、`.runtime/` 或构建输出。
