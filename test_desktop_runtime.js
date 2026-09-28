@@ -29,15 +29,12 @@ const enabledTools = [
   'list_orders', 'get_order'
 ];
 
-test('unapproved sessions expose only non-account fund tools', () => {
+test('workspace query tools remain available without changing trading permissions', () => {
   const runtime = new CodexAgentRuntime({ enabledTools });
   const tools = runtime.threadConfig(false).mcp_servers.fund_workbench.enabled_tools;
-  assert.deepEqual(tools, enabledTools.filter(tool => PUBLIC_TOOLS.has(tool)));
-  assert.equal(tools.includes('list_holdings'), false);
-  assert.equal(tools.includes('get_account_brief'), false);
-  assert.equal(tools.includes('list_orders'), false);
-  assert.equal(tools.includes('create_strategy'), true);
-  assert.equal(tools.includes('run_investment_backtest'), true);
+  assert.deepEqual(tools, enabledTools);
+  assert.equal(tools.includes('start_fund_login'), false);
+  assert.equal(tools.some(name => ['submit_buy', 'submit_redeem', 'cancel_order'].includes(name)), false);
   assert.equal(runtime.threadConfig(false).mcp_servers.fund_workbench.default_tools_approval_mode, 'approve');
 });
 
@@ -141,14 +138,11 @@ test('strategy research UI exposes default results, run replay and agent feedbac
   assert.equal(fs.existsSync(path.join(__dirname, 'assets', 'paradoxai-mark.png')), true);
 });
 
-test('holdings diagnosis offers user-voiced prompts and a non-modal free-form Agent drawer', () => {
+test('holdings analysis opens the workbench with a concise question and page context', () => {
   const script = fs.readFileSync(path.join(__dirname, 'panda-strategy-agent.js'), 'utf8');
-  const styles = fs.readFileSync(path.join(__dirname, 'panda-strategy-agent-fixes.css'), 'utf8');
-  assert.match(script, /AI 诊断/);
-  assert.match(script, /自己描述问题/);
-  assert.match(script, /我最近赚\/亏/);
-  assert.match(script, /data-open-holdings-agent/);
-  assert.doesNotMatch(script, /holdings-agent-backdrop/);
-  assert.match(styles, /\.holdings-split\{[^}]*align-items:stretch/);
-  assert.match(styles, /body\.panda-holdings-agent-open \.panda-main\{margin-right:/);
+  assert.match(script, /分析持仓/);
+  assert.match(script, /data-holdings-question/);
+  assert.match(script, /async function askHoldingsAgent/);
+  assert.match(script, /openWorkbench\(String\(question/);
+  assert.doesNotMatch(script, /id="holdings-agent-host"/);
 });

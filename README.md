@@ -105,6 +105,7 @@ API 与订阅的凭据、权限和额度独立。兼容性检测使用无账户�
 npm run test:python
 node --check panda-strategy-agent.js
 npm run test:desktop
+npm run test:ui
 ```
 
 GitHub Actions 会在 macOS 和 Windows 上执行上述 Python、Electron 运行时和 JavaScript 检查。
@@ -114,3 +115,5 @@ GitHub Actions 会在 macOS 和 Windows 上执行上述 Python、Electron 运行
 桌面端验收记录见 [VALIDATION.md](VALIDATION.md)。
 
 主要界面文件：`panda-strategy-agent.html` / `panda-strategy-agent.css` / `panda-strategy-agent.js`；本地服务和业务计算分别位于 `server.py`、`workbench_runtime.py`、`fund_data.py` 与 `strategy_engine.py`。`reference/` 只保存可共享的 SDK 文档和固定版本依赖；个人凭据和账户资料不会纳入仓库。
+
+界面精简试用版的变更、验证与回滚方法见 [UI_VERSION.md](UI_VERSION.md)。

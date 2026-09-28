@@ -31,6 +31,7 @@ jobs:
       - run: npm run setup
       - run: npm run test:python
       - run: npm run test:desktop
+      - run: npm run test:ui
       - run: node --check desktop/main.js
       - run: node --check desktop/agent-runtime.js
       - run: node --check panda-strategy-agent.js
