@@ -1,6 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('fundDesktop', Object.freeze({
+  platform: process.platform,
   getStatus: () => ipcRenderer.invoke('agent:get-status'),
   listSessions: () => ipcRenderer.invoke('agent:list-sessions'),
   newSession: (options) => ipcRenderer.invoke('agent:new-session', options),

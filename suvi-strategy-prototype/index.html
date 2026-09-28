@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>苏维 · 找策略</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="主导航">
+      <div class="brand"><span class="brand-mark">✦</span><div><strong>苏维</strong><small>基金投资助手</small></div></div>
+      <button class="new-task" id="new-explore" type="button"><span>＋</span> 发起新探索</button>
+      <div class="rail-caption">工作区</div>
+      <nav class="rail-nav">
+        <button type="button" disabled><span>◫</span>看行情</button>
+        <button type="button" disabled><span>⌕</span>找基金</button>
+        <button type="button" class="active"><span>◇</span>找策略</button>
+        <button type="button" disabled><span>▤</span>配资产</button>
+        <button type="button" disabled><span>▥</span>看持仓</button>
+      </nav>
+      <div class="rail-caption recent-label">最近探索</div>
+      <button class="explore-entry" id="recent-explore" type="button"><span class="explore-dot"></span><span><strong>三年定投计划</strong><small>正在确认可接受的亏损</small></span></button>
+      <div class="sidebar-bottom"><span class="status-dot"></span><div><strong>苏维正在协作</strong><small>方案由你确认，交易由你决定</small></div></div>
+    </aside>
+
+    <main class="workspace" id="workspace" aria-live="polite"></main>
+    <div class="resize-handle" id="resize-handle" role="separator" aria-label="调整对话区宽度" aria-orientation="vertical" tabindex="0"></div>
+    <aside class="chat-panel" id="chat-panel" aria-label="苏维协作对话"></aside>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

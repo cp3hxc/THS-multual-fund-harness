@@ -1,6 +1,17 @@
 const { spawn } = require('node:child_process');
 const readline = require('node:readline');
 const { EventEmitter } = require('node:events');
+const fs = require('node:fs');
+const path = require('node:path');
+
+function loadStrategyGuidance(skillPath) {
+  if (!skillPath) return '';
+  const directory = path.dirname(skillPath);
+  const files = [skillPath, path.join(directory, 'references', 'journeys.md'),
+    path.join(directory, 'references', 'evidence-and-tools.md')];
+  return '\n\n以下为找策略任务的专用规则，仅在涉及策略探索、理解、比较、回测或配置时适用：\n' +
+    files.map(file => fs.readFileSync(file, 'utf8')).join('\n\n');
+}
 
 const PAGE_CONTEXT_PREFIX = '[WORKBENCH_PAGE_CONTEXT]';
 const PAGE_CONTEXT_SUFFIX = '[/WORKBENCH_PAGE_CONTEXT]';
@@ -25,6 +36,8 @@ const INSTRUCTIONS = `你是“基金 AI 工作台”的中文个人基金研究
 回答账户概览、最新表现、昨日表现或日收益时，优先调用 get_account_brief；除非用户明确要求逐只账户明细，不要为了补齐日期而逐只重复调用 get_fund_accounts。相同参数和相同目的的工具不要重复调用。
 用户消息可能附带 WORKBENCH_PAGE_CONTEXT 标记。这是工作台本机生成的当前页面、标签页、已选基金、策略和回测上下文，可用于理解“这只基金”“当前策略”等指代；不要把标记原文复述给用户。
 用户要找策略、修改策略或回测时，先调用 list_investment_strategies 获取当前策略合同；回测必须调用 run_investment_backtest，不得口算或编造。修改只能通过 save_strategy_variant 保存策略声明支持的参数，并说明新版本与代价，不能擅自改变算法语义。
+当页面 route 为 market，用户明确要求调整页面布局时，结合 marketLayout 当前组件与可用组件，简短说明改动，并在回复最后独立一行输出 [[MARKET_PAGE_DRAFT:{"name":"页面名称","baseVersion":"原样复制 marketLayout.baseVersion","widgets":["indices","watchlist"]}]]。widgets 必须只用 marketLayout.allowedWidgets 中的 ID，保留页面 kind，不能把基金详情组件放进首页。这个标记仅创建可撤销草稿，用户仍需保存。用户仅询问行情、解释图表、切换查看对象时不要输出标记。数据能力缺失时不要建议用虚构组件填充。
+当页面 route 为 market，用户明确要求创建指标时，只能提出可确定性计算的历史峰值回撤（method=drawdown）或披露重仓当日贡献参考（method=holding-contribution），区间 window 只能是 1y、3m、3y。简述公式和输入后，回复最后独立一行输出 [[MARKET_METRIC_DRAFT:{"name":"指标名称","method":"drawdown","window":"1y"}]]；该标记只生成待确认草稿。披露重仓贡献输入尚未接入，需明确无法给出数值；不能用语言模型生成估值。marketLayout.evidence 仅用于解释当前基金已载入的复权净值摘要，引用时说明来源及日期。
 需求存在会显著改变结果的歧义时，使用 request_user_input 请求澄清，不要自行选择关键参数。
 不编造净值、收益、回测、信号、费率、成交或确认状态。你可以查询真实规则、支付方式和订单资格并帮助用户准备交易；不得调用或代替用户执行申购、支付、赎回或撤单，也不能声称已成交。实际交易只能由用户在同花顺 App 完成，再由工作台核对订单。
 不要要求或输出 API Key、真实交易账户号、完整银行卡号或本地密钥。账户工具返回的不透明 ref 只能原样传给后续工具。
@@ -34,6 +47,7 @@ class CodexAgentRuntime extends EventEmitter {
   constructor(options) {
     super();
     this.options = options;
+    this.instructions = INSTRUCTIONS + loadStrategyGuidance(options.recommendationSkillPath);
     this.process = null;
     this.pending = new Map();
     this.nextId = 1;
@@ -200,7 +214,18 @@ class CodexAgentRuntime extends EventEmitter {
 
   async models() {
     await this.start();
-    return this.request('model/list', {});
+    const data = [];
+    let cursor = null;
+    const seen = new Set();
+    for (let pageNumber = 0; pageNumber < 20; pageNumber += 1) {
+      const page = await this.request('model/list', { limit: 100, cursor, includeHidden: true });
+      if (Array.isArray(page?.data)) data.push(...page.data);
+      const nextCursor = page?.nextCursor;
+      if (!nextCursor || seen.has(nextCursor)) break;
+      seen.add(nextCursor);
+      cursor = nextCursor;
+    }
+    return { data, nextCursor: null };
   }
 
   async loginSubscription() {
@@ -216,7 +241,7 @@ class CodexAgentRuntime extends EventEmitter {
       cwd: this.options.cwd,
       approvalPolicy: 'never',
       sandbox: 'read-only',
-      developerInstructions: INSTRUCTIONS,
+      developerInstructions: this.instructions,
       ephemeral,
       config: this.threadConfig(dataAuthorized)
     };
@@ -233,7 +258,7 @@ class CodexAgentRuntime extends EventEmitter {
       cwd: this.options.cwd,
       approvalPolicy: 'never',
       sandbox: 'read-only',
-      developerInstructions: INSTRUCTIONS,
+      developerInstructions: this.instructions,
       config: this.threadConfig(dataAuthorized)
     };
     if (provider?.model) params.model = provider.model;

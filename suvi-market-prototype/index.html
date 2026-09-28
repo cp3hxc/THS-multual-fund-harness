@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>苏维 · 看行情</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="app">
+    <aside class="rail" aria-label="主导航">
+      <div class="brand"><span>✦</span><div><strong>苏维</strong><small>基金投资助手</small></div></div>
+      <button class="new-task" type="button" id="new-question"><b>＋</b> 新建行情讨论</button>
+      <div class="rail-label">工作区</div>
+      <nav class="rail-links">
+        <button class="active" type="button"><span>▥</span>看行情</button>
+        <button type="button" disabled><span>⌕</span>找基金</button>
+        <a href="../suvi-strategy-prototype/index.html"><span>◇</span>找策略</a>
+        <button type="button" disabled><span>▤</span>配资产</button>
+        <button type="button" disabled><span>▣</span>看持仓</button>
+      </nav>
+      <div class="rail-label">当前任务</div>
+      <div class="task-card"><i></i><div><strong>看懂今天的波动</strong><small>创业板指数 × 我的持仓</small></div></div>
+      <div class="rail-foot"><i></i><div><strong>苏维正在协作</strong><small>行情解释由证据驱动</small></div></div>
+    </aside>
+    <main class="workspace" id="workspace" aria-live="polite"></main>
+    <div class="resizer" id="resizer" role="separator" aria-label="调整对话宽度" aria-orientation="vertical" tabindex="0"></div>
+    <aside class="assistant" id="assistant" aria-label="苏维行情对话"></aside>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

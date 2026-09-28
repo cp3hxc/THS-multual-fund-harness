@@ -1,5 +1,5 @@
 const { app, BrowserWindow, ipcMain, safeStorage, shell } = require('electron');
-const { spawn, execFileSync } = require('node:child_process');
+const { spawn, spawnSync, execFileSync } = require('node:child_process');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const os = require('node:os');
@@ -19,10 +19,14 @@ function resolveWorkbenchRoot() {
 }
 
 const ROOT = resolveWorkbenchRoot();
-const WORKBENCH_URL = 'http://127.0.0.1:8765';
+const WORKBENCH_PORT = Number(process.env.FUND_WORKBENCH_PORT || 8765);
+if (!Number.isInteger(WORKBENCH_PORT) || WORKBENCH_PORT < 1 || WORKBENCH_PORT > 65535) {
+  throw new Error('FUND_WORKBENCH_PORT 必须是有效的本地端口。');
+}
+const WORKBENCH_URL = `http://127.0.0.1:${WORKBENCH_PORT}`;
 const DEFAULT_SUBSCRIPTION_MODEL = 'gpt-6-astra';
 const DEFAULT_REASONING_EFFORT = 'high';
-const REASONING_EFFORTS = new Set(['minimal', 'low', 'medium', 'high', 'xhigh', 'max', 'ultra']);
+const REASONING_EFFORTS = new Set(['none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max', 'ultra']);
 const TOOLS = [
   'open_workbench', 'get_dashboard', 'get_account_brief', 'list_holdings', 'analyze_portfolio',
   'get_fund_accounts', 'get_buy_preview', 'get_redeem_preview', 'list_orders',
@@ -148,8 +152,13 @@ function writeCodexConfig(settings) {
   for (const provider of settings.providers) {
     if (!/^fund_api_[a-f0-9]{12}$/.test(provider.id)) continue;
     lines.push('', `[model_providers.${provider.id}]`, `name = ${tomlString(provider.name)}`,
-      `base_url = ${tomlString(provider.baseUrl)}`, `env_key = ${tomlString(provider.envKey)}`,
-      'wire_api = "responses"', 'requires_openai_auth = false');
+      `base_url = ${tomlString(provider.baseUrl)}`);
+    if (provider.authHeaderName === 'api-key') {
+      lines.push(`env_http_headers = { "api-key" = ${tomlString(provider.envKey)} }`);
+    } else {
+      lines.push(`env_key = ${tomlString(provider.envKey)}`);
+    }
+    lines.push('wire_api = "responses"', 'requires_openai_auth = false');
   }
   fs.writeFileSync(path.join(codexHome(), 'config.toml'), `${lines.join('\n')}\n`, { mode: 0o600 });
 }
@@ -167,8 +176,12 @@ function codexExecutable() {
   const npmBin = process.platform === 'win32'
     ? path.join(process.env.APPDATA || path.join(os.homedir(), 'AppData', 'Roaming'), 'npm')
     : path.join(os.homedir(), '.npm-global', 'bin');
+  const localCodex = !app.isPackaged && path.join(ROOT, '.runtime', 'codex-cli', 'package', 'vendor',
+    process.platform === 'win32' ? 'x86_64-pc-windows-msvc' : process.arch === 'arm64' ? 'aarch64-apple-darwin' : 'x86_64-apple-darwin',
+    'bin', process.platform === 'win32' ? 'codex.exe' : 'codex');
   const candidates = [
     process.env.CODEX_BIN,
+    localCodex,
     path.join(npmBin, process.platform === 'win32' ? 'codex.cmd' : 'codex'),
     ...(process.platform === 'win32' ? [] : ['/opt/homebrew/bin/codex', '/usr/local/bin/codex'])
   ].filter(Boolean);
@@ -197,6 +210,14 @@ function createRuntime() {
   for (const provider of settings.providers) env[provider.envKey] = decryptKey(provider);
   const codexPath = codexExecutable();
   if (!codexPath) throw new Error('未找到 Codex CLI。');
+  const versionResult = spawnSync(codexPath, ['--version'], {
+    encoding: 'utf8', windowsHide: true,
+    shell: process.platform === 'win32' && /\.cmd$/i.test(codexPath)
+  });
+  const version = String(versionResult.stdout || '').match(/codex-cli\s+(\d+)\.(\d+)\.(\d+)/);
+  if (!version || Number(version[1]) === 0 && Number(version[2]) < 156) {
+    throw new Error('Codex CLI 版本过旧，当前 ChatGPT 订阅无法正常对话。请安装最新 Codex CLI 后重启 SUVI。');
+  }
   const next = new CodexAgentRuntime({
     codexPath,
     cwd: ROOT,
@@ -206,6 +227,7 @@ function createRuntime() {
     mcpEnv: runtimeEnvironment(),
     mcpScript: path.join(ROOT, 'harness/mcp_server.py'),
     skillPath: path.join(ROOT, 'harness/skills/fund-workbench/SKILL.md'),
+    recommendationSkillPath: path.join(ROOT, 'harness/skills/strategy-recommender/SKILL.md'),
     enabledTools: TOOLS
   });
   next.on('event', payload => sendToRenderer('agent:event', payload));
@@ -247,7 +269,7 @@ async function ensureWorkbench() {
   const logDir = runtimeDirectory();
   fs.mkdirSync(logDir, { recursive: true, mode: 0o700 });
   const logFd = fs.openSync(path.join(logDir, 'desktop-service.log'), 'a', 0o600);
-  const args = packaged ? ['--port', '8765'] : [path.join(ROOT, 'server.py'), '--port', '8765'];
+  const args = packaged ? ['--port', String(WORKBENCH_PORT)] : [path.join(ROOT, 'server.py'), '--port', String(WORKBENCH_PORT)];
   pythonProcess = spawn(executable, args, {
     cwd: ROOT, env: { ...process.env, ...runtimeEnvironment() },
     detached: false, stdio: ['ignore', logFd, logFd], windowsHide: true
@@ -300,7 +322,41 @@ function activeProvider() {
 
 function modelCatalogRows(result) {
   const rows = Array.isArray(result?.data) ? result.data : Array.isArray(result?.models) ? result.models : [];
-  return rows.filter(row => row && typeof row === 'object' && typeof row.id === 'string');
+  return rows.filter(row => row && typeof row === 'object' && typeof row.id === 'string' && !row.hidden);
+}
+
+function supportedEfforts(model) {
+  return (model?.supportedReasoningEfforts || [])
+    .map(row => typeof row === 'string' ? row : row?.reasoningEffort)
+    .filter(Boolean);
+}
+
+async function availableSubscriptionProvider(session = null) {
+  const catalog = modelCatalogRows(await runtime.models());
+  if (!catalog.length) throw new Error('暂时无法读取 Codex 订阅模型，请检查登录状态后刷新。');
+  const settings = readSettingsRaw();
+  const wantedModel = session?.model || settings.subscriptionModel;
+  const selected = catalog.find(row => row.id === wantedModel)
+    || catalog.find(row => row.isDefault)
+    || catalog[0];
+  const efforts = supportedEfforts(selected);
+  const wantedEffort = session?.effort || settings.subscriptionEffort;
+  const effort = !efforts.length || efforts.includes(wantedEffort)
+    ? wantedEffort : (selected.defaultReasoningEffort && efforts.includes(selected.defaultReasoningEffort)
+      ? selected.defaultReasoningEffort : efforts[0]);
+  if (settings.subscriptionModel !== selected.id && !session) {
+    settings.subscriptionModel = selected.id;
+    settings.subscriptionEffort = effort;
+    atomicWriteJson(settingsPath(), settings);
+  }
+  if (session && (session.model !== selected.id || session.effort !== effort)) {
+    session.model = selected.id;
+    session.effort = effort;
+    const sessions = readSessions();
+    const saved = sessions.find(row => row.threadId === session.threadId);
+    if (saved) { saved.model = selected.id; saved.effort = effort; writeSessions(sessions); }
+  }
+  return { id: null, model: selected.id, effort, name: 'ChatGPT / Codex 订阅', mode: 'subscription' };
 }
 
 function providerForSession(session) {
@@ -337,7 +393,7 @@ function recordSession(thread, provider, title = '新会话') {
 
 function sanitizePageContext(value) {
   if (!value || typeof value !== 'object') return null;
-  const routes = new Set(['home', 'workbench', 'holdings', 'account', 'trades', 'watchlist', 'library', 'strategies', 'strategy-invest', 'settings', 'plans', 'history']);
+  const routes = new Set(['home', 'workbench', 'market', 'holdings', 'account', 'trades', 'watchlist', 'library', 'strategies', 'strategy-invest', 'settings', 'plans', 'history']);
   const context = {};
   if (routes.has(value.route)) context.route = value.route;
   if (typeof value.pageTitle === 'string') context.pageTitle = value.pageTitle.slice(0, 30);
@@ -361,6 +417,79 @@ function sanitizePageContext(value) {
       status: String(value.backtest.status || '').slice(0, 30),
       fundCode: /^\d{6}$/.test(String(value.backtest.fundCode || '')) ? String(value.backtest.fundCode) : null,
       dataAsOf: String(value.backtest.dataAsOf || '').slice(0, 20)
+    };
+  }
+  if (value.marketLayout && typeof value.marketLayout === 'object') {
+    const layout = value.marketLayout;
+    const cleanWidgets = list => Array.isArray(list) ? list.slice(0, 25).filter(x => typeof x === 'string' && /^[a-z0-9:-]{2,80}$/.test(x)) : [];
+    context.marketLayout = {
+      kind: layout.kind === 'detail' ? 'detail' : 'home',
+      name: String(layout.name || '').slice(0, 60),
+      baseVersion: String(layout.baseVersion || '').slice(0, 80),
+      widgets: cleanWidgets(layout.widgets),
+      allowedWidgets: cleanWidgets(layout.allowedWidgets),
+      selectedFundCode: /^\d{6}$/.test(String(layout.selectedFundCode || '')) ? layout.selectedFundCode : null,
+      draft: layout.draft === true,
+      evidence: layout.evidence && typeof layout.evidence === 'object' ? {
+        source: String(layout.evidence.source || '').slice(0, 80),
+        asOf: String(layout.evidence.asOf || '').slice(0, 20),
+        firstDate: String(layout.evidence.firstDate || '').slice(0, 20),
+        lastDate: String(layout.evidence.lastDate || '').slice(0, 20),
+        oneMonthReturnPct: Number.isFinite(layout.evidence.oneMonthReturnPct) ? layout.evidence.oneMonthReturnPct : null,
+        oneYearReturnPct: Number.isFinite(layout.evidence.oneYearReturnPct) ? layout.evidence.oneYearReturnPct : null,
+        oneYearMaxDrawdownPct: Number.isFinite(layout.evidence.oneYearMaxDrawdownPct) ? layout.evidence.oneYearMaxDrawdownPct : null,
+        unitNavValue: Number.isFinite(layout.evidence.unitNavValue) ? layout.evidence.unitNavValue : null,
+        unitNavDate: String(layout.evidence.unitNavDate || '').slice(0, 20),
+        unitNavSource: String(layout.evidence.unitNavSource || '').slice(0, 80),
+        latestAnnouncement: layout.evidence.latestAnnouncement ? {
+          title: String(layout.evidence.latestAnnouncement.title || '').slice(0, 180),
+          date: String(layout.evidence.latestAnnouncement.date || '').slice(0, 20)
+        } : null
+      } : null
+    };
+  }
+  if (value.market && typeof value.market === 'object') {
+    context.market = {
+      source: String(value.market.indexQuotes?.source || '').slice(0, 80),
+      quotes: (Array.isArray(value.market.indexQuotes?.quotes) ? value.market.indexQuotes.quotes : [])
+        .slice(0, 12).map(q => ({ code: String(q.code || '').slice(0, 20), name: String(q.name || '').slice(0, 50),
+          point: Number.isFinite(q.point) ? q.point : null, changePct: Number.isFinite(q.changePct) ? q.changePct : null,
+          asOf: String(q.asOf || '').slice(0, 40), status: String(q.status || '').slice(0, 30) })),
+      watchlist: (Array.isArray(value.market.watchlist) ? value.market.watchlist : []).slice(0, 25)
+        .map(f => ({ code: /^\d{6}$/.test(String(f.code || '')) ? f.code : null, name: String(f.name || '').slice(0, 60) }))
+    };
+  }
+  if (Array.isArray(value.comparedStrategies)) {
+    context.comparedStrategies = value.comparedStrategies.slice(0, 3)
+      .filter(item => item && typeof item === 'object')
+      .map(item => ({ id: String(item.id || '').slice(0, 80),
+        name: String(item.name || '').slice(0, 80), version: String(item.version || '').slice(0, 40) }));
+  }
+  if (value.strategyExploration && typeof value.strategyExploration === 'object') {
+    const source = value.strategyExploration;
+    const short = (item, max = 160) => typeof item === 'string' ? item.slice(0, max) : null;
+    const metric = item => typeof item === 'number' && Number.isFinite(item) ? item : null;
+    context.strategyExploration = {
+      stage: ['home', 'question', 'discuss'].includes(source.stage) ? source.stage : null,
+      scenario: ['return', 'risk', 'direction', 'liquidity', 'monthly', 'lump', 'holding'].includes(source.scenario) ? source.scenario : null,
+      firstAnswer: short(source.firstAnswer, 2000),
+      // UI fields alone are not evidence of user confirmation.
+      preferenceInputs: Object.fromEntries(['monthly', 'years', 'priority']
+        .map(key => [key, short(source.confirmedPreferences?.[key], 80)]).filter(([, item]) => item)),
+      availableStrategies: (Array.isArray(source.availableStrategies) ? source.availableStrategies : [])
+        .slice(0, 20).filter(item => item && typeof item === 'object').map(item => ({
+          id: short(item.id, 80), name: short(item.name, 80), version: short(item.version, 40),
+          backtest: item.backtest?.status === 'verified' ? {
+            status: 'verified', sampleType: '默认样本，非用户定制',
+            fundCode: /^\d{6}$/.test(String(item.backtest.fundCode || '')) ? item.backtest.fundCode : null,
+            candidateName: short(item.backtest.candidateName, 80),
+            period: { start: short(item.backtest.period?.start, 20), end: short(item.backtest.period?.end, 20) },
+            dataAsOf: short(item.backtest.dataAsOf, 20), source: short(item.backtest.source, 240),
+            absoluteReturnPct: metric(item.backtest.absoluteReturnPct),
+            maxDrawdownPct: metric(item.backtest.maxDrawdownPct),
+            excessReturnPct: metric(item.backtest.excessReturnPct)
+          } : null
+        }))
     };
   }
   return Object.keys(context).length ? context : null;
@@ -394,7 +523,8 @@ function registerIpc() {
   handle('agent:list-sessions', async () => readSessions());
   handle('agent:new-session', async () => {
     if (runtime.active) throw new Error('请先停止或等待当前 Agent 任务完成。');
-    const provider = activeProvider();
+    const provider = readSettingsRaw().activeMode === 'api'
+      ? activeProvider() : await availableSubscriptionProvider();
     const thread = await runtime.startThread(provider, false, false);
     currentThreadId = thread.id;
     const session = recordSession(thread, provider);
@@ -404,6 +534,7 @@ function registerIpc() {
     if (runtime.active) throw new Error('请先停止或等待当前 Agent 任务完成。');
     const session = readSessions().find(row => row.threadId === threadId);
     if (!session) throw new Error('未找到这个基金工作台会话。');
+    if (session.mode !== 'api') await availableSubscriptionProvider(session);
     let thread;
     try {
       thread = await runtime.resumeThread(threadId, providerForSession(session), session.dataAuthorized);
@@ -465,6 +596,7 @@ function registerIpc() {
     const sessions = readSessions();
     const session = sessions.find(row => row.threadId === threadId);
     if (!session) throw new Error('会话索引不存在。');
+    if (session.mode !== 'api') await availableSubscriptionProvider(session);
     if (!session.dataAuthorized && authorizeAccountData === true) {
       await runtime.resumeThread(threadId, providerForSession(session), true);
       session.dataAuthorized = true;
@@ -508,9 +640,7 @@ function registerIpc() {
       const catalog = modelCatalogRows(await runtime.models());
       const selectedModel = catalog.find(row => row.id === requestedModel);
       if (!selectedModel) throw new Error('所选订阅模型当前不可用，请刷新后重新选择。');
-      const supported = (selectedModel.supportedReasoningEfforts || [])
-        .map(row => typeof row === 'string' ? row : row?.reasoningEffort)
-        .filter(Boolean);
+      const supported = supportedEfforts(selectedModel);
       if (!REASONING_EFFORTS.has(requestedEffort) || (supported.length && !supported.includes(requestedEffort))) {
         throw new Error('所选模型不支持该推理强度。');
       }
@@ -537,6 +667,7 @@ function registerIpc() {
       const effort = REASONING_EFFORTS.has(input.effort) ? input.effort : DEFAULT_REASONING_EFFORT;
       if (!name || name.length > 60) throw new Error('服务名称须为 1 至 60 字。');
       if (!/^[A-Za-z0-9._:/-]{1,160}$/.test(model)) throw new Error('模型 ID 格式无效。');
+      if (/YOUR_RESOURCE|YOUR_DEPLOYMENT_NAME/i.test(`${baseUrl} ${model}`)) throw new Error('请先填写 Azure 资源地址和实际部署名称。');
       const url = new URL(baseUrl);
       if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash) throw new Error('API 地址须为不含凭据和查询参数的 HTTPS 地址。');
       let provider = settings.providers.find(row => row.id === input.id);
@@ -547,7 +678,8 @@ function registerIpc() {
       }
       const key = String(input.apiKey || '').trim();
       if (!key && !provider.encryptedKey) throw new Error('请输入 API Key。');
-      Object.assign(provider, { name, model, effort, baseUrl, protocol: 'responses' });
+      if (input.authHeaderName && input.authHeaderName !== 'api-key') throw new Error('当前只允许配置 Azure OpenAI 的 api-key 请求头。');
+      Object.assign(provider, { name, model, effort, baseUrl, protocol: 'responses', authHeaderName: input.authHeaderName === 'api-key' ? 'api-key' : null });
       if (key) provider.encryptedKey = safeStorage.encryptString(key).toString('base64');
       settings.activeMode = 'api';
       settings.activeProviderId = provider.id;
@@ -585,8 +717,11 @@ function createWindow() {
     height: 940,
     minWidth: 1080,
     minHeight: 720,
-    title: '基金 AI 工作台',
-    backgroundColor: '#f7f7f2',
+    title: 'SUVI 基金投资助手',
+    backgroundColor: '#080808',
+    autoHideMenuBar: true,
+    titleBarStyle: process.platform === 'win32' ? 'hidden' : process.platform === 'darwin' ? 'hiddenInset' : 'default',
+    ...(process.platform === 'win32' ? { titleBarOverlay: { color: '#080808', symbolColor: '#e8ede7', height: 40 } } : {}),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -595,6 +730,7 @@ function createWindow() {
       webSecurity: true
     }
   });
+  if (process.platform !== 'darwin') mainWindow.setMenuBarVisibility(false);
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith('https://')) shell.openExternal(url);
     return { action: 'deny' };
@@ -612,7 +748,7 @@ else {
     if (mainWindow) { if (mainWindow.isMinimized()) mainWindow.restore(); mainWindow.focus(); }
   });
   app.whenReady().then(async () => {
-    app.setName('基金 AI 工作台');
+    app.setName('SUVI 基金投资助手');
     await ensureWorkbench();
     runtime = createRuntime();
     registerIpc();

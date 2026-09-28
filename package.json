@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "author": "Paradox",
-  "description": "场外基金 AI 工作台 Codex Harness Agent 桌面应用",
+  "description": "SUVI 基金投资助手桌面应用",
   "main": "desktop/main.js",
   "scripts": {
     "setup": "node scripts/setup.js",
@@ -21,7 +21,7 @@
   },
   "build": {
     "appId": "com.paradox.fund-ai-workbench",
-    "productName": "基金 AI 工作台",
+    "productName": "SUVI 基金投资助手",
     "asar": true,
     "files": [
       "desktop/**/*",
@@ -47,9 +47,13 @@
       { "from": "panda-strategy-agent.html", "to": "workbench/panda-strategy-agent.html" },
       { "from": "panda-strategy-agent.css", "to": "workbench/panda-strategy-agent.css" },
       { "from": "panda-strategy-agent-fixes.css", "to": "workbench/panda-strategy-agent-fixes.css" },
+      { "from": "suvi.css", "to": "workbench/suvi.css" },
+      { "from": "market-studio.css", "to": "workbench/market-studio.css" },
       { "from": "panda-strategy-agent.js", "to": "workbench/panda-strategy-agent.js" },
+      { "from": "market-studio.js", "to": "workbench/market-studio.js" },
       { "from": "assets/paradoxai-mark.png", "to": "workbench/assets/paradoxai-mark.png" },
-      { "from": "harness/skills/fund-workbench/SKILL.md", "to": "workbench/harness/skills/fund-workbench/SKILL.md" }
+      { "from": "harness/skills/fund-workbench/SKILL.md", "to": "workbench/harness/skills/fund-workbench/SKILL.md" },
+      { "from": "harness/skills/strategy-recommender", "to": "workbench/harness/skills/strategy-recommender" }
     ]
   }
 }

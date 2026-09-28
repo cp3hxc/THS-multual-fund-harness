@@ -27,6 +27,7 @@ from decimal import Decimal, InvalidOperation
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
+from urllib.request import Request, urlopen
 
 from fund_data import FuyaoClient, FuyaoError, portfolio_analysis
 from strategy_engine import catalog as strategy_catalog, get_strategy, latest_signal, run_backtest, run_showcase, validate_params
@@ -47,6 +48,67 @@ TRANSACTION_INTENTS = {}
 TRANSACTION_TTL = 10 * 60
 ACCOUNT_REFS = {}
 ACCOUNT_REF_TTL = 30 * 60
+INDEX_QUOTES = (
+    ('sh000001', '上证指数'), ('sz399001', '深证成指'),
+    ('sh000300', '沪深300'), ('sz399006', '创业板指'),
+    ('sh000905', '中证500'), ('sh000852', '中证1000'),
+)
+INDEX_QUOTE_CACHE = {'expires': 0.0, 'value': None}
+FUND_PUBLIC_CACHE = {}
+
+
+def market_index_quotes(force=False):
+    """Public index snapshots only. Never infer fund NAV or account income from them."""
+    now = time.monotonic()
+    with LOCK:
+        if not force and INDEX_QUOTE_CACHE['value'] is not None and now < INDEX_QUOTE_CACHE['expires']:
+            return copy.deepcopy(INDEX_QUOTE_CACHE['value'])
+    codes = ','.join(code for code, _ in INDEX_QUOTES)
+    request = Request('https://qt.gtimg.cn/q=' + codes,
+                      headers={'User-Agent': 'Mozilla/5.0', 'Referer': 'https://gu.qq.com/'})
+    try:
+        with urlopen(request, timeout=5) as response:
+            raw = response.read(32000).decode('gb18030', errors='replace')
+    except Exception as exc:
+        raise AppError('指数行情暂时无法更新，请稍后重试。', 502, 'market_data') from exc
+    china_now = dt.datetime.now(dt.timezone(dt.timedelta(hours=8)))
+    quotes = []
+    for code, name in INDEX_QUOTES:
+        match = re.search(r'v_' + re.escape(code) + r'="([^"]+)"', raw)
+        if not match:
+            continue
+        fields = match.group(1).split('~')
+        if len(fields) < 33:
+            continue
+        try:
+            point = float(fields[3])
+            change_pct = float(fields[32])
+            quote_time = dt.datetime.strptime(fields[30], '%Y%m%d%H%M%S').replace(tzinfo=china_now.tzinfo)
+        except (ValueError, IndexError):
+            continue
+        if not 0 < point < 1000000 or not -100 < change_pct < 100:
+            continue
+        if quote_time.date() != china_now.date():
+            status = '最近交易日'
+        elif china_now.weekday() >= 5 or china_now.hour >= 15:
+            status = '已收盘'
+        elif china_now.hour < 9 or (china_now.hour == 9 and china_now.minute < 30):
+            status = '开盘前'
+        elif china_now.hour == 12 or (china_now.hour == 11 and china_now.minute >= 30):
+            status = '午间休市'
+        elif (china_now - quote_time).total_seconds() > 300:
+            status = '行情延迟'
+        else:
+            status = '交易中'
+        quotes.append({'code': code, 'name': name, 'point': point,
+                       'changePct': change_pct, 'asOf': quote_time.isoformat(),
+                       'status': status})
+    if not quotes:
+        raise AppError('指数行情暂时无法解析，请稍后重试。', 502, 'market_data')
+    value = {'source': '腾讯行情', 'fetchedAt': china_now.isoformat(), 'quotes': quotes}
+    with LOCK:
+        INDEX_QUOTE_CACHE.update(value=value, expires=time.monotonic() + 30)
+    return copy.deepcopy(value)
 
 TEMPLATES = [
     {'id': 'nav-swing', 'name': '净值波动高抛低吸', 'category': '波动', 'symbol': '〰',
@@ -1158,23 +1220,47 @@ def strategy_backtest(body):
 def strategy_showcase(body):
     strategy_id = str(body.get('strategyId') or '').strip()
     try:
-        report = run_showcase(strategy_id, RUNTIME)
+        strategy = get_strategy(strategy_id)
+        candidates = strategy.get('showcaseCandidates') or ([{'code': None, 'name': '固定行业基金池'}]
+                                                             if strategy.get('codeRequired') is False else [])
+        if not candidates:
+            return {'status': 'blocked', 'strategyId': strategy_id,
+                    'missingData': ['策略未配置可审计的展示样本。']}
+        # Use the catalog's declared default fund (or first declared pool) as a
+        # stable example. Never select the homepage example by its return.
+        display_code = str(strategy.get('displayFundCode') or strategy.get('defaultFundCode') or '')
+        candidate = next((row for row in candidates
+                          if display_code and str(row.get('code') or '') == display_code), candidates[0])
+        params = strategy.get('defaultParams') or {}
+        cached = next((row for row in reversed(state_read().get('strategyRuns', []))
+                       if row.get('strategyId') == strategy_id
+                       and row.get('strategyVersion') == strategy.get('version')
+                       and row.get('fundCode') == candidate.get('code')
+                       and row.get('parameters') == params
+                       and row.get('status') == 'ok'
+                       and ((row.get('result') or {}).get('audit') or {}).get('passed') is True), None)
+        if cached and cached.get('result') and body.get('refresh') is not True:
+            saved = copy.deepcopy(cached['result'])
+            saved['candidateName'] = candidate.get('name')
+            return {'status': 'ok', 'strategyId': strategy_id,
+                    'strategyVersion': strategy.get('version'),
+                    'candidateCount': len(candidates), 'eligibleCount': 1,
+                    'selectionMetric': 'configuredExample', 'display': saved,
+                    'best': saved, 'ranking': []}
+        result = run_backtest(strategy_id, candidate.get('code'), params, RUNTIME)
     except (ValueError, KeyError) as exc:
         raise AppError(str(exc))
-    best = report.get('best')
-    if report.get('status') != 'ok' or not best:
-        return report
-    params = best.get('parameters') or {}
-    existing = next((row for row in reversed(state_read().get('strategyRuns', []))
-                     if row.get('strategyId') == best.get('strategyId')
-                     and row.get('strategyVersion') == best.get('strategyVersion')
-                     and row.get('fundCode') == best.get('fundCode')
-                     and row.get('dataAsOf') == best.get('dataAsOf')
-                     and row.get('parameters') == params
-                     and (row.get('metrics') or {}).get('excessReturnPct') == (best.get('metrics') or {}).get('excessReturnPct')),
-                    None)
-    report['best'] = copy.deepcopy(existing.get('result')) if existing and existing.get('result') else _persist_strategy_run(best, {'params': params})
-    return report
+    result['candidateName'] = candidate.get('name')
+    if result.get('status') != 'ok':
+        return {'status': 'blocked', 'strategyId': strategy_id,
+                'candidateCount': len(candidates), 'eligibleCount': 0,
+                'missingData': [f"{candidate.get('name') or candidate.get('code') or '展示样本'}：" +
+                                ';'.join(result.get('missingData') or ['回测数据未通过校验。'])]}
+    params = result.get('parameters') or strategy.get('defaultParams') or {}
+    saved = _persist_strategy_run(result, {'params': params})
+    return {'status': 'ok', 'strategyId': strategy_id, 'strategyVersion': strategy.get('version'),
+            'candidateCount': len(candidates), 'eligibleCount': 1,
+            'selectionMetric': 'configuredExample', 'display': saved, 'best': saved, 'ranking': []}
 
 
 def strategy_job_start(body):
@@ -1253,13 +1339,83 @@ def fund_nav_detail(code):
         raise AppError(str(exc), 502, 'market_data')
     if not rows:
         raise AppError('未返回可用复权净值。', 502, 'market_data')
-    step = max(1, len(rows) // 180)
-    points = [{'date': date, 'value': value} for date, value in rows[::step]]
-    if points[-1]['date'] != rows[-1][0]:
-        points.append({'date': rows[-1][0], 'value': rows[-1][1]})
+    # Keep the complete series for deterministic drawdown and period calculations.
+    # The client may sample it for drawing, but must never calculate risk on a
+    # chart-downsampled series because an omitted trough changes max drawdown.
+    points = [{'date': date, 'value': value} for date, value in rows]
     return {'code': code, 'name': profile.get('fund_name') or profile.get('name') or code,
             'manager': profile.get('manager_name'), 'dataAsOf': rows[-1][0],
             'source': '扶摇 Fuyao · 复权净值', 'points': points}
+
+
+def fund_public_detail(code):
+    """Published unit NAV and notices from documented public THS fund endpoints."""
+    code = require_code(code)
+    with LOCK:
+        cached = FUND_PUBLIC_CACHE.get(code)
+        if cached and cached['expires'] > time.monotonic():
+            return copy.deepcopy(cached['value'])
+    value = {'code': code, 'formalNav': None, 'realtimeEstimate': None,
+             'estimateStatus': '未接入可核验的盘中估值源', 'profile': None, 'announcements': [],
+             'formalNavStatus': '暂不可用', 'announcementsStatus': '暂不可用',
+             'source': '同花顺基金', 'fetchedAt': now()}
+    url = ('https://fund.10jqka.com.cn/quotation/fund_detail/v2/getNavData'
+           f'?fundCode={code}&range=year&type=unit&scale=4')
+    try:
+        req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urlopen(req, timeout=7) as response:
+            body = json.loads(response.read(1000000).decode('utf-8'))
+        if body.get('status_code') == 0 and isinstance(body.get('data', {}).get('unit'), list):
+            rows = body['data']['unit']
+            valid = [(str(row.get('date') or ''), row.get('value')) for row in rows
+                     if isinstance(row, dict) and re.fullmatch(r'\d{8}', str(row.get('date') or ''))]
+            if valid:
+                day, raw = max(valid, key=lambda item: item[0])
+                amount = float(raw)
+                if 0 < amount < 100000:
+                    value['formalNav'] = {'date': f'{day[:4]}-{day[4:6]}-{day[6:]}', 'value': amount}
+                    value['formalNavStatus'] = '已披露'
+    except (OSError, ValueError, KeyError, TypeError):
+        pass
+    try:
+        req = Request(f'https://fund.10jqka.com.cn/quotation/fund_detail/v2/base/{code}',
+                      headers={'User-Agent': 'Mozilla/5.0'})
+        with urlopen(req, timeout=7) as response:
+            body = json.loads(response.read(200000).decode('utf-8'))
+        profile = body.get('data') or {}
+        if body.get('status_code') == 0 and isinstance(profile, dict) and profile.get('fundCode') == code:
+            rate = profile.get('tradeRate') or {}
+            value['profile'] = {'name': str(profile.get('simpleName') or '')[:80],
+                                'type': str(profile.get('fundTypeName') or '')[:40],
+                                'subtype': str(profile.get('secFundTypeName') or '')[:60],
+                                'riskLevel': str(profile.get('riskLevel') or '')[:40],
+                                'establishedAt': str((profile.get('handicap') or {}).get('establishmentDate') or '')[:10],
+                                'minTradeAmount': rate.get('minTradeAmount'),
+                                'preferredRate': rate.get('preferredRate')}
+    except (OSError, ValueError, KeyError, TypeError):
+        pass
+    try:
+        req = Request(f'https://fund.10jqka.com.cn/interface/net/pubnote2/0_{code}_1_5',
+                      headers={'User-Agent': 'Mozilla/5.0'})
+        with urlopen(req, timeout=7) as response:
+            body = json.loads(response.read(500000).decode('gb18030'))
+        rows = body.get('data', {}).get('info', [])
+        if isinstance(rows, list):
+            for row in rows[:5]:
+                if not isinstance(row, dict):
+                    continue
+                title, date = str(row.get('title') or '').strip(), str(row.get('pubtime') or '')[:10]
+                raw_url = str(row.get('rawURL') or '')
+                if title and re.fullmatch(r'\d{4}-\d{2}-\d{2}', date):
+                    value['announcements'].append({'title': title[:180], 'date': date,
+                                                   'type': str(row.get('showTypeName') or '')[:40],
+                                                   'url': raw_url if raw_url.startswith('https://notice.10jqka.com.cn/') else None})
+            value['announcementsStatus'] = '已更新'
+    except (OSError, ValueError, KeyError, TypeError):
+        pass
+    with LOCK:
+        FUND_PUBLIC_CACHE[code] = {'value': copy.deepcopy(value), 'expires': time.monotonic() + 300}
+    return value
 
 
 def strategy_plan_create(body):
@@ -1272,6 +1428,8 @@ def strategy_plan_create(body):
     except (ValueError, KeyError) as exc:
         raise AppError(str(exc))
     name = str(body.get('name') or strategy['name']).strip()[:80]
+    investment_goal = str(body.get('investmentGoal') or '').strip()[:160]
+    capital_use_horizon = str(body.get('capitalUseHorizon') or '').strip()[:48]
     def mutate(state):
         if any(x.get('status') in {'active', 'draft', 'paused'} and
                ((code and x.get('fundCode') == code) or (not code and x.get('strategyId') == strategy_id))
@@ -1287,6 +1445,7 @@ def strategy_plan_create(body):
             'strategyVersion': strategy['version'], 'fundCode': code,
             'fundPool': body.get('fundPool') if isinstance(body.get('fundPool'), list) else None,
             'amount': params.get('amount'), 'params': params, 'version': 1,
+            'investmentGoal': investment_goal or None, 'capitalUseHorizon': capital_use_horizon or None,
             'status': 'draft', 'createdAt': now(), 'updatedAt': now(),
             'backtestRunId': run_id, 'performance': performance,
             'backtestDataAsOf': str(body.get('dataAsOf') or '')[:20] or None,
@@ -1537,7 +1696,10 @@ class Handler(BaseHTTPRequestHandler):
                       '/panda-strategy-agent.html': ('panda-strategy-agent.html', 'text/html; charset=utf-8'),
                       '/panda-strategy-agent.css': ('panda-strategy-agent.css', 'text/css; charset=utf-8'),
                       '/panda-strategy-agent-fixes.css': ('panda-strategy-agent-fixes.css', 'text/css; charset=utf-8'),
+                      '/suvi.css': ('suvi.css', 'text/css; charset=utf-8'),
                       '/panda-strategy-agent.js': ('panda-strategy-agent.js', 'text/javascript; charset=utf-8'),
+                      '/market-studio.css': ('market-studio.css', 'text/css; charset=utf-8'),
+                      '/market-studio.js': ('market-studio.js', 'text/javascript; charset=utf-8'),
                       '/assets/paradoxai-mark.png': ('assets/paradoxai-mark.png', 'image/png')}
             if p.path in static:
                 name, mime = static[p.path]
@@ -1562,6 +1724,8 @@ class Handler(BaseHTTPRequestHandler):
                 data = strategy_variants()
             elif p.path == '/api/strategy-invest/job':
                 data = strategy_job_read(q.get('id', ''))
+            elif p.path == '/api/market/indices':
+                data = market_index_quotes(q.get('force') == '1')
             elif p.path == '/api/holdings':
                 data = overview()
             elif p.path == '/api/portfolio-analysis':
@@ -1582,6 +1746,8 @@ class Handler(BaseHTTPRequestHandler):
                 data = redeem_preview(require_code(q.get('code')), q.get('account'))
             elif p.path == '/api/fund/nav':
                 data = fund_nav_detail(q.get('code'))
+            elif p.path == '/api/market/fund-detail':
+                data = fund_public_detail(q.get('code'))
             elif p.path == '/api/ai/status':
                 data = ai_status()
             elif p.path == '/api/ai/job':

@@ -1,0 +1,900 @@
+/* SUVI is an assistant layer on top of the original dark workbench. */
+.suvi-window-strip{display:none}
+.suvi-desktop-chrome .suvi-window-strip{position:fixed;inset:0 0 auto;height:40px;z-index:50;display:flex;align-items:center;gap:9px;padding:0 16px;border-bottom:1px solid #252525;background:#080808;color:#edf0ea;font-size:11px;font-weight:600;letter-spacing:.02em;-webkit-app-region:drag;app-region:drag;user-select:none}
+.suvi-window-dot{display:grid;place-items:center;width:18px;height:18px;border:1px solid #60764d;border-radius:5px;background:#1e2b1d;color:#d2f399;font-size:12px}.suvi-window-strip i{height:13px;border-left:1px solid #404540}.suvi-window-subtitle{color:#8b958d;font-size:10px;font-weight:400}
+.suvi-desktop-darwin .suvi-window-strip{padding-left:88px}
+.suvi-desktop-chrome .panda-app{padding-top:40px}.suvi-desktop-chrome .panda-sidebar{top:40px}.suvi-desktop-chrome .panda-main{min-height:calc(100vh - 40px)}.suvi-desktop-chrome .panda-topbar{top:40px}
+.suvi-desktop-chrome.panda-conversation-active .panda-content{height:calc(100vh - 104px)}
+.suvi-desktop-chrome.suvi-drawer-open .panda-agent-panel:not([hidden]){top:104px}
+.panda-provider-grid{display:grid;grid-template-columns:minmax(300px,.85fr) minmax(460px,1.15fr);gap:14px;max-width:1180px;align-items:start}
+.panda-provider-card{min-width:0;padding:20px;border:1px solid #292929;border-radius:11px;background:linear-gradient(155deg,#111 0%,#090909 72%)}
+.panda-provider-card.selected{border-color:#4d6042;box-shadow:inset 0 2px 0 #b8d775}
+.panda-provider-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.panda-provider-heading h2{margin:5px 0 0;font-size:17px;font-weight:580}.provider-kicker{color:#777;font-size:8px;letter-spacing:.13em}.provider-state{padding:5px 8px;border:1px solid #343434;border-radius:99px;color:#aaa;font-size:8px;white-space:nowrap}.panda-provider-card.selected .provider-state{border-color:#48573d;color:#c9e792;background:#161d13}
+.panda-provider-card>p{min-height:38px;margin:12px 0 16px;color:#929292;font-size:10px;line-height:1.7}.panda-provider-account{display:flex;align-items:center;gap:8px;padding:9px 10px;margin-bottom:15px;border:1px solid #292929;border-radius:7px;background:#0c0c0c;color:#929292;font-size:9px}.panda-provider-account i{width:7px;height:7px;border-radius:50%;background:#75634a}.panda-provider-account i.connected{background:#b8d775;box-shadow:0 0 0 4px #b8d7751c}
+.provider-form{display:grid;gap:12px}.provider-form .panda-field{display:grid;gap:6px}.provider-form .panda-field label{color:#aaa;font-size:9px}.provider-form select,.provider-form input{width:100%;height:35px;padding:0 10px;border:1px solid #343434;border-radius:6px;background:#111;color:#e5e5e5;font-size:10px;outline:none}.provider-form input::placeholder{color:#666}.provider-form select:focus,.provider-form input:focus{border-color:#859d5e}.provider-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.provider-fields .provider-field-wide{grid-column:1/-1}.provider-select-row{display:flex;gap:8px}.provider-select-row select{flex:1;min-width:0}.provider-select-row .panda-button{white-space:nowrap}.provider-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center}.provider-actions button{font-size:9px}.provider-actions button:disabled{opacity:.38;cursor:not-allowed}.provider-footnote{color:#696969;font-size:8px;line-height:1.6}
+@media(max-width:800px){.suvi-desktop-chrome .panda-sidebar{position:static}.suvi-desktop-chrome.panda-conversation-active .panda-content{height:auto;min-height:calc(100vh - 172px)}}
+@media(max-width:1050px){.panda-provider-grid{grid-template-columns:1fr;max-width:700px}}
+@media(max-width:560px){.panda-provider-card{padding:15px}.provider-fields{grid-template-columns:1fr}.provider-fields .provider-field-wide{grid-column:auto}.provider-actions{align-items:stretch;flex-direction:column}.provider-actions button{width:100%}}
+.suvi-ask-button{padding:7px 11px;border:1px solid #3b4640;border-radius:7px;background:#141b18;color:#e4eee5;font-size:10px;cursor:pointer;white-space:nowrap}
+.suvi-ask-button:hover{border-color:#8cab8b;background:#1d2921}.suvi-ask-button:focus-visible,.suvi-inline button:focus-visible{outline:2px solid #b7d478;outline-offset:2px}
+.panda-brand small{color:#a9b8a9}.panda-data-note i{background:#c8eb80}.panda-data-note span{color:#d9e5d9}
+.suvi-agent-mark{color:#cae986;font-size:14px}.panda-agent-head strong{letter-spacing:0}
+.suvi-inline{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 20px;margin:18px 0 24px;padding:18px 20px;border:1px solid #39473c;border-radius:11px;background:linear-gradient(105deg,#17211a,#101511 75%);box-shadow:inset 3px 0 0 #b9d878}
+.suvi-inline-main{display:flex;align-items:flex-start;gap:13px;min-width:0}.suvi-inline-mark{display:grid;place-items:center;flex:none;width:36px;height:36px;border:1px solid #66805a;border-radius:9px;background:#263828;color:#d5f49b;font-size:19px}.suvi-inline-main>div{min-width:0}.suvi-inline-main small{display:block;margin-bottom:5px;color:#afce8c;font-size:9px;letter-spacing:.05em}.suvi-inline-main strong{display:block;color:#f0f4e9;font-size:14px;font-weight:620;line-height:1.4}.suvi-inline-main p{margin:7px 0 0;color:#92a292;font-size:10px;line-height:1.55}.suvi-inline-main p i{margin:0 5px;color:#667d67;font-style:normal}
+.suvi-inline-meta{display:flex;align-items:flex-start;justify-content:flex-end;gap:6px;flex-wrap:wrap;max-width:350px}.suvi-inline-meta span{padding:6px 8px;border:1px solid #344336;border-radius:6px;background:#1b271e;color:#a8bba8;font-size:9px;white-space:nowrap}
+.suvi-inline-actions{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;padding-top:12px;border-top:1px solid #2a392e}.suvi-inline-actions button{padding:8px 10px;border:1px solid #455743;border-radius:7px;background:#243426;color:#e3efd8;font-size:10px;cursor:pointer}.suvi-inline-actions button:hover{border-color:#a6c472;background:#314834}
+.suvi-drawer-open .panda-agent-panel:not([hidden]){display:block!important;position:fixed;top:64px;right:0;bottom:0;z-index:24;width:min(460px,calc(100vw - 232px));border-left:1px solid #34453b;background:#090c0a;box-shadow:-18px 0 50px #0009}.suvi-drawer-open .panda-agent-head{gap:8px;flex-wrap:wrap}.suvi-drawer-open .suvi-close-agent{font-size:16px}.panda-conversation-active .suvi-close-agent{display:none}
+.suvi-preview-mode.panda-conversation-active .panda-agent-head>div:last-child{display:none}.suvi-preview-mode.suvi-drawer-open .panda-agent-head>div:last-child button:not(.suvi-close-agent){display:none}
+.suvi-preview-intro{display:flex;flex-direction:column;justify-content:center;min-height:100%;max-width:610px;margin:auto;padding:20px;color:#cdd9cc}.suvi-preview-icon{display:grid;place-items:center;width:40px;height:40px;border:1px solid #536949;border-radius:10px;background:#263528;color:#d3f096;font-size:23px}.suvi-preview-intro small{margin-top:16px;color:#a9c98d;font-size:10px}.suvi-preview-intro h2{margin:8px 0;color:#f1f5ef;font-size:22px;font-weight:600}.suvi-preview-intro p{margin:0;color:#9bac9a;font-size:11px;line-height:1.75}.suvi-preview-intro>div{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:22px;color:#c1d5b5;font-size:9px}.suvi-preview-intro>div span{padding:6px 8px;border:1px solid #334334;border-radius:6px;background:#172118}.suvi-preview-intro>div i{color:#718a70;font-style:normal}
+.suvi-preview-thread{max-width:780px;margin:14px auto;color:#dce6d9}.suvi-preview-thread small{display:block;margin-bottom:6px;color:#91a891;font-size:9px}.suvi-preview-user{max-width:80%;margin:0 0 18px auto;padding:11px 13px;border:1px solid #40513d;border-radius:10px;background:#1d291e}.suvi-preview-user p,.suvi-preview-answer p{margin:0;font-size:11px;line-height:1.8}.suvi-preview-tool{display:flex;align-items:center;gap:9px;margin:12px 0 18px;padding:10px 12px;border:1px solid #354137;border-radius:8px;background:#151c16;color:#a9c5a3;font-size:9px}.suvi-preview-tool i{color:#cde894;font-size:15px;font-style:normal}.suvi-preview-tool em{margin-left:auto;color:#6f8670;font-style:normal}.suvi-preview-answer{max-width:85%;padding:14px 16px;border-left:3px solid #9fbd76;background:#131b14}.suvi-preview-answer span{display:block;margin-top:12px;color:#b4d68b;font-size:9px}
+@media(max-width:1100px){.suvi-inline{grid-template-columns:1fr}.suvi-inline-meta{max-width:none;justify-content:flex-start}}
+@media(max-width:800px){.suvi-inline{margin:12px 0 18px;padding:14px}.suvi-inline-main strong{font-size:12px}.suvi-inline-main p{font-size:9px}.suvi-inline-meta span{font-size:8px}.suvi-drawer-open .panda-agent-panel:not([hidden]){top:0;left:0;right:0;bottom:0;width:100vw}.suvi-preview-intro{padding:12px}.suvi-preview-intro h2{font-size:18px}}
+/* Make provider activation unmistakable and keep save failures visible beside the action. */
+#api-provider-form .provider-actions{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:stretch}
+#api-provider-form [data-api-save]{min-height:44px;padding:0 18px;border:1px solid #d7f76a;border-radius:8px;background:linear-gradient(135deg,#d7f76a,#b3dc54);color:#17200e;font-size:12px;font-weight:700;letter-spacing:.01em;box-shadow:0 5px 18px #b9e75e26;transition:transform .14s ease,box-shadow .14s ease,filter .14s ease}
+#api-provider-form [data-api-save]:hover{transform:translateY(-1px);filter:brightness(1.06);box-shadow:0 8px 24px #b9e75e38}
+#api-provider-form [data-api-save]:active{transform:translateY(1px) scale(.99);box-shadow:0 2px 8px #b9e75e26}
+#api-provider-form [data-api-save]:focus-visible{outline:3px solid #d7f76a88;outline-offset:3px}
+#api-provider-form [data-api-save]:disabled{cursor:progress;filter:saturate(.55);opacity:.78}
+#api-provider-form [data-action="test-api-provider"]{min-height:44px}
+.api-save-feedback{min-height:32px;padding:8px 10px;border:1px solid #303a2c;border-radius:7px;background:#11160f;color:#a7ba92;font-size:10px;line-height:1.55}
+.api-save-feedback.pending{border-color:#58633c;background:#181c11;color:#d0e692}
+.api-save-feedback.error{border-color:#75443e;background:#211311;color:#ffb7a9}
+@media(max-width:560px){#api-provider-form .provider-actions{grid-template-columns:1fr}#api-provider-form [data-action="test-api-provider"]{width:100%}}
+
+/* Conversation navigation stays compact as the history grows. */
+.panda-sidebar{overflow:hidden}
+.panda-session-list{display:flex;flex-direction:column;gap:7px;flex:0 1 auto;min-height:0;max-height:min(43vh,440px);margin:13px 0 6px;padding:0 2px;overflow:hidden}
+.panda-session-top{display:flex;align-items:center;justify-content:space-between;padding:0 8px;color:#8b9a90;font-size:10px;font-weight:600}
+.panda-session-top small{min-width:19px;padding:2px 5px;border-radius:5px;background:#202521;color:#9cac9c;font-size:9px;text-align:center}
+.panda-session-search{display:flex;align-items:center;gap:7px;height:32px;flex:none;padding:0 9px;border:1px solid #2b332c;border-radius:7px;background:#151a16;color:#819783}
+.panda-session-search:focus-within{border-color:#829e70}.panda-session-search span{font-size:17px;line-height:1}
+.panda-session-search input{min-width:0;width:100%;border:0;outline:0;background:transparent;color:#e6eee5;font-size:10px}.panda-session-search input::placeholder{color:#68766b}
+.panda-session-scroll{min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:#3a443b transparent}
+.panda-session-group{padding:8px 8px 5px;color:#667a6c;font-size:9px}
+.panda-session-row{min-height:48px;margin:2px 0;border:1px solid transparent;border-radius:8px;background:transparent;transition:background .14s,border-color .14s}
+.panda-session-row:hover{border-color:#303b31;background:#1a211b}.panda-session-row.active{border-color:#536a49;background:#1e2c20;box-shadow:inset 2px 0 0 #c8e887}
+.panda-session-row .panda-session-open{padding:7px 3px 7px 10px}.panda-session-row strong{color:#cbd7ca;font-size:10px;font-weight:560}.panda-session-row small{margin-top:4px;color:#718170;font-size:8px}
+.panda-session-row.active strong{color:#f1f8e7}.panda-session-row .panda-session-pin,.panda-session-row .panda-session-delete{width:24px;height:31px;flex:none;color:#788977;font-size:14px;opacity:0;transition:opacity .12s,color .12s}
+.panda-session-row:hover .panda-session-pin,.panda-session-row:hover .panda-session-delete,.panda-session-row:focus-within .panda-session-pin,.panda-session-row:focus-within .panda-session-delete,.panda-session-row.active .panda-session-pin{opacity:1}
+.panda-session-row .panda-session-pin:hover{color:#d7f76a}.panda-session-row .panda-session-delete:hover{color:#ffaaa0}
+.panda-session-more{flex:none;width:100%;padding:8px;border:0;border-top:1px solid #283229;background:transparent;color:#b8d688;font-size:9px;text-align:left;cursor:pointer}.panda-session-more:hover{color:#e0f4c2;background:#1b251b}
+.panda-session-empty{padding:9px 8px;color:#728270;font-size:9px;line-height:1.6}
+.model-recovery-note{color:#e8bc79!important;line-height:1.6}
+.agent-composer-hint{margin-top:7px;color:#708070;font-size:9px;text-align:right}
+#agent-send:disabled{opacity:.36;cursor:not-allowed;filter:saturate(.3)}#agent-send:not(:disabled){transition:transform .14s,box-shadow .14s}#agent-send:not(:disabled):hover{transform:translateY(-1px);box-shadow:0 4px 18px #d7f76a35}#agent-send:not(:disabled):active{transform:translateY(1px)}
+.agent-message.error>div{border-color:#7b4b45;background:#211613;color:#f4bbb0}.agent-message.error p{margin:0 0 9px}
+.agent-error-settings{padding:0;border:0;background:transparent;color:#e8d98e;font-size:10px;cursor:pointer}.agent-error-settings:hover{text-decoration:underline}
+@media(max-width:900px){.panda-session-list{display:flex;max-height:210px}}
+@media(max-width:800px){.panda-sidebar{overflow:visible}.panda-session-list{max-height:175px;margin:5px 0 10px}.panda-session-row .panda-session-pin,.panda-session-row .panda-session-delete{opacity:1}}
+
+/* The workspace uses one level of navigation; each page owns its smaller sections. */
+.workspace-label{flex:none;padding:16px 10px 7px}
+.panda-sidebar .panda-session-list{flex:0 1 auto;max-height:min(25vh,250px)}
+.panda-workspace-nav{display:grid;align-content:start;gap:4px;flex:1;min-height:100px;overflow-y:auto;overflow-x:hidden;padding:0 2px 6px;scrollbar-width:thin;scrollbar-color:#384137 transparent}
+.panda-workspace-nav>button{min-height:39px;padding:0 12px;font-size:11px;font-weight:550}
+.panda-workspace-nav>button .nav-symbol{font-size:16px}
+.panda-workspace-nav>button.active{background:#dcebcf;color:#172216;font-weight:680}
+.panda-workspace-nav>button.active .nav-symbol{color:#496739}
+.suvi-module-nav{display:flex;align-items:center;gap:5px;overflow-x:auto;margin:0 0 24px;padding:4px;border:1px solid #2a372e;border-radius:10px;background:#111912;scrollbar-width:thin}
+.suvi-module-nav button,.suvi-module-pending{display:inline-flex;align-items:center;gap:7px;min-height:34px;padding:0 13px;border:0;border-radius:7px;background:transparent;color:#9aab9a;font-size:10px;white-space:nowrap}
+.suvi-module-nav button{cursor:pointer}.suvi-module-nav button:hover{background:#1c291e;color:#e9f1e5}
+.suvi-module-nav button.active{background:#29402a;color:#e5f4dc;font-weight:650}
+.suvi-module-pending{color:#6b796d}.suvi-module-pending small{font-size:8px;color:#657365}
+.suvi-module-empty{display:grid;place-items:center;min-height:250px;border:1px dashed #334137;border-radius:11px;color:#849683;font-size:12px}
+.suvi-module-section-head{margin:6px 0 17px}.suvi-module-section-head h2{margin:0 0 5px;font-size:17px}.suvi-module-section-head p{margin:0;color:#8c9d90;font-size:10px}
+.panda-sidebar-bottom{flex:none}
+.panda-sidebar-bottom .panda-quiet[data-nav="account"]{font-size:10px}
+
+/* Strategy discovery, AI matching and plan tracking share one continuous page. */
+.strategy-finder{max-width:1320px;margin:0 auto}
+.strategy-finder-header{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:1px 0 22px;border-bottom:1px solid #2c332d}
+.strategy-finder-header small,.strategy-finder-section-head small{color:#a5c67c;font-size:9px;font-weight:600}
+.strategy-finder-header h1{margin:8px 0 6px;color:#f2f5ef;font-size:27px;font-weight:610}
+.strategy-finder-header p{max-width:690px;margin:0;color:#9ba99c;font-size:11px;line-height:1.6}
+.strategy-finder-status{display:flex;gap:14px;white-space:nowrap;color:#94a296;font-size:10px}
+.strategy-finder-status span{padding-left:14px;border-left:1px solid #39443b}
+.strategy-finder-status b{display:block;margin-bottom:2px;color:#e5f1dc;font-size:17px;font-weight:570}
+.strategy-finder-steps{display:flex;gap:0;margin:0 0 25px;border-bottom:1px solid #252d26}
+.strategy-finder-steps a{display:flex;align-items:center;gap:8px;padding:12px 21px 12px 0;margin-right:25px;border-bottom:2px solid transparent;color:#8fa08f;font-size:10px;text-decoration:none}
+.strategy-finder-steps a:hover,.strategy-finder-steps a:focus-visible{border-color:#bddb91;color:#e5f2dc}
+.strategy-finder-steps b{color:#a9c68a;font:10px ui-monospace,SFMono-Regular,monospace}
+.strategy-finder-section{padding:6px 0 29px;margin:0 0 25px;border-bottom:1px solid #2b322c;scroll-margin-top:112px}
+.strategy-finder-section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:15px;margin-bottom:17px}
+.strategy-finder-section-head h2{margin:5px 0 4px;color:#edf2e9;font-size:18px;font-weight:580}
+.strategy-finder-section-head p{margin:0;color:#8f9e90;font-size:10px;line-height:1.55}
+.strategy-finder-section-head>span{color:#9cae9b;font-size:10px;white-space:nowrap}
+.strategy-finder-section-head>button{padding:7px 0;border:0;background:transparent;color:#cce8a5;font-size:10px;cursor:pointer;white-space:nowrap}
+.strategy-finder-section-head>button:hover{text-decoration:underline}
+.strategy-category-tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:14px;scrollbar-width:thin}
+.strategy-category-tabs button{flex:none;padding:6px 11px;border:1px solid #344035;border-radius:6px;background:#141a15;color:#93a292;font-size:10px;cursor:pointer}
+.strategy-category-tabs button:hover{border-color:#8aa77c;color:#ebf4e6}
+.strategy-category-tabs button.active{border-color:#accb8d;background:#243321;color:#e1f4d2}
+.strategy-finder-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.strategy-finder-grid .panda-strategy-card{min-width:0;cursor:pointer}
+.strategy-finder-grid .strategy-performance>div{flex-wrap:wrap}
+.strategy-finder-grid .panda-strategy-card:focus-visible{outline:2px solid #d7ef9d;outline-offset:2px}
+.strategy-show-all{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:12px;padding:10px;border:1px solid #343d34;border-radius:8px;background:#131a14;color:#c9dfb3;font-size:10px;cursor:pointer}
+.strategy-show-all:hover{border-color:#8fac80;background:#1b291c}
+.strategy-research-note{margin:12px 0 0;color:#748474;font-size:9px}
+.strategy-finder-empty{grid-column:1/-1;padding:28px 16px;border:1px dashed #3a443a;border-radius:8px;color:#91a091;font-size:10px;text-align:center}
+.strategy-match-body{display:grid;grid-template-columns:minmax(220px,1fr) minmax(300px,1.3fr);align-items:center;gap:20px;padding:20px;border:1px solid #405040;border-radius:10px;background:#121a13}
+.strategy-match-agent{display:flex;align-items:flex-start;gap:12px}
+.strategy-match-agent>span{display:grid;place-items:center;flex:none;width:34px;height:34px;border:1px solid #789365;border-radius:8px;background:#243422;color:#def4b5;font-size:18px}
+.strategy-match-agent strong{display:block;margin:2px 0 7px;color:#eef4e8;font-size:13px}
+.strategy-match-agent p{max-width:350px;margin:0;color:#a3b2a0;font-size:10px;line-height:1.65}
+.strategy-match-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:7px}
+.strategy-match-actions button{padding:9px 11px;border:1px solid #465647;border-radius:7px;background:#1c291d;color:#d9e7d2;font-size:10px;cursor:pointer}
+.strategy-match-actions button:hover{border-color:#a4c889;background:#273b27}
+.strategy-match-actions .strategy-match-primary{display:flex;align-items:center;justify-content:space-between;min-width:190px;border-color:#d1eaa7;background:#d2eea6;color:#172313;font-weight:700}
+.strategy-match-actions .strategy-match-primary:hover{background:#e0f7ba;color:#12200e}
+.strategy-plan-table{border-top:1px solid #333d33}
+.strategy-plan-table-head,.strategy-plan-row{display:grid;grid-template-columns:minmax(190px,2.1fr) minmax(130px,1.2fr) minmax(120px,1fr) 110px;align-items:center;gap:12px}
+.strategy-plan-table-head{padding:9px 12px;color:#798a79;font-size:9px}
+.strategy-plan-row{min-height:58px;padding:9px 12px;border-top:1px solid #2a342b;color:#bac8b9;font-size:10px}
+.strategy-plan-row>div:first-child{min-width:0}
+.strategy-plan-row strong{display:block;overflow:hidden;color:#e8f0e4;font-size:11px;font-weight:560;text-overflow:ellipsis;white-space:nowrap}
+.strategy-plan-row>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.strategy-plan-row .plan-state{display:inline-block;margin-top:4px;color:#9fbb85;font-size:9px}
+.strategy-plan-row .plan-state.draft{color:#d5bc86}.strategy-plan-row .plan-state.paused,.strategy-plan-row .plan-state.archived{color:#89968a}
+.strategy-plan-row .panda-button{width:100%;font-size:9px}
+.strategy-plans-empty{display:flex;align-items:center;gap:14px;padding:22px;border:1px dashed #3a483a;border-radius:9px;background:#101711}
+.strategy-plans-empty>span{color:#b8d996;font-size:21px}.strategy-plans-empty>div{flex:1}.strategy-plans-empty strong{color:#e3eddf;font-size:11px}.strategy-plans-empty p{margin:5px 0 0;color:#8f9f8e;font-size:10px}
+.strategy-plans-empty button{padding:8px 10px;border:1px solid #789268;border-radius:6px;background:#263625;color:#e5f2db;font-size:10px;cursor:pointer}
+@media(max-width:1320px){.strategy-finder-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.strategy-match-body{grid-template-columns:1fr}.strategy-match-actions{justify-content:flex-start}}
+@media(max-width:900px){.panda-sidebar .panda-session-list{max-height:150px}.panda-workspace-nav{min-height:130px}.strategy-plan-table-head,.strategy-plan-row{grid-template-columns:minmax(150px,2fr) minmax(100px,1fr) 95px}.strategy-plan-table-head span:nth-child(3),.strategy-plan-row>span:nth-child(3){display:none}}
+@media(max-width:800px){.panda-sidebar{max-height:none}.panda-workspace-nav{display:grid;overflow:visible;min-height:0;max-height:none}.panda-sidebar-bottom{display:flex;gap:8px;flex-wrap:wrap;margin:5px 0}.panda-sidebar-bottom .panda-credit,.panda-sidebar-bottom .panda-data-note{display:none}.panda-sidebar-bottom .panda-quiet{width:auto}.strategy-finder-header{align-items:flex-start;flex-direction:column}.strategy-finder-status{gap:12px}.strategy-finder-steps{overflow-x:auto;white-space:nowrap}.strategy-finder-steps a{margin-right:13px;padding-right:8px}.strategy-match-body{padding:16px}}
+@media(max-width:640px){.strategy-finder-grid{grid-template-columns:1fr}.strategy-finder-section-head{align-items:flex-start;flex-direction:column}.strategy-match-actions .strategy-match-primary{width:100%}.strategy-plans-empty{align-items:flex-start;flex-wrap:wrap}.strategy-plans-empty button{width:100%}.strategy-plan-table-head{display:none}.strategy-plan-row{grid-template-columns:1fr auto;gap:5px}.strategy-plan-row>span:nth-child(2){grid-column:1}.strategy-plan-row>div:last-child{grid-column:2;grid-row:1/3}}
+
+/* Strategy discovery keeps recommendations as the primary surface and embeds the live SUVI conversation beside them. */
+.strategy-page{max-width:1480px}
+.strategy-assistant-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,350px);gap:14px;align-items:start}
+.strategy-primary{min-width:0}
+.strategy-page .strategy-finder-header{padding-top:2px}
+.strategy-page .strategy-finder-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.strategy-ai-column{position:sticky;top:116px;display:flex;flex-direction:column;height:calc(100vh - 140px);min-height:560px;overflow:hidden;border:1px solid #35463a;border-radius:12px;background:linear-gradient(160deg,#121b16 0,#0e1311 55%);box-shadow:0 14px 36px #0003}
+.strategy-ai-heading{display:flex;align-items:flex-start;gap:11px;padding:16px 15px 14px;border-bottom:1px solid #26332a;background:linear-gradient(120deg,#19241b,#111814)}
+.strategy-ai-heading>span{display:grid;place-items:center;flex:0 0 31px;height:31px;border:1px solid #526b42;border-radius:9px;background:#253622;color:#d4f18e;font-size:16px}
+.strategy-ai-heading small{display:block;color:#accd7b;font-size:9px;letter-spacing:.04em}
+.strategy-ai-heading strong{display:block;margin-top:5px;color:#e8f0e4;font-size:13px;font-weight:580}
+.strategy-ai-heading p{margin:5px 0 0;color:#89978b;font-size:9px;line-height:1.6}
+.strategy-agent-host{min-height:0;flex:1}
+.strategy-agent-host>.panda-agent-shell{height:100%;min-height:0}
+.strategy-agent-host .panda-agent-head{padding:10px 13px;background:#111713}
+.strategy-agent-host .panda-agent-head>div:last-child{display:none}
+.strategy-agent-host .panda-agent-head strong{display:none}
+.strategy-agent-host .panda-agent-head small{margin:0;font-size:8px}
+.strategy-agent-host .panda-agent-status{padding:7px 13px;background:#131a15;font-size:8px}
+.strategy-agent-host .panda-agent-messages{padding:12px;scrollbar-width:thin;scrollbar-color:#354438 transparent}
+.strategy-agent-host .panda-agent-composer{padding:10px 11px 12px;background:#101612}
+.strategy-agent-host .panda-agent-composer textarea{min-height:76px;max-height:150px;background:#0b100d;border-color:#303e33;font-size:10px}
+.strategy-agent-host .panda-agent-controls{flex-wrap:wrap;gap:6px}
+.strategy-agent-host .panda-agent-controls label{width:100%;margin:0;font-size:8px}
+.strategy-agent-host .panda-agent-controls .panda-agent-setting{margin-right:auto}
+.strategy-agent-host .agent-composer-hint{font-size:7px}
+.strategy-agent-host .agent-empty.strategy-agent-empty{height:auto;min-height:100%;align-items:stretch;justify-content:center;text-align:left;padding:18px 6px}
+.strategy-agent-host .strategy-agent-empty>span{align-self:center;font-size:25px}
+.strategy-agent-host .strategy-agent-empty>strong{margin-top:8px;text-align:center;font-size:12px}
+.strategy-agent-host .strategy-agent-empty>p{max-width:none;margin:7px 0 13px;color:#9aa69a;font-size:9px;line-height:1.7;text-align:center}
+.strategy-ai-suggestions{display:grid;gap:7px;width:100%;margin-top:3px}
+.strategy-ai-suggestions button{padding:9px 10px;border:1px solid #34443a;border-radius:8px;background:#151e18;color:#cad8c9;font-family:inherit;font-size:9px;line-height:1.5;text-align:left;cursor:pointer;transition:border-color .15s,background .15s,transform .15s}
+.strategy-ai-suggestions button:hover{transform:translateY(-1px);border-color:#79945e;background:#1c291f;color:#e9f2e2}
+.strategy-agent-host .suvi-preview-intro{min-height:0}
+.strategy-detail-assistant-layout .panda-explain-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.strategy-detail-assistant-layout .panda-detail-workspace{grid-template-columns:minmax(0,1fr)}
+.strategy-detail-assistant-layout .panda-controls-column{border-top:1px solid #303030;border-left:0}
+.panda-strategy-agent-embedded .suvi-ask-button{display:none}
+@media(max-width:1180px){.strategy-assistant-layout{grid-template-columns:minmax(0,1fr)}.strategy-ai-column{position:relative;top:auto;height:620px;min-height:520px}.strategy-ai-column{grid-row:auto}}
+@media(max-width:800px){.strategy-page .strategy-finder-grid{grid-template-columns:1fr}.strategy-ai-column{height:590px;min-height:480px}.strategy-page .strategy-finder-header{align-items:flex-start}}
+
+/* Default workbench: module boards first, then guided conversation. */
+.panda-workbench-idle{min-height:calc(100vh - 110px);gap:0}
+.panda-workbench-idle .panda-start-hero{padding:4px 0 14px;text-align:left}
+.panda-workbench-idle .panda-start-hero small{color:#a9c878;font-size:9px;letter-spacing:.06em}
+.panda-workbench-idle .panda-start-hero h1{margin-top:5px;font-size:23px}
+.panda-workbench-idle .panda-start-hero p{margin-top:5px}
+.panda-workbench-overview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 16px}
+.panda-workbench-overview>button{min-width:0;display:grid;grid-template-columns:34px minmax(0,1fr);grid-template-rows:auto auto 1fr auto;column-gap:10px;align-items:start;padding:13px;border:1px solid #2d3630;border-radius:10px;background:linear-gradient(140deg,#121713,#0c0e0d);color:#e4ebe3;text-align:left;cursor:pointer;transition:border-color .16s,transform .16s,background .16s}
+.panda-workbench-overview>button:hover{transform:translateY(-2px);border-color:#6c8057;background:#151c16}
+.panda-workbench-overview>button>span{grid-row:1/5;display:grid;place-items:center;width:32px;height:32px;border:1px solid #374b34;border-radius:9px;background:#1c271a;color:#c7e68a;font-size:17px}
+.panda-workbench-overview>button>small{color:#8e9a8d;font-size:8px}
+.panda-workbench-overview>button>strong{margin-top:2px;font-size:12px;font-weight:600}
+.panda-workbench-overview>button>em{margin-top:6px;color:#879187;font-size:9px;font-style:normal;line-height:1.45}
+.panda-workbench-overview>button>b{margin-top:10px;color:#c5df9b;font-size:8px;font-weight:550}
+.panda-workbench-idle .panda-workspace-block{margin-top:0;margin-bottom:13px;padding:14px}
+.panda-workbench-idle .strategy-block .panda-strategy-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.panda-workbench-idle .strategy-block .panda-strategy-card{min-height:260px;padding:13px}
+.panda-workbench-idle .strategy-block .panda-strategy-card h3{margin:12px 0 6px;font-size:12px}
+.panda-workbench-idle .strategy-block .panda-strategy-card>p{min-height:42px;font-size:9px}
+.panda-workbench-chat{padding:17px 0 30px;margin-top:1px;border-top:1px solid #242a25}
+.panda-workbench-chat-intro{display:flex;align-items:flex-start;gap:11px;margin-bottom:11px}
+.panda-workbench-chat-intro>span{display:grid;place-items:center;flex:0 0 30px;height:30px;border:1px solid #495b3d;border-radius:9px;background:#202b1d;color:#d0ee91;font-size:15px}
+.panda-workbench-chat-intro small{color:#a9c878;font-size:8px}
+.panda-workbench-chat-intro h2{margin:3px 0;color:#e7ede5;font-size:14px;font-weight:580}
+.panda-workbench-chat-intro p{margin:0;color:#89958a;font-size:9px}
+.panda-workbench-prompts{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 10px}
+.panda-workbench-prompts button{padding:7px 10px;border:1px solid #344136;border-radius:999px;background:#121813;color:#b9c9b5;font-family:inherit;font-size:9px;cursor:pointer;transition:background .15s,border-color .15s}
+.panda-workbench-prompts button:hover{border-color:#718956;background:#20291d;color:#edf4df}
+.panda-workbench-chat-host .panda-agent-shell{height:auto;min-height:0}
+.panda-workbench-dashboard-idle .panda-workbench-chat-host .panda-agent-head,.panda-workbench-dashboard-idle .panda-workbench-chat-host .panda-agent-status,.panda-workbench-dashboard-idle .panda-workbench-chat-host .panda-agent-messages,.panda-workbench-dashboard-idle .panda-workbench-chat-host .panda-agent-question{display:none}
+.panda-workbench-dashboard-idle .panda-workbench-chat-host .panda-agent-composer{padding:10px 12px 11px;border:1px solid #364238;border-radius:12px;background:#111713;box-shadow:0 10px 28px #0003}
+.panda-workbench-dashboard-idle .panda-workbench-chat-host .panda-agent-composer textarea{min-height:55px;max-height:120px;padding:5px 3px;border:0;background:transparent;font-size:10px;resize:vertical}
+.panda-workbench-dashboard-idle .panda-workbench-chat-host .panda-agent-controls{margin-top:5px}
+.panda-workbench-dashboard-chat-active .panda-workbench-chat-host .panda-agent-shell{height:min(620px,calc(100vh - 180px));min-height:450px;overflow:hidden;border:1px solid #303b32;border-radius:12px;background:#0e1210}
+.panda-workbench-dashboard-chat-active .panda-workbench-chat-host .panda-agent-head{padding:11px 15px;background:#111713}
+.panda-workbench-dashboard-chat-active .panda-workbench-chat-host .panda-agent-status{padding:7px 15px;background:#131a15}
+.panda-workbench-dashboard-chat-active .panda-workbench-chat-host .panda-agent-messages{padding:14px 16px}
+.panda-workbench-dashboard-chat-active .panda-workbench-chat-host .panda-agent-composer{padding:10px 13px 12px;background:#101612}
+@media(max-width:1100px){.panda-workbench-overview{grid-template-columns:1fr}.panda-workbench-overview>button{grid-template-columns:34px 1fr auto;grid-template-rows:auto auto}.panda-workbench-overview>button>span{grid-row:1/3}.panda-workbench-overview>button>em{grid-column:2}.panda-workbench-overview>button>b{grid-column:3;grid-row:1/3;align-self:center;margin:0}.panda-workbench-idle .strategy-block .panda-strategy-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.panda-workbench-idle .panda-start-hero h1{font-size:20px}.panda-workbench-idle .strategy-block .panda-strategy-grid{grid-template-columns:1fr}.panda-workbench-dashboard-chat-active .panda-workbench-chat-host .panda-agent-shell{height:560px;min-height:430px}.panda-workbench-prompts{gap:6px}.panda-workbench-prompts button{white-space:normal;text-align:left}}
+
+/* Only the 看行情 tab uses this scoped content system; the client shell stays intact. */
+.suvi-market{max-width:1320px;margin:0 auto;color:#e7eee7}
+.suvi-market button{cursor:pointer}
+.suvi-market-demo-note{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 13px;margin:-4px 0 17px;border:1px solid #48513c;border-radius:9px;background:#1c2119;color:#a8b7a5;font-size:10px}
+.suvi-market-demo-note strong{padding:4px 7px;border-radius:5px;background:#334127;color:#e0f4c0;font-size:9px}
+.suvi-market-demo-note button{margin-left:auto;padding:5px 8px;border:1px solid #5d7150;border-radius:6px;background:#263323;color:#d4e8c5;font-size:9px}
+.suvi-market-tabs{display:flex;gap:24px;margin:0 0 20px;border-bottom:1px solid #303a34}
+.suvi-market-tabs button{padding:0 3px 12px;border:0;border-bottom:2px solid transparent;background:none;color:#8e9b90;font-size:12px}
+.suvi-market-tabs button.active{border-color:#d5ecaa;color:#e7f2d9;font-weight:650}
+.suvi-market-section-head{display:flex;align-items:end;justify-content:space-between;gap:14px;margin:17px 0 11px}
+.suvi-market-section-head h2{margin:0 0 4px;font-size:15px;font-weight:600}
+.suvi-market-section-head p,.suvi-market-section-head span{margin:0;color:#819185;font-size:10px}
+.suvi-market-section-head button{padding:5px 0;border:0;background:none;color:#c7dfa5;font-size:10px}
+.suvi-market-index-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.suvi-market-index-card{min-width:0;padding:13px;border:1px solid #303d35;border-radius:10px;background:#151d19;transition:border-color .15s,transform .15s}
+.suvi-market-index-card:hover{border-color:#678661;transform:translateY(-2px)}
+.suvi-market-index-top,.suvi-market-quote,.suvi-market-index-foot{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.suvi-market-index-top strong{font-size:11px}.suvi-market-index-top button{padding:0;border:0;background:none;color:#d0c085;font-size:16px}
+.suvi-market-quote{margin:10px 0 8px}.suvi-market-quote b{font-size:19px;font-weight:600}.suvi-market-quote span{font-size:12px;font-weight:650}
+.suvi-market svg{display:block;width:100%;height:36px}.suvi-market .up{color:#d9958c!important}.suvi-market .down{color:#80b99a!important}
+.suvi-market-index-foot{margin-top:6px}.suvi-market-index-foot small{color:#809185;font-size:9px}.suvi-market-index-foot button{padding:3px 0;border:0;background:none;color:#c3dba6;font-size:10px}
+.suvi-market-order{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0;padding:10px;border:1px solid #344536;border-radius:7px;background:#141b15}.suvi-market-order span{padding:5px 8px;border:1px solid #3d4a3e;border-radius:5px;color:#b8c6b8;font-size:10px}.suvi-market-order button{margin-left:5px;padding:2px 4px;border:0;border-radius:3px;background:#29352a;color:#d2e5cd;font-size:9px}.suvi-market-order button:disabled{opacity:.35}
+.suvi-market-scope{display:flex;align-items:center;gap:6px;margin:17px 0 11px;color:#94a394;font-size:10px}.suvi-market-scope button{padding:5px 8px;border:1px solid #3b493b;border-radius:5px;background:#151d17;color:#a2b09e;font-size:9px}.suvi-market-scope button.active{border-color:#adc992;background:#263421;color:#e1efcc}.suvi-market-scope small{margin-left:auto;color:#778677;font-size:9px}
+.suvi-market-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.suvi-market-stats>div{padding:12px 13px;border:1px solid #303b33;border-radius:8px;background:#151c18}.suvi-market-stats small{display:block;color:#8d9b8e;font-size:9px}.suvi-market-stats strong{display:block;margin:5px 0 2px;color:#e9f1e4;font-size:21px}.suvi-market-stats span{color:#768777;font-size:9px}
+.suvi-market-alert-teasers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:11px 0}.suvi-market-alert-teasers button{display:flex;align-items:center;gap:9px;min-width:0;padding:10px 11px;border:1px solid #3b493c;border-radius:7px;background:#182019;color:#dbe6d8;text-align:left}.suvi-market-alert-teasers button:hover{border-color:#819c72}.suvi-market-alert-teasers span{flex:none;color:#b9d4ac;font-size:9px}.suvi-market-alert-teasers span.attention{color:#e8b48f}.suvi-market-alert-teasers strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}.suvi-market-alert-teasers small{margin-left:auto;color:#8fa68c;font-size:9px;white-space:nowrap}
+.suvi-market-filters,.suvi-market-categories,.suvi-market-ranges{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.suvi-market-filters button,.suvi-market-categories button,.suvi-market-ranges button{padding:6px 9px;border:1px solid #38473b;border-radius:6px;background:#151d17;color:#9cab9d;font-size:10px}.suvi-market-filters button.active,.suvi-market-categories button.active,.suvi-market-ranges button.active{border-color:#a9ca89;background:#273824;color:#e2f3cf}
+.suvi-market-table-wrap{overflow-x:auto;border:1px solid #303c34;border-radius:9px;background:#141b17}.suvi-market-table{width:100%;border-collapse:collapse;min-width:720px}.suvi-market-table th,.suvi-market-table td{padding:11px 12px;border-bottom:1px solid #2b352e;text-align:left;vertical-align:middle;font-size:10px}.suvi-market-table th{color:#829282;font-size:9px;font-weight:500}.suvi-market-table td{color:#b6c5b7}.suvi-market-table tr:last-child td{border-bottom:0}.suvi-market-table td strong,.suvi-market-table td small{display:block}.suvi-market-table td strong{color:#e0e9dd;font-size:11px}.suvi-market-table td small{margin-top:4px;color:#7f907f;font-size:9px}.suvi-market-table td button{padding:3px 0;border:0;background:none;color:#c6dfa5;text-align:left;font-size:9px}
+.suvi-market-footnote{margin:11px 0;color:#809081;font-size:9px;line-height:1.6}.suvi-market-ask{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:18px;padding:12px 14px;border:1px solid #455b3c;border-radius:9px;background:#1c291d;color:#cde1c2;font-size:10px}.suvi-market-ask button,.suvi-market-panel>button,.suvi-market-related button{padding:7px 9px;border:1px solid #65845a;border-radius:6px;background:#263924;color:#e2efcf;font-size:10px}
+.suvi-market-index-list{display:grid;gap:8px}.suvi-market-index-list article{display:grid;grid-template-columns:minmax(125px,1.4fr) 86px 68px minmax(100px,1fr) 105px 30px 55px;align-items:center;gap:10px;padding:12px;border:1px solid #303e35;border-radius:8px;background:#151d18}.suvi-market-index-list strong,.suvi-market-index-list small{display:block}.suvi-market-index-list strong{font-size:11px}.suvi-market-index-list small{margin-top:4px;color:#7f9080;font-size:9px}.suvi-market-index-list b{font-size:12px}.suvi-market-index-list em{font-size:11px;font-style:normal;font-weight:600}.suvi-market-index-list span{color:#98aa99;font-size:9px}.suvi-market-index-list svg{height:28px}.suvi-market-index-list button{padding:4px;border:1px solid #455746;border-radius:5px;background:#1e2b20;color:#d2e8bc;font-size:10px}
+.suvi-market-compare-tray{display:flex;align-items:center;gap:12px;margin:13px 0;padding:10px 12px;border:1px solid #637d52;border-radius:7px;background:#1c2b1e;font-size:10px}.suvi-market-compare-tray span{color:#9fb69d}.suvi-market-compare-tray button{margin-left:auto;padding:7px 10px;border:1px solid #bbd69c;border-radius:5px;background:#d5ebad;color:#182414;font-size:10px}.suvi-market-compare-tray button:disabled{opacity:.45}
+.suvi-market-back{display:flex;gap:10px;align-items:center;margin:0 0 14px;color:#758875;font-size:10px}.suvi-market-back button{padding:0;border:0;background:none;color:#c3dc9f;font-size:10px}.suvi-market-detail-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(260px,.75fr);gap:12px}.suvi-market-panel{min-width:0;padding:17px;border:1px solid #334237;border-radius:10px;background:#151d18}.suvi-market-panel h2{margin:4px 0 11px;font-size:14px}.suvi-market-panel p{color:#a1b0a1;font-size:10px;line-height:1.7}.suvi-market-panel>small{color:#90a38e;font-size:9px}.suvi-market-panel>svg{height:168px;margin:9px 0}.suvi-market-hero-quote{display:flex;justify-content:space-between;align-items:end;gap:9px}.suvi-market-hero-quote small{color:#829583;font-size:9px}.suvi-market-hero-quote strong{font-size:18px}.suvi-market-hero-quote em{margin-left:6px;font-size:12px;font-style:normal}.suvi-market-evidence{margin:10px 0;padding:10px;border-left:2px solid #92b67b;background:#1b291c}.suvi-market-evidence strong{font-size:10px}.suvi-market-evidence p{margin:4px 0 0}.suvi-market-crosswalk{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,1fr);gap:16px;margin-top:12px}.suvi-market-related{display:grid;gap:5px;padding:10px;margin:7px 0;border:1px solid #3b4b3b;border-radius:7px}.suvi-market-related strong{font-size:10px}.suvi-market-related span,.suvi-market-related small{color:#9fb39f;font-size:9px}.suvi-market-related button{justify-self:start}.suvi-market-fund-facts{display:grid;gap:8px;margin-top:14px}.suvi-market-fund-facts span{padding:9px;border:1px solid #334135;border-radius:6px;color:#b7c8b5;font-size:10px}.suvi-market-fund-facts b{margin-left:8px}
+.suvi-market-compare-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:15px 0}.suvi-market-compare-grid>div{min-width:0;padding:12px;border:1px solid #39483b;border-radius:7px;background:#111913}.suvi-market-compare-grid strong,.suvi-market-compare-grid b,.suvi-market-compare-grid small,.suvi-market-compare-grid span{display:block}.suvi-market-compare-grid b{margin-top:7px;font-size:14px}.suvi-market-compare-grid svg{height:78px;margin:10px 0}.suvi-market-compare-grid small,.suvi-market-compare-grid span{color:#91a393;font-size:9px;line-height:1.55}
+.suvi-market-alert-list{display:grid;gap:10px}.suvi-market-alert-list article{padding:15px;border:1px solid #344237;border-radius:9px;background:#151e19}.suvi-market-alert-list article.selected{border-color:#749066}.suvi-market-alert-list article>div:first-child{display:flex;align-items:center;gap:10px}.suvi-market-alert-list strong{font-size:12px}.suvi-market-alert-list time{margin-left:auto;color:#839382;font-size:9px}.suvi-market-alert-level{color:#b7d19f;font-size:9px}.suvi-market-alert-level.attention{color:#e5ad89}.suvi-market-alert-list p{margin:9px 0;color:#afbdaf;font-size:10px;line-height:1.7}.suvi-market-alert-list small{display:block;color:#819281;font-size:9px}.suvi-market-alert-list button{margin-top:10px;padding:5px 8px;border:1px solid #586f50;border-radius:5px;background:#233222;color:#d2e7bd;font-size:9px}.suvi-market-alert-list dl{display:grid;grid-template-columns:66px 1fr;gap:8px 12px;padding:12px 0;margin:10px 0 0;border-top:1px solid #344336;font-size:10px}.suvi-market-alert-list dt{color:#8fa18f}.suvi-market-alert-list dd{margin:0;color:#cad9c8}
+@media(max-width:1250px){.suvi-market-index-strip,.suvi-market-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.suvi-market-index-list article{grid-template-columns:minmax(100px,1.4fr) 80px 65px 70px 28px 52px}.suvi-market-index-list article>span{display:none}}
+@media(max-width:900px){.suvi-market-detail-grid,.suvi-market-crosswalk{grid-template-columns:1fr}.suvi-market-alert-teasers{grid-template-columns:1fr}}
+@media(max-width:650px){.suvi-market-index-strip,.suvi-market-stats,.suvi-market-compare-grid{grid-template-columns:1fr}.suvi-market-scope,.suvi-market-ask{align-items:flex-start;flex-wrap:wrap}.suvi-market-scope small{width:100%;margin:0}.suvi-market-index-list article{grid-template-columns:1fr 80px 60px}.suvi-market-index-list article svg,.suvi-market-index-list article>button:first-of-type{display:none}}
+
+.strategy-preference{padding:13px 15px;margin:16px 0 10px;border:1px solid #3f5140;border-radius:9px;background:#141e16}
+.strategy-preference-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.strategy-preference-head strong{color:#e4efe0;font-size:12px}.strategy-preference-head span{margin-left:9px;color:#849583;font-size:9px}.strategy-preference-head>span{display:flex;gap:5px;flex-wrap:wrap}.strategy-preference-head i{padding:4px 6px;border:1px solid #405342;border-radius:5px;background:#213025;color:#bfd9b0;font-size:9px;font-style:normal}
+.strategy-preference-controls{display:flex;align-items:end;gap:9px;flex-wrap:wrap;margin:12px 0 8px}.strategy-preference-controls label{display:grid;gap:5px;color:#9bad9a;font-size:9px}.strategy-preference-controls input,.strategy-preference-controls select{min-width:120px;height:32px;padding:5px 8px;border:1px solid #455648;border-radius:6px;background:#101810;color:#e6f0e2;font-size:10px}.strategy-preference-controls input{width:140px}.strategy-preference-controls button,.strategy-compare-panel>button{min-height:32px;padding:7px 10px;border:1px solid #b5d394;border-radius:6px;background:#d2e9ad;color:#1a2616;font-size:10px;font-weight:650;cursor:pointer}.strategy-preference>small{color:#788a78;font-size:9px}
+.strategy-compare-action{padding-top:7px}.strategy-compare-action button{width:100%;padding:7px;border:1px solid #455a43;border-radius:6px;background:#1b291d;color:#c7dfa9;font-size:10px;cursor:pointer}.strategy-compare-action button[aria-pressed="true"]{border-color:#9dc682;background:#2c4429;color:#e0f2cf}
+.strategy-compare-tray{display:flex;align-items:center;gap:10px;margin-top:12px;padding:11px 12px;border:1px solid #526a4d;border-radius:8px;background:#1a291b;color:#deedcd;font-size:10px}.strategy-compare-tray span{color:#9fb49b}.strategy-compare-tray button{margin-left:auto;padding:7px 10px;border:1px solid #afce91;border-radius:5px;background:#d0e9ab;color:#1c2817;font-size:10px;cursor:pointer}.strategy-compare-tray button:disabled{opacity:.45;cursor:not-allowed}
+.strategy-compare-panel{padding:15px;margin-top:8px;border:1px solid #3d4f3b;border-radius:8px;background:#131d15}.strategy-compare-panel h3{margin:0 0 4px;color:#e6f0df;font-size:14px}.strategy-compare-panel p{max-width:900px;color:#8fa28d;font-size:10px;line-height:1.65}.strategy-compare-scroll{overflow:auto;margin:12px 0}.strategy-compare-panel table{width:100%;min-width:580px;border-collapse:collapse}.strategy-compare-panel th,.strategy-compare-panel td{padding:10px;border-bottom:1px solid #314033;text-align:left;vertical-align:top;color:#c4d4c2;font-size:10px;line-height:1.55}.strategy-compare-panel th{color:#d7edc3;font-weight:600}.strategy-compare-panel td:first-child{width:110px;color:#8ea38b}
+@media(max-width:760px){.strategy-preference-head{align-items:flex-start;flex-direction:column}.strategy-preference-head>span{margin-left:0}.strategy-compare-tray{flex-wrap:wrap}.strategy-compare-tray button{margin-left:0}}
+.suvi-market-combined-chart{padding:12px;margin:12px 0;border:1px solid #3b4a3d;border-radius:8px;background:#101712}.suvi-market-combined-chart svg{height:160px}.suvi-market-combined-chart>div{display:flex;gap:14px;flex-wrap:wrap;margin:8px 0;color:#bdcfbb;font-size:9px}.suvi-market-combined-chart i{display:inline-block;width:13px;height:2px;margin-right:5px;vertical-align:middle}.suvi-market-combined-chart small{color:#819481;font-size:9px}
+.suvi-market-plan-mini{display:grid;gap:5px;padding:11px;margin-top:11px;border:1px solid #5a6d4e;border-radius:6px;background:#202d1e}.suvi-market-plan-mini strong{color:#def0ca;font-size:10px}.suvi-market-plan-mini span,.suvi-market-plan-mini small{color:#acc2a4;font-size:9px}
+
+/* Holdings-native market workspace: all figures are account data, with empty states for unconnected sources. */
+.suvi-market-account-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:2px 0 14px;padding:10px 13px;border:1px solid #303d35;border-radius:9px;background:#141c17}
+.suvi-market-account-bar>div{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.suvi-market-account-bar strong{color:#e2ebdf;font-size:11px}.suvi-market-account-bar span{color:#849486;font-size:9px}.suvi-market-account-bar button,.suvi-market-empty-actions button{padding:7px 10px;border:1px solid #4a6047;border-radius:6px;background:#1b281d;color:#d0e3bf;font-size:10px}
+.suvi-market-personal-summary{display:grid;grid-template-columns:minmax(190px,.72fr) minmax(0,2fr);gap:16px;padding:17px;margin:0 0 17px;border:1px solid #3a4a39;border-radius:11px;background:linear-gradient(120deg,#18241b,#131a16 74%)}
+.suvi-market-summary-intro{align-self:center}.suvi-market-summary-intro>span{color:#c7e29f;font-size:9px;letter-spacing:.04em}.suvi-market-summary-intro h2{margin:7px 0;color:#eef4e9;font-size:18px}.suvi-market-summary-intro p{max-width:290px;margin:0;color:#94a395;font-size:10px;line-height:1.7}
+.suvi-market-summary-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.suvi-market-summary-metrics article{min-width:0;padding:12px;border:1px solid #303e33;border-radius:8px;background:#111813}.suvi-market-summary-metrics small,.suvi-market-summary-metrics span{display:block;color:#8b9a8d;font-size:9px}.suvi-market-summary-metrics strong{display:block;overflow:hidden;margin:8px 0 5px;color:#e8f0e5;font-size:17px;text-overflow:ellipsis;white-space:nowrap}.suvi-market-summary-metrics strong i{font-size:10px;font-style:normal;font-weight:400}.suvi-market-summary-metrics span{font-size:8px}
+.suvi-market-holdings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.suvi-market-holding-card{min-width:0;padding:14px;border:1px solid #303d35;border-radius:9px;background:#141b17;transition:border-color .16s,transform .16s}.suvi-market-holding-card:hover{border-color:#68835e;transform:translateY(-1px)}.suvi-market-holding-main{display:flex;justify-content:space-between;gap:12px}.suvi-market-holding-main h3{overflow:hidden;margin:0;color:#e4ece2;font-size:12px;text-overflow:ellipsis;white-space:nowrap}.suvi-market-holding-main p{margin:5px 0 0;color:#849486;font-size:9px}.suvi-market-holding-share{flex:none;color:#89988b;font-size:9px}.suvi-market-holding-share b{margin-left:4px;color:#ceddc3;font-size:11px}
+.suvi-market-holding-values{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:14px 0 11px}.suvi-market-holding-values>div{min-width:0;padding:8px 9px;border-radius:6px;background:#101611}.suvi-market-holding-values small,.suvi-market-holding-values strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.suvi-market-holding-values small{color:#829084;font-size:8px}.suvi-market-holding-values strong{margin-top:5px;color:#d9e5d7;font-size:11px}.suvi-market-holding-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:9px;border-top:1px solid #2b352e}.suvi-market-holding-foot>span{color:#859287;font-size:8px}.suvi-market-holding-foot button{padding:4px 0;border:0;background:none;color:#c6dfa5;font-size:9px}.suvi-market-empty{display:flex;gap:14px;align-items:flex-start;max-width:820px;padding:22px;border:1px solid #303b34;border-radius:10px;background:#141b17}.suvi-market-empty-mark{display:grid;flex:none;place-items:center;width:34px;height:34px;border:1px solid #3a4c3b;border-radius:9px;color:#bdd89c;font-size:18px}.suvi-market-empty h2{margin:2px 0 7px;color:#e3ebe0;font-size:13px}.suvi-market-empty p{max-width:620px;margin:0;color:#96a296;font-size:10px;line-height:1.7}.suvi-market-empty-actions{display:flex;gap:8px;margin-top:13px}
+@media(max-width:1100px){.suvi-market-personal-summary{grid-template-columns:1fr}.suvi-market-summary-intro p{max-width:none}}
+@media(max-width:760px){.suvi-market-summary-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.suvi-market-holdings-grid{grid-template-columns:1fr}}
+@media(max-width:500px){.suvi-market-holding-values{grid-template-columns:repeat(2,minmax(0,1fr))}.suvi-market-account-bar>div{align-items:flex-start;flex-direction:column;gap:4px}}
+
+/* Keep the workbench compact so the guided conversation and composer stay in the first viewport. */
+.panda-workbench-idle{display:flex;flex-direction:column;gap:0;min-height:0;height:100%;overflow:hidden}
+.panda-workbench-idle .panda-start-hero{display:flex;align-items:center;justify-content:space-between;flex:none;padding:0 0 12px;text-align:left}
+.panda-workbench-idle .panda-start-hero small{color:#a9c878;font-size:9px;letter-spacing:.06em}
+.panda-workbench-idle .panda-start-hero h1{margin:4px 0;font-size:21px;line-height:1.25}
+.panda-workbench-idle .panda-start-hero p{margin:0;color:#89958a;font-size:9px}
+.panda-workbench-overview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;flex:none;margin:0 0 13px}
+.panda-workbench-overview>button{height:66px;min-width:0;display:grid;grid-template-columns:32px minmax(0,1fr) auto;grid-template-rows:1fr 1fr;column-gap:10px;align-items:center;padding:9px 12px;border:1px solid #2d3630;border-radius:9px;background:linear-gradient(140deg,#121713,#0c0e0d);color:#e4ebe3;text-align:left;cursor:pointer;transition:border-color .16s,background .16s}
+.panda-workbench-overview>button:hover{border-color:#6c8057;background:#151c16}
+.panda-workbench-overview>button>span{grid-column:1;grid-row:1/3;display:grid;place-items:center;width:30px;height:30px;border:1px solid #374b34;border-radius:8px;background:#1c271a;color:#c7e68a;font-size:16px}
+.panda-workbench-overview>button>strong{grid-column:2;grid-row:1;align-self:end;font-size:11px;font-weight:600}
+.panda-workbench-overview>button>small{grid-column:2;grid-row:2;align-self:start;overflow:hidden;color:#89958a;font-size:8px;text-overflow:ellipsis;white-space:nowrap}
+.panda-workbench-overview>button>b{grid-column:3;grid-row:1/3;color:#c5df9b;font-size:12px;font-weight:500}
+.panda-workbench-chat{display:flex;flex:1;flex-direction:column;min-height:0;padding:11px 0 0;margin:0;border-top:1px solid #242a25}
+.panda-workbench-chat-intro{flex:none;display:flex;align-items:center;gap:9px;margin:0 0 8px}
+.panda-workbench-chat-intro>span{display:grid;place-items:center;flex:0 0 27px;height:27px;border:1px solid #495b3d;border-radius:8px;background:#202b1d;color:#d0ee91;font-size:13px}
+.panda-workbench-chat-intro small{color:#a9c878;font-size:8px}
+.panda-workbench-chat-intro h2{margin:2px 0;color:#e7ede5;font-size:12px;font-weight:580}
+.panda-workbench-chat-intro p{display:none}
+.panda-workbench-prompts{display:flex;flex:none;gap:6px;flex-wrap:wrap;margin:0 0 8px}
+.panda-workbench-prompts button{padding:6px 9px;border:1px solid #344136;border-radius:999px;background:#121813;color:#b9c9b5;font-family:inherit;font-size:8px;cursor:pointer;transition:background .15s,border-color .15s}
+.panda-workbench-prompts button:hover{border-color:#718956;background:#20291d;color:#edf4df}
+.panda-workbench-chat-host{display:flex;flex:1;min-height:0}
+.panda-workbench-chat-host .panda-agent-shell{width:100%;height:auto;min-height:0;flex:1}
+.panda-workbench-dashboard-idle .panda-workbench-chat-host .panda-agent-head,.panda-workbench-dashboard-idle .panda-workbench-chat-host .panda-agent-status,.panda-workbench-dashboard-idle .panda-workbench-chat-host .panda-agent-messages,.panda-workbench-dashboard-idle .panda-workbench-chat-host .panda-agent-question{display:none}
+.panda-workbench-dashboard-idle .panda-workbench-chat-host .panda-agent-composer{width:min(900px,100%);align-self:flex-start;margin:0 auto;padding:10px 13px;border:1px solid #364238;border-radius:11px;background:#111713;box-shadow:0 10px 28px #0003}
+.panda-workbench-dashboard-idle .panda-workbench-chat-host .panda-agent-composer textarea{min-height:52px;max-height:90px;padding:5px 3px;border:0;background:transparent;font-size:10px;resize:none}
+.panda-workbench-dashboard-idle .panda-workbench-chat-host .panda-agent-controls{margin-top:4px}
+.panda-workbench-dashboard-chat-active .panda-content{height:calc(100vh - 64px);padding:15px 30px 14px;overflow:hidden}
+.suvi-desktop-chrome.panda-workbench-dashboard-chat-active .panda-content{height:calc(100vh - 104px);padding:14px 30px 12px}
+.panda-workbench-dashboard-chat-active .panda-workbench-idle{height:100%;min-height:0}
+.panda-workbench-dashboard-chat-active .panda-workbench-idle .panda-start-hero{padding-bottom:8px}
+.panda-workbench-dashboard-chat-active .panda-workbench-idle .panda-start-hero p{display:none}
+.panda-workbench-dashboard-chat-active .panda-workbench-overview{gap:7px;margin-bottom:9px}
+.panda-workbench-dashboard-chat-active .panda-workbench-overview>button{height:52px;padding:6px 10px}
+.panda-workbench-dashboard-chat-active .panda-workbench-overview>button>span{width:26px;height:26px;font-size:13px}
+.panda-workbench-dashboard-chat-active .panda-workbench-chat{padding-top:8px}
+.panda-workbench-dashboard-chat-active .panda-workbench-chat-intro{margin-bottom:4px}
+.panda-workbench-dashboard-chat-active .panda-workbench-chat-intro>span{display:none}
+.panda-workbench-dashboard-chat-active .panda-workbench-chat-intro h2{font-size:10px}
+.panda-workbench-dashboard-chat-active .panda-workbench-prompts{display:none}
+.panda-workbench-dashboard-chat-active .panda-workbench-chat-host .panda-agent-shell{width:100%;height:100%;min-height:0;overflow:hidden;display:flex;flex:1;flex-direction:column;border:1px solid #303b32;border-radius:11px;background:#0e1210}
+.panda-workbench-dashboard-chat-active .panda-workbench-chat-host .panda-agent-head{flex:none;padding:8px 13px;background:#111713}
+.panda-workbench-dashboard-chat-active .panda-workbench-chat-host .panda-agent-status{flex:none;padding:5px 13px;background:#131a15}
+.panda-workbench-dashboard-chat-active .panda-workbench-chat-host .panda-agent-messages{flex:1;min-height:0;overflow:auto;padding:10px 14px}
+.panda-workbench-dashboard-chat-active .panda-workbench-chat-host .panda-agent-question{flex:none;max-height:30vh;overflow:auto;padding:8px 12px}
+.panda-workbench-dashboard-chat-active .panda-workbench-chat-host .panda-agent-composer{flex:none;padding:8px 11px 9px;background:#101612}
+.panda-workbench-dashboard-chat-active .panda-workbench-chat-host .panda-agent-composer textarea{min-height:42px;max-height:84px;padding:7px 8px;font-size:10px;resize:none}
+.panda-workbench-dashboard-chat-active .panda-workbench-chat-host .agent-composer-hint{margin-top:3px}
+@media(max-width:760px){.panda-workbench-overview{gap:6px}.panda-workbench-overview>button{grid-template-columns:26px minmax(0,1fr) auto;column-gap:7px;height:58px;padding:6px}.panda-workbench-overview>button>span{width:24px;height:24px;font-size:12px}.panda-workbench-overview>button>small{font-size:7px}.panda-workbench-idle .panda-start-hero h1{font-size:18px}.panda-workbench-dashboard-chat-active .panda-content{height:calc(100vh - 132px);padding:10px}.suvi-desktop-chrome.panda-workbench-dashboard-chat-active .panda-content{height:calc(100vh - 172px);padding:10px}}
+@media(max-height:760px){.panda-workbench-dashboard-chat-active .panda-workbench-idle .panda-start-hero{padding-bottom:5px}.panda-workbench-dashboard-chat-active .panda-workbench-idle .panda-start-hero h1{font-size:17px}.panda-workbench-dashboard-chat-active .panda-workbench-overview>button{height:44px}.panda-workbench-dashboard-chat-active .panda-workbench-overview>button>small{display:none}}
+
+/* Strategy workspace starts with the filter and evidence, without an empty app bar or repeated introduction. */
+.panda-strategy-agent-embedded .panda-topbar{display:none}
+.panda-strategy-agent-embedded .panda-content{padding-top:14px}
+.strategy-page .suvi-module-nav{margin-bottom:16px}
+.strategy-page .strategy-finder-section{padding-top:0}
+.strategy-filter-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px}
+.strategy-filter-row .strategy-category-tabs{min-width:0;margin:0}
+.strategy-filter-meta{display:flex;align-items:center;gap:13px;white-space:nowrap;color:#91a390;font-size:10px}
+.strategy-filter-meta button{padding:0;border:0;background:transparent;color:#bedf91;font:inherit;cursor:pointer}
+.strategy-filter-meta button:hover{text-decoration:underline}
+.strategy-page .strategy-follow-section{margin-top:6px}
+.strategy-page .strategy-ai-heading{align-items:center;gap:9px;padding:10px 13px}
+.strategy-page .strategy-ai-heading>span{width:27px;height:27px;flex-basis:27px;font-size:13px}
+.strategy-page .strategy-ai-heading strong{margin:0;font-size:11px}
+.strategy-agent-host .agent-empty.strategy-agent-empty{min-height:0;justify-content:flex-start;padding:18px 8px}
+.strategy-agent-host .strategy-agent-empty>strong{margin:0;text-align:left}
+.strategy-agent-host .strategy-agent-empty>p{margin:5px 0 12px;text-align:left}
+.strategy-agent-host .strategy-ai-suggestions{margin-top:0}
+@media(min-width:1181px){.panda-strategy-agent-embedded .strategy-ai-column{top:52px;height:calc(100vh - 122px);min-height:480px}}
+@media(max-width:700px){.strategy-filter-row{align-items:flex-start;flex-direction:column}.strategy-filter-meta{padding-left:2px}}
+
+/* A strategy conversation takes space only after the first message. */
+.strategy-idle-chat-host{display:none}
+.panda-strategy-chat-idle .strategy-assistant-layout{display:block}
+.panda-strategy-chat-idle .strategy-assistant-layout .strategy-ai-column{display:none}
+.panda-strategy-chat-idle .panda-content{padding-bottom:150px}
+.panda-strategy-chat-idle .strategy-idle-chat-host{position:fixed;right:auto;bottom:20px;left:calc(50% + 116px);z-index:12;display:block;width:min(760px,calc(100vw - 300px));transform:translateX(-50%)}
+.strategy-idle-chat-host .panda-agent-shell{height:auto;min-height:0}
+.strategy-idle-chat-host .panda-agent-head,.strategy-idle-chat-host .panda-agent-status,.strategy-idle-chat-host .panda-agent-messages,.strategy-idle-chat-host .panda-agent-question{display:none}
+.strategy-idle-chat-host .panda-agent-composer{display:flex;align-items:flex-end;gap:8px;padding:8px 9px 8px 16px;border:1px solid #4a5d46;border-radius:15px;background:#151c16;box-shadow:0 16px 48px #000a}
+.strategy-idle-chat-host .panda-agent-composer:focus-within{border-color:#badb8a}
+.strategy-idle-chat-host .panda-agent-composer textarea{flex:1;min-width:0;min-height:40px;max-height:110px;padding:10px 2px 7px;resize:none;border:0;background:transparent;font-size:11px}
+.strategy-idle-chat-host .panda-agent-controls{flex:none;margin:0 0 3px}
+.strategy-idle-chat-host .panda-agent-controls label,.strategy-idle-chat-host .panda-agent-setting,.strategy-idle-chat-host #agent-run-state,.strategy-idle-chat-host .agent-composer-hint{display:none}
+.strategy-idle-chat-host #agent-send{min-width:65px;height:34px;border-radius:9px}
+@media(min-width:1220px){.panda-strategy-chat-idle .strategy-page .strategy-finder-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:800px){.panda-strategy-chat-idle .strategy-idle-chat-host{left:50%;bottom:12px;width:calc(100vw - 26px)}.panda-strategy-chat-idle .strategy-page .strategy-finder-grid{grid-template-columns:1fr}}
+
+/* Obsidian: restrained charcoal surfaces, warm white actions and a small champagne accent. */
+:root{--bg:#09090b;--panel:#121214;--panel2:#171719;--panel3:#1d1d20;--line:#2c2c30;--line2:#3c3a3b;--text:#edeae5;--muted:#aaa6a0;--dim:#77736f;--lime:#cdbd9f;--lime2:#a99573;--shadow:0 22px 54px #0009}
+html,body,.panda-main{background:#09090b;color:#edeae5}
+.panda-sidebar{background:#0e0e10;border-color:#29292c}
+.suvi-desktop-chrome .suvi-window-strip,.panda-topbar{background:#0b0b0d;border-color:#29292c}
+.suvi-window-dot{border-color:#716550;background:#25221e;color:#d6c4a5}
+.suvi-window-strip i{border-color:#48443f}.suvi-window-subtitle,.panda-brand small{color:#99948c}
+.panda-section-label,.workspace-label,.panda-session-top,.panda-credit{color:#88847f}
+.panda-workbench-nav,.panda-nav button,.panda-quiet{color:#aaa6a0}
+.panda-workbench-nav:hover,.panda-nav button:hover,.panda-quiet:hover{background:#1b1b1e;color:#f3f0ea}
+.panda-workbench-nav.active,.panda-nav button.active,.panda-workspace-nav>button.active{background:#e8e4dc;color:#181719;box-shadow:none}
+.panda-workbench-nav.active:hover,.panda-nav button.active:hover,.panda-workspace-nav>button.active:hover{background:#f4f0e9;color:#171719}
+.panda-workbench-nav.active .nav-symbol,.panda-nav button.active .nav-symbol,.panda-workspace-nav>button.active .nav-symbol{color:#51483a}
+.panda-new{border-color:#38373a;background:#111113;color:#aaa6a0}.panda-new span{color:#cdbd9f}.panda-new:hover{border-color:#6b6358;background:#1b1a1a;color:#f1ece4}
+.panda-session-row.active{border-color:#726957;background:#25231f;box-shadow:inset 2px 0 0 #cdbd9f}
+.panda-session-row:hover{border-color:#444043;background:#1a1a1d}.panda-session-row.active strong{color:#f3ece2}
+.panda-session-top small,.panda-session-search{background:#171719;border-color:#343437;color:#a49e95}
+.panda-session-search:focus-within{border-color:#a99573}.panda-session-row .panda-session-pin:hover,.panda-credit strong{color:#cdbd9f}
+.panda-data-note{border-color:#2b2a2c}.panda-data-note i{background:#cdbd9f;box-shadow:0 0 0 4px #cdbd9f1c}.panda-data-note span{color:#dedbd5}
+.suvi-ask-button,.panda-button,.panda-agent-head button{border-color:#484447;background:#1a191b;color:#e7e2d9}
+.suvi-ask-button:hover,.panda-button:hover,.panda-agent-head button:hover{border-color:#9b896c;background:#252321}
+.panda-button.primary,#agent-send:not(:disabled){border-color:#e8e4dc;background:#e8e4dc;color:#171719}
+.panda-button.primary:hover,#agent-send:not(:disabled):hover{border-color:#fffaf1;background:#fffaf1}
+.panda-heading .eyebrow,.panda-workbench-idle .panda-start-hero small{color:#bba985}
+.panda-heading h1,.panda-start-hero h1{color:#f1eee9}
+.panda-heading p,.panda-workbench-idle .panda-start-hero p{color:#99948d}
+.suvi-module-nav{border-color:#303034;background:#121214}
+.suvi-module-nav button,.suvi-module-pending{color:#a49f98}.suvi-module-nav button:hover{background:#222124;color:#f1ece3}
+.suvi-module-nav button.active{background:#34302a;color:#f5ebdc}
+.strategy-category-tabs button,.suvi-market-filters button,.suvi-market-categories button,.suvi-market-ranges button{border-color:#39383b;background:#18181a;color:#b3aea8}
+.strategy-category-tabs button:hover,.suvi-market-filters button:hover,.suvi-market-categories button:hover,.suvi-market-ranges button:hover{border-color:#8b7c66;color:#f2ede5}
+.strategy-category-tabs button.active,.suvi-market-filters button.active,.suvi-market-categories button.active,.suvi-market-ranges button.active{border-color:#b8a786;background:#2a2723;color:#eee2ce}
+.strategy-filter-meta,.strategy-research-note{color:#918b84}.strategy-filter-meta button,.strategy-finder-section-head>button{color:#d0b98d}
+.panda-strategy-card,.strategy-finder-grid .panda-strategy-card{border-color:#313135;background:#151517}
+.panda-strategy-card:hover{border-color:#756c60;background:#1b1a1a}
+.strategy-glyph{background:#292621;color:#d2bea0}.strategy-badge{border-color:#454045;color:#b4aea4}
+.strategy-performance{border-color:#333236;background:#0f0f11}.strategy-card-footer{border-color:#303034}
+.strategy-compare-action button,.strategy-show-all{border-color:#474348;background:#211f1f;color:#ddd2bd}
+.strategy-compare-action button:hover,.strategy-show-all:hover{border-color:#a38f6b;background:#2b2824}
+.strategy-compare-action button[aria-pressed="true"]{border-color:#bfa984;background:#393225;color:#f1dfbd}
+.strategy-compare-tray,.strategy-compare-panel,.strategy-plans-empty{border-color:#4a4540;background:#191819;color:#e8e2d8}
+.strategy-compare-tray button,.strategy-compare-panel>button,.strategy-plans-empty button{border-color:#bca984;background:#d9c9a8;color:#1c1a18}
+.strategy-plan-table,.strategy-plan-row{border-color:#323135}.strategy-plan-row .plan-state{color:#c5b391}
+.strategy-ai-column{border-color:#39373a;background:#121214;box-shadow:0 18px 44px #0006}
+.strategy-ai-heading,.strategy-page .strategy-ai-heading{border-color:#333236;background:#1a191a}
+.strategy-ai-heading>span,.panda-workbench-chat-intro>span{border-color:#736550;background:#2b251e;color:#d4c09a}
+.strategy-ai-heading small,.panda-workbench-chat-intro small{color:#c3ae87}
+.strategy-ai-heading strong,.strategy-agent-host .strategy-agent-empty>strong{color:#eee8de}
+.strategy-ai-heading p,.strategy-agent-host .strategy-agent-empty>p{color:#9b958d}
+.strategy-agent-host .panda-agent-head,.panda-workbench-dashboard-chat-active .panda-workbench-chat-host .panda-agent-head{background:#171719}
+.strategy-agent-host .panda-agent-status,.panda-workbench-dashboard-chat-active .panda-workbench-chat-host .panda-agent-status{background:#131315}
+.strategy-agent-host .panda-agent-composer,.panda-workbench-dashboard-chat-active .panda-workbench-chat-host .panda-agent-composer{background:#151517}
+.strategy-ai-suggestions button,.panda-workbench-prompts button{border-color:#403d3c;background:#1c1b1b;color:#dad3c8}
+.strategy-ai-suggestions button:hover,.panda-workbench-prompts button:hover{border-color:#a89572;background:#28241f;color:#f5eee2}
+.strategy-idle-chat-host .panda-agent-composer,.panda-workbench-dashboard-idle .panda-workbench-chat-host .panda-agent-composer{border-color:#595047;background:#1b1a1b;box-shadow:0 18px 48px #000b}
+.strategy-idle-chat-host .panda-agent-composer:focus-within,.panda-workbench-dashboard-idle .panda-workbench-chat-host .panda-agent-composer:focus-within{border-color:#c5b18d}
+.panda-agent-composer textarea,.strategy-agent-host .panda-agent-composer textarea{border-color:#3b393c;background:#111113;color:#ece8e1}
+.strategy-idle-chat-host .panda-agent-composer textarea,.panda-workbench-dashboard-idle .panda-workbench-chat-host .panda-agent-composer textarea{border:0;background:transparent}
+.panda-agent-head,.panda-agent-status,.panda-agent-composer{border-color:#333236;background:#151517}
+.agent-message>div,.agent-tool,.agent-reasoning,.agent-plan{border-color:#38363a;background:#1a191b;color:#e6e0d7}
+.agent-message.user>div{border-color:#65584a;background:#29241f}.agent-plan>strong,.panda-agent-setting{color:#ccb893}
+.panda-workbench-overview>button{border-color:#343337;background:#161618;color:#eae6df}
+.panda-workbench-overview>button:hover{border-color:#81725d;background:#1d1c1d}
+.panda-workbench-overview>button>span{border-color:#635744;background:#29251f;color:#d4c09a}
+.panda-workbench-overview>button>b{color:#cbb793}.panda-workbench-chat{border-color:#303034}
+.panda-workbench-dashboard-chat-active .panda-workbench-chat-host .panda-agent-shell{border-color:#38363a;background:#141416}
+.panda-provider-card{border-color:#333236;background:#141416}.panda-provider-card.selected{border-color:#8b7b63;box-shadow:inset 0 2px 0 #cbb793}
+.panda-provider-card.selected .provider-state{border-color:#76654c;background:#2b251e;color:#e7d0ab}
+.panda-provider-account,.api-save-feedback{border-color:#363437;background:#111113;color:#b2aaa0}
+.panda-provider-account i.connected{background:#cbb793;box-shadow:0 0 0 4px #cbb7931c}
+#api-provider-form [data-api-save]{border-color:#e7dfd1;background:#e7dfd1;color:#171719;box-shadow:0 5px 18px #0006}
+#api-provider-form [data-api-save]:hover{background:#fff8ec;box-shadow:0 8px 22px #0007}
+.panda-field input,.panda-field select,.provider-form input,.provider-form select{border-color:#3d3b3d;background:#111113;color:#ece7df}
+.panda-field input:focus,.panda-field select:focus,.provider-form input:focus,.provider-form select:focus{border-color:#bda984}
+.panda-detail-left,.panda-detail-right,.panda-plan-card,.panda-chart-wrap,.panda-settings-card,.panda-connect-grid section{border-color:#343236;background:#151517}
+.panda-metrics,.panda-plan-summary{border-color:#333236;background:#333236}.panda-metrics>div,.panda-plan-summary>div{background:#1b1a1c}
+.panda-result-note,.panda-history-note,.panda-version-row{background:#1b1a1c;color:#a49d92}
+.panda-save-row{border-color:#6b604f;background:#25211d}.panda-save-row strong{color:#e7d5b8}
+.panda-chart .strategy-line{stroke:#cbb793}.panda-chart .benchmark-line{stroke:#a3a0a0}
+.suvi-market{color:#edeae5}.suvi-market-tabs{border-color:#343236}.suvi-market-tabs button{color:#a9a29a}
+.suvi-market-tabs button.active{border-color:#cbb793;color:#eee4d2}
+.suvi-market-account-bar,.suvi-market-personal-summary,.suvi-market-holding-card,.suvi-market-empty,.suvi-market-panel,.suvi-market-index-card,.suvi-market-stats>div,.suvi-market-table-wrap,.suvi-market-index-list article,.suvi-market-alert-list article{border-color:#363438;background:#171719}
+.suvi-market-summary-metrics article,.suvi-market-holding-values>div,.suvi-market-order,.suvi-market-related,.suvi-market-fund-facts span{border-color:#363438;background:#111113}
+.suvi-market-summary-intro>span,.suvi-market-holding-share b{color:#cbb793}
+.suvi-market-account-bar button,.suvi-market-empty-actions button,.suvi-market-ask button,.suvi-market-panel>button,.suvi-market-related button,.suvi-market-alert-list button{border-color:#6c604e;background:#29251f;color:#e2cfad}
+.suvi-market-holding-foot button,.suvi-market-section-head button,.suvi-market-table td button,.suvi-market-back button{color:#d0bb96}
+.suvi-market-holding-card:hover,.suvi-market-index-card:hover{border-color:#86765e}
+.suvi-market-ask,.suvi-market-compare-tray,.suvi-market-evidence{border-color:#51493f;background:#1f1c1a;color:#ddd2c0}
+.suvi-market-empty-mark{border-color:#6f614d;color:#ccb895}
+.suvi-agent-mark,.suvi-preview-icon{color:#d0bc98}
+.suvi-preview-intro{color:#d9d2c7}.suvi-preview-icon{border-color:#6f614d;background:#28231d}
+.suvi-preview-intro small,.suvi-preview-intro>div{color:#c9b590}
+.suvi-preview-intro p{color:#aaa39a}.suvi-preview-intro>div span{border-color:#49413a;background:#211e1b}
+.suvi-preview-intro>div i{color:#84786a}.suvi-preview-thread{color:#e7e0d6}
+.suvi-preview-user{border-color:#655949;background:#28231f;color:#eee7dc}
+.suvi-preview-tool{border-color:#413d3a;background:#1c1b1b;color:#b7ad9f}
+.suvi-preview-tool i,.suvi-preview-answer span{color:#cbb793}.suvi-preview-tool em{color:#857c70}
+.suvi-preview-answer{border-color:#cbb793;background:#1b1a1b;color:#e2dacf}
+.strategy-plans-empty>span{color:#cbb793}
+.suvi-inline{border-color:#544c40;background:#1c1a18;box-shadow:inset 3px 0 0 #cbb793}
+.suvi-inline-mark{border-color:#70614b;background:#2b251d;color:#ddc79e}
+.suvi-inline-main small,.suvi-inline-main p i{color:#cbb793}.suvi-inline-main p{color:#a8a096}
+.suvi-inline-meta span{border-color:#46413d;background:#252220;color:#c4b7a6}
+.suvi-inline-actions{border-color:#403b37}.suvi-inline-actions button{border-color:#655847;background:#2a251e;color:#e1d0b2}
+.suvi-inline-actions button:hover{border-color:#b9a47d;background:#373026}
+.suvi-drawer-open .panda-agent-panel:not([hidden]){border-color:#39363a;background:#111113}
+.panda-session-group,.panda-session-empty,.panda-session-row small,.agent-composer-hint{color:#8d8780}
+.panda-session-more{border-color:#343236;color:#cbb793}.panda-session-more:hover{background:#211e1b;color:#eee1c9}
+.suvi-module-empty{border-color:#444044;color:#a7a097}.suvi-module-section-head p{color:#9b958d}
+.api-save-feedback.pending{border-color:#77684e;background:#25221b;color:#e0cda6}
+
+/* Strategy discovery: guided questions first, then a strategy-specific conversation. */
+.strategy-discovery-guide{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:0 0 15px;padding:0 0 14px;border-bottom:1px solid #302e30}
+.strategy-discovery-guide>span{margin-right:5px;color:#b8aea0;font-size:10px;white-space:nowrap}
+.strategy-discovery-guide button{display:inline-flex;align-items:center;gap:12px;min-height:34px;padding:0 11px;border:1px solid #454144;border-radius:7px;background:#1d1c1d;color:#e0dbd4;font:inherit;font-size:10px;cursor:pointer;transition:background .15s,border-color .15s}
+.strategy-discovery-guide button i{color:#c7b18e;font-size:11px;font-style:normal}
+.strategy-discovery-guide button:hover,.strategy-discovery-guide button:focus-visible{border-color:#b49c75;background:#2a2521;color:#fff5e7}
+.strategy-card-questions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:10px}
+.strategy-card-footer .strategy-card-questions button{width:100%;min-height:36px;margin:0;padding:7px 8px;font-size:10px}
+.strategy-page .strategy-compare-action{padding-top:7px}
+.strategy-page .strategy-compare-action button{border-color:#39373a;background:transparent;color:#aaa49b}
+.strategy-page .strategy-compare-action button:hover{border-color:#8b7b63;background:#25221f;color:#e9dac1}
+.strategy-page .strategy-research-note{color:#8e8983}
+.strategy-conversation-guide{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:9px 12px;border-bottom:1px solid #343236;background:#171618}
+.strategy-conversation-guide span{width:100%;color:#958c80;font-size:9px}
+.strategy-conversation-guide button{padding:6px 8px;border:1px solid #46413d;border-radius:6px;background:#201e1d;color:#d7cbbb;font:inherit;font-size:9px;cursor:pointer}
+.strategy-conversation-guide button:hover,.strategy-conversation-guide button:focus-visible{border-color:#b49c75;background:#2b2520;color:#fff0d8}
+@media(max-width:760px){.strategy-discovery-guide{align-items:stretch}.strategy-discovery-guide>span{width:100%}.strategy-discovery-guide button{flex:1;justify-content:space-between}}
+
+/* Workbench: informative module cards and one aligned conversation entry. */
+.panda-workbench-idle .panda-workbench-overview{gap:12px;margin-bottom:18px}
+.panda-workbench-idle .panda-workbench-overview>button{height:132px;grid-template-columns:38px minmax(0,1fr) 16px;grid-template-rows:22px 28px minmax(0,1fr);column-gap:11px;align-items:start;padding:16px 16px 13px}
+.panda-workbench-idle .panda-workbench-overview>button>span.workbench-card-icon{grid-column:1;grid-row:1/3;width:34px;height:34px;font-size:17px}
+.panda-workbench-idle .panda-workbench-overview>button>strong{grid-column:2;grid-row:1;align-self:center;font-size:13px}
+.panda-workbench-idle .panda-workbench-overview>button>b{grid-column:3;grid-row:1/3;align-self:center}
+.panda-workbench-idle .panda-workbench-overview>button>p{grid-column:2;grid-row:2;margin:0;color:#a7a19a;font-size:10px;line-height:1.5}
+.panda-workbench-overview .workbench-card-foot{display:flex;grid-column:1/-1;grid-row:3;align-items:end;justify-content:space-between;gap:8px;min-width:0;padding-top:11px;border-top:1px solid #343237}
+.panda-workbench-overview .workbench-card-foot em{flex:none;color:#d0bb98;font-size:10px;font-style:normal;font-weight:550}
+.panda-workbench-overview .workbench-card-foot small{overflow:hidden;color:#98928b;font-size:9px;text-align:right;text-overflow:ellipsis;white-space:nowrap}
+.panda-workbench-idle .panda-workbench-chat{padding-top:17px}
+.panda-workbench-chat-inner{display:flex;flex:1;flex-direction:column;min-height:0;width:min(900px,100%);margin:0 auto}
+.panda-workbench-idle .panda-workbench-chat-intro{margin-bottom:9px}
+.panda-workbench-idle .panda-workbench-chat-intro>span{width:32px;height:32px;flex-basis:32px}
+.panda-workbench-idle .panda-workbench-chat-intro h2{font-size:14px}
+.panda-workbench-idle .panda-workbench-prompts{gap:8px;margin-bottom:8px}
+.panda-workbench-idle .panda-workbench-prompts button{padding:8px 11px;font-size:10px}
+.panda-workbench-dashboard-idle .panda-workbench-chat-host .panda-agent-composer{width:100%;margin:0}
+.panda-workbench-dashboard-chat-active .panda-workbench-idle .panda-workbench-overview>button{height:72px;grid-template-rows:22px 28px;padding:8px 11px}
+.panda-workbench-dashboard-chat-active .panda-workbench-overview .workbench-card-foot{display:none}
+.panda-workbench-dashboard-chat-active .panda-workbench-overview>button>p{font-size:9px}
+@media(max-width:1100px){.panda-workbench-idle .panda-workbench-overview{grid-template-columns:repeat(3,minmax(0,1fr))}.panda-workbench-overview .workbench-card-foot{flex-direction:column;align-items:flex-start;gap:4px}.panda-workbench-overview .workbench-card-foot small{text-align:left}}
+@media(max-width:760px){.panda-workbench-idle .panda-workbench-overview{grid-template-columns:1fr}.panda-workbench-idle .panda-workbench-overview>button{height:112px}.panda-workbench-overview .workbench-card-foot{flex-direction:row;align-items:center}.panda-workbench-idle .panda-workbench-chat{padding-top:12px}.panda-workbench-idle .panda-workbench-prompts button{font-size:9px}}
+@media(max-height:760px){.panda-workbench-idle .panda-workbench-overview>button{height:112px;padding:12px}.panda-workbench-idle .panda-workbench-chat{padding-top:12px}}
+
+.workbench-pulse{margin:0 0 15px;border:1px solid #363438;border-radius:10px;background:#171719;overflow:hidden}
+.workbench-pulse-head{display:flex;justify-content:space-between;align-items:center;padding:10px 14px 8px;border-bottom:1px solid #302e31}
+.workbench-pulse-head strong{color:#eee8dc;font-size:11px;font-weight:620}
+.workbench-pulse-head span{color:#89847d;font-size:9px}
+.workbench-pulse-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+.workbench-pulse-grid button{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0;min-height:84px;padding:12px 15px;border:0;border-right:1px solid #302e31;background:transparent;color:#e9e5dd;text-align:left;font-family:inherit;cursor:pointer}
+.workbench-pulse-grid button:last-child{border-right:0}
+.workbench-pulse-grid button:hover,.workbench-pulse-grid button:focus-visible{background:#222023;outline:none}
+.workbench-pulse-grid button>span{color:#bba985;font-size:9px}
+.workbench-pulse-grid button>strong{max-width:100%;overflow:hidden;font-size:14px;font-weight:630;text-overflow:ellipsis;white-space:nowrap}
+.workbench-pulse-grid button>strong.up{color:#eaa195}.workbench-pulse-grid button>strong.down{color:#8dc4aa}
+.workbench-pulse-grid button>small{max-width:100%;overflow:hidden;color:#99948e;font-size:9px;text-overflow:ellipsis;white-space:nowrap}
+.workbench-pulse-grid button>em{position:absolute;right:14px;top:13px;color:#a89b87;font-size:9px;font-style:normal}
+@media(max-width:850px){.workbench-pulse-grid{grid-template-columns:1fr}.workbench-pulse-grid button{min-height:63px;border-right:0;border-bottom:1px solid #302e31}.workbench-pulse-grid button:last-child{border-bottom:0}}
+@media(max-height:760px){.workbench-pulse-head{padding:7px 11px}.workbench-pulse-grid button{min-height:70px;padding:8px 11px}.workbench-pulse-grid button>strong{font-size:12px}.workbench-pulse{margin-bottom:10px}}
+
+/* A running task uses the main canvas; related strategy evidence travels with it. */
+.suvi-main-conversation .panda-content{height:calc(100vh - 104px);padding:17px 30px 14px;overflow:hidden}
+.suvi-main-conversation .panda-topbar{display:none}
+.suvi-conversation-main{display:flex;flex-direction:column;width:min(1160px,100%);height:100%;min-height:0;margin:0 auto}
+.suvi-conversation-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:5px 0 15px;border-bottom:1px solid #302f32}
+.suvi-conversation-toolbar small{color:#bba985;font-size:10px}.suvi-conversation-toolbar h1{margin:4px 0 0;font-size:20px;font-weight:610;color:#eeeae4}
+.suvi-conversation-toolbar button,.suvi-conversation-artifact button{border:1px solid #514a40;border-radius:7px;background:#24211f;color:#e1d4bd;padding:8px 11px;font:inherit;font-size:10px;cursor:pointer;white-space:nowrap}
+.suvi-conversation-toolbar button:hover,.suvi-conversation-artifact button:hover{border-color:#bda887;background:#302922}
+.suvi-conversation-artifact{display:flex;align-items:center;justify-content:space-between;gap:15px;margin:11px 0 0;padding:12px 14px;border:1px solid #4b443a;border-radius:9px;background:#211e1b}
+.suvi-conversation-artifact>div{display:grid;gap:3px;min-width:0}.suvi-conversation-artifact small{color:#bba985;font-size:9px}.suvi-conversation-artifact strong{overflow:hidden;color:#efe7d9;font-size:13px;text-overflow:ellipsis;white-space:nowrap}.suvi-conversation-artifact span{color:#a8a097;font-size:9px;line-height:1.5}
+.suvi-conversation-compare{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px}.suvi-conversation-compare>div{display:grid;gap:4px;min-width:0;padding:10px 12px;border:1px solid #383538;border-radius:7px;background:#19181a}.suvi-conversation-compare strong{overflow:hidden;font-size:10px;text-overflow:ellipsis;white-space:nowrap}.suvi-conversation-compare span{color:#e4d7c3;font-size:10px}.suvi-conversation-compare small{color:#918a81;font-size:8px}
+.suvi-conversation-host{display:flex;flex:1;min-height:0;width:min(980px,100%);margin:10px auto 0}
+.suvi-conversation-host>.panda-agent-shell{width:100%;height:100%;min-height:0;background:transparent}
+.suvi-conversation-host .panda-agent-head{padding:9px 12px;border:0;background:transparent}.suvi-conversation-host .panda-agent-status{padding:6px 12px;background:transparent}
+.suvi-conversation-host .panda-agent-messages{flex:1;min-height:0;padding:13px 7px 20px;overflow:auto}
+.suvi-conversation-host .agent-message{max-width:780px;margin:17px auto}.suvi-conversation-host .agent-message>small{font-size:10px}.suvi-conversation-host .agent-message>div{padding:15px 17px;font-size:12px;line-height:1.7}
+.suvi-conversation-host .panda-agent-composer{flex:none;padding:10px 12px 12px;border:1px solid #6c6254;border-radius:13px;background:#1b1a1c;box-shadow:0 10px 35px #0007}
+.suvi-conversation-host .panda-agent-composer:focus-within{border-color:#ceb993}.suvi-conversation-host .panda-agent-composer textarea{min-height:55px;padding:7px;border:0;background:transparent;font-size:12px;resize:none}
+@media(max-width:800px){.suvi-main-conversation .panda-content{height:calc(100dvh - 104px);padding:9px 12px}.suvi-conversation-toolbar{padding-bottom:10px}.suvi-conversation-toolbar h1{font-size:16px}.suvi-conversation-toolbar button{padding:7px}.suvi-conversation-artifact{align-items:flex-start;flex-direction:column;padding:10px}.suvi-conversation-host{margin-top:5px}.suvi-conversation-host .panda-agent-messages{padding:8px 0}.suvi-conversation-host .agent-message>div{font-size:11px}}
+@media(max-width:600px){.suvi-conversation-compare{display:flex;overflow-x:auto}.suvi-conversation-compare>div{min-width:155px}}
+
+/* One saved page schema powers the desktop canvas and narrow mobile preview. */
+.suvi-custom-page{max-width:1510px;margin:0 auto;color:#eeeae4}.suvi-custom-top{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:20px;padding-bottom:17px;border-bottom:1px solid #333135}.suvi-custom-top small{color:#bba985;font-size:10px}.suvi-custom-top h1{margin:5px 0;font-size:23px;font-weight:620}.suvi-custom-top p{margin:0;color:#a49e97;font-size:11px}.suvi-custom-top>button,.suvi-share-preview button{padding:10px 13px;border:1px solid #c6b28e;border-radius:7px;background:#d9c8a8;color:#1c1a18;font:inherit;font-size:11px;font-weight:600;cursor:pointer}
+.suvi-custom-layout{display:grid;grid-template-columns:270px minmax(0,1fr);gap:22px;align-items:start}.suvi-custom-editor{position:sticky;top:20px;display:grid;gap:10px;padding:16px;border:1px solid #373539;border-radius:10px;background:#19191b}.suvi-custom-editor>label,.suvi-custom-editor-title{color:#d4c9b6;font-size:11px;font-weight:600}.suvi-custom-editor>input{height:37px;padding:0 10px;border:1px solid #504a44;border-radius:6px;outline:0;background:#101012;color:#eeeae4;font:inherit;font-size:11px}.suvi-custom-editor>input:focus{border-color:#c6b28e}.suvi-custom-editor-title{display:flex;justify-content:space-between;margin-top:8px}.suvi-custom-editor-title span{color:#87817b;font-size:9px;font-weight:400}.suvi-custom-options{display:grid;grid-template-columns:1fr 1fr;gap:6px}.suvi-custom-options button{min-height:33px;border:1px solid #454145;border-radius:6px;background:#242225;color:#c3bdb4;font:inherit;font-size:10px;cursor:pointer}.suvi-custom-options button[aria-pressed="true"]{border-color:#a38e6e;background:#332c24;color:#f0dfc0}.suvi-custom-order{display:grid;gap:5px}.suvi-custom-order>div{display:flex;align-items:center;gap:4px;padding:5px 6px;border:1px solid #373539;border-radius:6px}.suvi-custom-order span{flex:1;min-width:0;overflow:hidden;font-size:10px;text-overflow:ellipsis;white-space:nowrap}.suvi-custom-order button{width:25px;height:25px;border:0;border-radius:4px;background:#2e2c2e;color:#e0d5c5;cursor:pointer}.suvi-custom-order button:disabled{opacity:.3;cursor:default}.suvi-custom-hint{margin:6px 0 0;color:#89827a;font-size:9px;line-height:1.6}
+.suvi-custom-preview-wrap{min-width:0}.suvi-custom-preview-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.suvi-custom-preview-bar strong{font-size:12px}.suvi-custom-preview-bar>div{display:flex;gap:3px;padding:3px;border:1px solid #373539;border-radius:7px;background:#1a191b}.suvi-custom-preview-bar button{padding:6px 10px;border:0;border-radius:5px;background:transparent;color:#a39c93;font:inherit;font-size:10px;cursor:pointer}.suvi-custom-preview-bar button.active{background:#d9c8a8;color:#181718}.suvi-custom-preview{width:100%;min-height:420px;padding:20px;border:1px solid #373539;border-radius:12px;background:#121214;transition:width .2s}.suvi-custom-preview.mobile{width:min(390px,100%);min-height:660px;margin:0 auto;padding:16px}.suvi-custom-preview-title{padding:0 0 14px;border-bottom:1px solid #39363a}.suvi-custom-preview-title small{color:#bba985;font-size:9px}.suvi-custom-preview-title h2{margin:5px 0 0;font-size:19px;font-weight:620}.suvi-custom-block{padding:15px 0;border-bottom:1px solid #343236}.suvi-custom-block:last-child{border-bottom:0}.suvi-custom-block-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:9px}.suvi-custom-block-head h3{margin:0;font-size:13px}.suvi-custom-block-head span{color:#a99c86;font-size:9px}.suvi-custom-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0;border-top:1px solid #29282b}.suvi-custom-row strong,.suvi-custom-row small{display:block}.suvi-custom-row strong{font-size:11px}.suvi-custom-row small{margin-top:4px;color:#8f8982;font-size:9px}.suvi-custom-row em{flex:none;color:#baa887;font-size:9px;font-style:normal}.suvi-custom-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.suvi-custom-metrics>div{padding:12px;border:1px solid #38363a;border-radius:7px;background:#1b1a1c}.suvi-custom-metrics small,.suvi-custom-metrics strong{display:block}.suvi-custom-metrics small{color:#9b948a;font-size:9px}.suvi-custom-metrics strong{margin-top:6px;font-size:16px}.suvi-custom-metrics strong.up{color:#eaa195}.suvi-custom-metrics strong.down{color:#8dc4aa}.suvi-custom-empty,.suvi-custom-source{color:#928b83;font-size:10px;line-height:1.6}.suvi-share-preview{padding:17px}.suvi-share-preview strong{font-size:12px}.suvi-share-preview p{color:#aaa29a;font-size:10px}.suvi-share-preview pre{padding:14px;overflow:auto;border:1px solid #3b383a;border-radius:7px;background:#111113;color:#ded5c7;font-size:11px}
+@media(max-width:900px){.suvi-custom-layout{grid-template-columns:1fr}.suvi-custom-editor{position:static}.suvi-custom-preview.mobile{min-height:500px}}
+@media(max-width:600px){.suvi-custom-top{align-items:flex-start;flex-direction:column}.suvi-custom-top h1{font-size:19px}.suvi-custom-preview{padding:14px}.suvi-custom-preview.mobile{width:100%}.suvi-custom-row{align-items:flex-start}.suvi-custom-row em{max-width:90px;text-align:right}}
+
+.suvi-mobile-workbench{display:none!important}
+@media(max-width:600px){
+  .panda-app{display:block}.panda-sidebar{position:relative;top:auto;display:block;width:100%;height:auto;max-height:none;padding:9px 12px 7px;border-right:0;border-bottom:1px solid #323034;overflow:hidden}
+  .panda-brand{padding:0 0 7px;margin:0}.panda-brand strong{font-size:13px}.panda-brand small{font-size:8px}
+  .panda-workbench-nav,.panda-new,.panda-sidebar .panda-session-list,.panda-section-label,.panda-sidebar-bottom{display:none!important}
+  .panda-workspace-nav{display:flex!important;flex-wrap:nowrap;gap:4px;width:100%;min-height:0;max-height:none;padding:0;overflow-x:auto;scrollbar-width:none}.panda-workspace-nav::-webkit-scrollbar{display:none}
+  .panda-workspace-nav button{display:inline-flex;flex:none;width:auto!important;min-width:max-content;height:34px;padding:6px 9px;font-size:10px}.suvi-mobile-workbench{display:inline-flex!important}
+  .panda-main{width:100%;min-height:calc(100dvh - 100px);margin:0}.panda-topbar{display:none}.panda-content{padding:14px 12px 50px}
+  .suvi-custom-top{margin-bottom:12px;padding-bottom:12px}.suvi-custom-top p{font-size:10px}.suvi-custom-layout{display:flex;flex-direction:column}.suvi-custom-preview-wrap{order:0;width:100%}.suvi-custom-editor{order:1;width:100%}.suvi-custom-preview{min-height:0}
+  .suvi-main-conversation .panda-content{height:calc(100dvh - 100px);padding:9px 10px}.suvi-conversation-host .panda-agent-head>div:last-child{display:none}
+}
+
+/* Keep the strategy question prompts attached to the composer instead of the page header. */
+.panda-strategy-chat-idle .panda-content{padding-bottom:46px}
+.panda-strategy-chat-idle .strategy-page .strategy-idle-chat-host{position:relative;left:auto;right:auto;bottom:auto;display:block;width:min(960px,100%);margin:25px auto 0;padding:16px 18px 18px;transform:none;border:1px solid #665947;border-radius:15px;background:#1b1a1b;box-shadow:0 18px 45px #0007}
+.panda-strategy-chat-idle .strategy-detail-page .strategy-idle-chat-host{position:fixed;left:calc(50% + 116px);bottom:18px;display:block;width:min(900px,calc(100vw - 300px));padding:14px 16px;transform:translateX(-50%);border:1px solid #665947;border-radius:14px;background:#1b1a1b;box-shadow:0 18px 45px #000a}
+.strategy-chat-entry-head{display:flex;align-items:center;gap:10px;margin-bottom:13px}
+.strategy-chat-entry-head>span{display:grid;place-items:center;flex:none;width:30px;height:30px;border:1px solid #75664f;border-radius:8px;background:#2d261e;color:#d7c29b;font-size:15px}
+.strategy-chat-entry-head strong{display:block;color:#f1ece5;font-size:13px;font-weight:620}
+.strategy-chat-entry-head small{display:block;margin-top:3px;color:#a99f92;font-size:10px}
+.strategy-idle-chat-host .strategy-discovery-guide,.strategy-idle-chat-host .strategy-conversation-guide{gap:7px;margin:0 0 10px;padding:0;border:0;background:transparent}
+.strategy-idle-chat-host .strategy-discovery-guide>span,.strategy-idle-chat-host .strategy-conversation-guide>span{width:100%;color:#a69d91;font-size:9px}
+.strategy-idle-chat-host .strategy-discovery-guide button,.strategy-idle-chat-host .strategy-conversation-guide button{min-height:32px;padding:0 10px;border-color:#514941;background:#252221;color:#e0d5c7;font-size:10px}
+.panda-strategy-chat-idle .strategy-idle-chat-host .panda-agent-composer{min-height:72px;padding:10px 11px 10px 15px;border:1px solid #8b785f;border-radius:11px;background:#101012;box-shadow:inset 0 0 0 1px #8b785f25,0 8px 24px #0005}
+.panda-strategy-chat-idle .strategy-idle-chat-host .panda-agent-composer:focus-within{border-color:#d2bd98;box-shadow:0 0 0 3px #d2bd9824,0 8px 24px #0005}
+.panda-strategy-chat-idle .strategy-idle-chat-host .panda-agent-composer textarea{min-height:48px;padding:7px 4px;font-size:12px;line-height:1.5}
+.panda-strategy-chat-idle .strategy-idle-chat-host .panda-agent-composer textarea::placeholder{color:#b2aa9f;opacity:1}
+.panda-strategy-chat-idle .strategy-idle-chat-host #agent-send{min-width:74px;height:38px}
+.panda-strategy-chat-idle .strategy-idle-chat-host #agent-send:disabled{border-color:#746958;background:#3a342d;color:#b5a796;filter:none;opacity:1}
+@media(max-width:800px){.panda-strategy-chat-idle .strategy-page .strategy-idle-chat-host{width:100%;margin-top:16px;padding:13px}.panda-strategy-chat-idle .strategy-detail-page .strategy-idle-chat-host{left:50%;bottom:10px;width:calc(100vw - 22px);padding:12px}.strategy-chat-entry-head small{font-size:9px}}
+@media(max-height:800px) and (min-width:801px){.panda-strategy-chat-idle .panda-content{padding-bottom:235px}.panda-strategy-chat-idle .strategy-page .strategy-idle-chat-host{position:fixed;left:calc(50% + 116px);bottom:10px;z-index:12;width:min(940px,calc(100vw - 300px));margin:0;padding:11px 15px;transform:translateX(-50%)}.strategy-chat-entry-head{margin-bottom:7px}.strategy-chat-entry-head small,.strategy-idle-chat-host .strategy-discovery-guide>span{display:none}.strategy-idle-chat-host .strategy-discovery-guide{margin-bottom:7px}.panda-strategy-chat-idle .strategy-idle-chat-host .panda-agent-composer{min-height:60px}.panda-strategy-chat-idle .strategy-idle-chat-host .panda-agent-composer textarea{min-height:36px}}
+
+/* The saved page opens as a usable destination; its editor is a separate state. */
+.suvi-custom-top{align-items:center}.suvi-custom-top-actions{display:flex;flex-wrap:wrap;gap:8px}.suvi-custom-top-actions button,.suvi-custom-zero button{min-height:38px;padding:8px 14px;border:1px solid #5c5449;border-radius:8px;background:#252224;color:#ebe2d5;font:inherit;font-size:12px;cursor:pointer}.suvi-custom-top-actions button.primary{border-color:#d9c8a8;background:#d9c8a8;color:#201c19;font-weight:650}.suvi-custom-top-actions button:hover,.suvi-custom-zero button:hover{border-color:#ddc79e;filter:brightness(1.12)}
+.suvi-custom-live{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.suvi-custom-live .suvi-custom-block{padding:20px 22px;border:1px solid #393639;border-radius:11px;background:#19191b}.suvi-custom-live .suvi-custom-block:first-child{grid-column:1/-1}.suvi-custom-live .suvi-custom-block-head{margin-bottom:15px}.suvi-custom-live .suvi-custom-block-head h3{font-size:17px}.suvi-custom-live .suvi-custom-block-head span{font-size:12px}.suvi-custom-live .suvi-custom-row strong{font-size:13px}.suvi-custom-live .suvi-custom-row small,.suvi-custom-live .suvi-custom-row em{font-size:11px}.suvi-custom-live .suvi-custom-empty,.suvi-custom-live .suvi-custom-source{font-size:12px}.suvi-custom-live .suvi-custom-metrics small{font-size:11px}.suvi-custom-live .suvi-custom-metrics strong{font-size:20px}.suvi-custom-link{min-height:34px;margin-top:10px;padding:6px 0;border:0;background:transparent;color:#dfcba7;font:inherit;font-size:11px;cursor:pointer}.suvi-custom-link:hover{text-decoration:underline}.suvi-custom-live .suvi-custom-link{font-size:12px}.suvi-custom-zero{grid-column:1/-1;padding:30px;border:1px dashed #62594a;border-radius:10px;text-align:center}
+.suvi-custom-preview .suvi-custom-row strong{font-size:12px}.suvi-custom-preview .suvi-custom-row small,.suvi-custom-preview .suvi-custom-row em,.suvi-custom-preview .suvi-custom-empty,.suvi-custom-preview .suvi-custom-source{font-size:10px}.suvi-custom-preview .suvi-custom-block-head span{font-size:10px}.suvi-custom-preview.mobile .suvi-custom-row strong{font-size:13px}.suvi-custom-preview.mobile .suvi-custom-row small,.suvi-custom-preview.mobile .suvi-custom-row em{font-size:11px}.suvi-custom-preview .suvi-custom-link{font-size:11px}
+.suvi-main-conversation .suvi-conversation-host .panda-agent-head{display:none}.suvi-main-conversation .suvi-conversation-host .agent-message>div{font-size:14px}.suvi-main-conversation .suvi-conversation-host .panda-agent-composer textarea{font-size:14px}.suvi-main-conversation .suvi-conversation-host .panda-agent-controls{font-size:11px}
+.suvi-custom-strategy{width:100%;border-right:0;border-bottom:0;border-left:0;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}.suvi-custom-strategy:first-of-type{border-top:1px solid #29282b}.suvi-custom-strategy:hover strong,.suvi-custom-strategy:focus-visible strong{color:#e4cda5}.suvi-custom-strategy:focus-visible{outline:2px solid #c7ad81;outline-offset:2px}.suvi-custom-strategy>span{min-width:0}.suvi-custom-strategy em{white-space:nowrap}
+@media(max-width:900px){.suvi-custom-live{grid-template-columns:1fr}.suvi-custom-live .suvi-custom-block:first-child{grid-column:auto}}
+@media(max-width:600px){.suvi-custom-top-actions{width:100%}.suvi-custom-top-actions button{flex:1}.suvi-custom-live{gap:10px}.suvi-custom-live .suvi-custom-block{padding:17px}.suvi-custom-live .suvi-custom-block-head h3{font-size:16px}.suvi-custom-link{min-height:40px}.suvi-custom-editing .suvi-custom-editor{order:0}.suvi-custom-editing .suvi-custom-preview-wrap{order:1}.suvi-custom-editing .suvi-custom-preview.mobile{min-height:0}.suvi-main-conversation .suvi-conversation-host .agent-message>div{font-size:13px}}
+@media(max-width:600px){
+  .panda-workbench-dashboard-idle .panda-workbench-idle{height:auto;overflow:visible}
+  .panda-workbench-dashboard-idle .panda-start-hero{order:0}
+  .panda-workbench-dashboard-idle .panda-workbench-chat{order:1;flex:none;margin:0 0 16px;padding:13px 0 15px;border-top:0;border-bottom:1px solid #363236}
+  .panda-workbench-dashboard-idle .panda-workbench-overview{order:2}
+  .panda-workbench-dashboard-idle .workbench-pulse{order:3}
+  .panda-workbench-dashboard-idle .panda-workbench-chat-host{flex:none}
+  .panda-workbench-dashboard-idle .panda-workbench-chat-host .panda-agent-shell{flex:none}
+  .panda-workbench-dashboard-idle .panda-workbench-chat-host .panda-agent-composer textarea{font-size:13px}
+  .panda-workbench-idle .panda-workbench-prompts button{font-size:11px}
+}
+/* Conversation uses the main canvas, with readable answers and quiet activity details. */
+.suvi-main-conversation .panda-content{height:calc(100dvh - 38px);padding:12px 28px 18px}
+.suvi-conversation-main{max-width:1120px;margin:0 auto}
+.suvi-conversation-toolbar{padding:4px 0 12px;gap:14px;flex:none}
+.suvi-conversation-toolbar>div{min-width:0}.suvi-conversation-toolbar small{font-size:11px;color:#a39e97}.suvi-conversation-toolbar h1{max-width:760px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:17px;line-height:1.5}
+.suvi-task-reference{flex:none;margin-top:10px;color:#b8b1a7;font-size:12px}.suvi-task-reference>summary{cursor:pointer;padding:8px 0;list-style-position:inside}.suvi-task-reference .suvi-conversation-artifact{margin:3px 0 0;padding:11px 14px;background:#19181a;border-color:#3d3833}.suvi-task-reference .suvi-conversation-artifact span{font-size:11px}
+.suvi-conversation-host{width:min(900px,100%);margin-top:4px}.suvi-conversation-host .panda-agent-shell{position:relative;display:flex;flex-direction:column;overflow:hidden}
+.suvi-conversation-host .panda-agent-status{flex:none;border:0;padding:5px 7px 9px}
+.suvi-turn-status{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#a9a39b;font-size:11px}.suvi-turn-status>span{display:flex;align-items:center;gap:7px}.suvi-turn-status .working{color:#ded0b8}.suvi-turn-status small{font-size:10px}
+.suvi-conversation-host .panda-agent-messages{padding:8px 10px 28px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:#4b4743 transparent;overflow-anchor:none}
+.suvi-conversation-host .agent-message{max-width:none;margin:15px 0 28px}.suvi-conversation-host .agent-message>small{display:block;margin-bottom:9px;color:#b2a797;font-size:11px}
+.suvi-conversation-host .agent-message.assistant:not(.error)>div{border:0;border-radius:0;padding:0;background:transparent;color:#eeeae4;line-height:1.85;font-size:14px}
+.suvi-conversation-host .agent-message.user{max-width:78%;margin-left:auto}.suvi-conversation-host .agent-message.user>small{text-align:right}.suvi-conversation-host .agent-message.user>div{padding:12px 16px;background:#242224;border:1px solid #48423b;border-radius:14px 14px 4px 14px;font-size:14px;line-height:1.75}
+.suvi-message-actions{display:flex;gap:12px;margin-top:9px}.agent-message.user .suvi-message-actions{justify-content:flex-end}.suvi-message-actions button{padding:4px 0;min-height:28px;border:0;background:transparent;color:#b0a596;font:inherit;font-size:11px;cursor:pointer}.suvi-message-actions button:hover{color:#f1ddbb}
+.suvi-process{margin:12px 0 18px;border-left:2px solid #494138;padding:0 0 0 13px;color:#aaa299;font-size:12px}.suvi-process>summary{cursor:pointer;padding:7px 0;list-style-position:inside}.suvi-process .agent-reasoning,.suvi-process .agent-plan,.suvi-process .agent-tool{margin:8px 0;background:#151416;border:0;font-size:12px}.suvi-process .agent-reasoning>small{color:#aa9a82}.suvi-process .agent-reasoning>div{font-size:12px;line-height:1.7}
+.suvi-conversation-host .agent-live-feedback{padding:10px 0;border:0;background:transparent}.suvi-conversation-host .agent-live-feedback small{font-size:11px}
+.suvi-conversation-host .panda-agent-composer{margin-top:8px;padding:12px 15px;background:#1c1b1d;border:1px solid #736653;box-shadow:0 -10px 25px #09090b99;flex:none}
+.suvi-composer-context{font-size:11px;color:#b6a991;line-height:1.5;margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.suvi-composer-context:empty{display:none}
+.suvi-conversation-host .panda-agent-composer textarea{width:100%;max-height:160px;overflow-y:auto;line-height:1.6}.suvi-conversation-host .panda-agent-composer textarea::placeholder{color:#aaa39a}
+.agent-composer-hint{display:flex;justify-content:space-between;gap:8px}.agent-composer-hint span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.suvi-conversation-host #agent-send,.suvi-conversation-host #agent-stop{min-height:36px;min-width:60px}.suvi-conversation-host #agent-send:disabled{opacity:.5}
+.suvi-jump-latest{align-self:center;flex:none;min-height:32px;margin:-38px 0 6px;z-index:3;padding:6px 13px;border:1px solid #685c4b;border-radius:20px;background:#2c2722;color:#e9d8b9;font:inherit;font-size:11px;cursor:pointer;box-shadow:0 3px 14px #0009}.suvi-jump-latest[hidden]{display:none}
+.suvi-resume-chat{display:block;margin:0 0 12px;padding:8px 0;border:0;background:transparent;color:#dfc69e;font:inherit;font-size:12px;cursor:pointer}
+.suvi-conversation-host .panda-agent-question{flex:none;max-height:40vh;overflow-y:auto;border:1px solid #70614c;border-radius:10px;padding:13px;margin:6px 0;background:#1d1a17}.suvi-conversation-host .panda-agent-question input:not([type=radio]){width:100%}
+@media(max-width:600px){.suvi-main-conversation .panda-content{height:calc(100dvh - 100px);padding:8px 12px 12px}.suvi-conversation-toolbar h1{font-size:15px}.suvi-conversation-toolbar button{max-width:115px;white-space:normal;line-height:1.5}.suvi-conversation-host .agent-message.user{max-width:94%}.suvi-conversation-host .panda-agent-messages{padding:5px 0 18px}.suvi-conversation-host .panda-agent-composer{padding:10px}.suvi-conversation-host .panda-agent-controls{gap:8px;flex-wrap:wrap}.suvi-conversation-host .panda-agent-controls label{flex-basis:100%}.suvi-conversation-host .panda-agent-setting{margin-right:auto}.suvi-conversation-host .agent-message.assistant:not(.error)>div{font-size:14px}.suvi-conversation-host .panda-agent-question{max-height:35dvh}.suvi-task-reference .suvi-conversation-artifact span{display:none}}
+
+/* Market dashboard: separate public index snapshots, local watchlist, and account holdings. */
+.suvi-market-dashboard{max-width:1480px}.suvi-market-top{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:0 0 17px}.suvi-market-top h1{margin:0;color:#f1ede7;font-size:22px;font-weight:650}.suvi-market-top p{margin:5px 0 0;color:#aaa39a;font-size:11px}.suvi-market-top>button,.suvi-quote-board-head button,.suvi-quote-head-actions button{border:0;background:transparent;color:#d8c4a1;font:inherit;font-size:11px;cursor:pointer}.suvi-market-top>button:hover,.suvi-quote-board-head button:hover,.suvi-quote-head-actions button:hover{text-decoration:underline}.suvi-market-dashboard .suvi-market-tabs{gap:28px;margin-bottom:17px}.suvi-market-dashboard .suvi-market-tabs button{font-size:12px}.suvi-market-board-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:14px}.suvi-market-board-grid>.suvi-account-board{grid-column:1/-1}.suvi-quote-board{min-width:0;padding:17px 18px 14px;border:1px solid #3d3937;border-radius:12px;background:#1a191b}.suvi-quote-board-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px}.suvi-quote-board-head small{display:block;margin-bottom:5px;color:#b8a781;font-size:10px}.suvi-quote-board-head h2{margin:0;color:#f0eae1;font-size:17px;font-weight:640}.suvi-quote-board-head h2 em{margin-left:6px;color:#b6a68d;font-size:11px;font-style:normal;font-weight:400}.suvi-quote-head-actions{display:flex;align-items:center;gap:12px}.suvi-quote-head-actions>span{color:#aaa29a;font-size:10px;white-space:nowrap}.suvi-quote-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.suvi-quote-tile{display:grid;grid-template-columns:1fr auto;gap:4px 7px;padding:11px 12px;border:1px solid #353236;border-radius:8px;background:#141416}.suvi-quote-tile>span{grid-column:1/-1;color:#bbb4aa;font-size:10px}.suvi-quote-tile strong{color:#eee9e3;font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}.suvi-quote-tile b{align-self:center;font-size:13px;font-weight:650;font-variant-numeric:tabular-nums}.suvi-quote-tile small{grid-column:1/-1;color:#868079;font-size:9px}.suvi-market-dashboard .up{color:#e39387!important}.suvi-market-dashboard .down{color:#80bca1!important}.suvi-board-source{margin:14px 0 0;color:#8f8880;font-size:10px;line-height:1.55}.suvi-board-empty,.suvi-board-alert{padding:18px;border:1px dashed #514a44;border-radius:8px;color:#b3aaa0;font-size:11px;line-height:1.6}.suvi-board-empty button,.suvi-board-alert button{margin-left:8px;padding:0;border:0;background:none;color:#dfc7a1;font:inherit;cursor:pointer}.suvi-watch-table{min-width:0}.suvi-watch-table-head,.suvi-watch-table-row{display:grid;grid-template-columns:minmax(120px,1.6fr) minmax(92px,1fr) minmax(65px,.75fr) minmax(64px,.8fr);gap:8px;align-items:center}.suvi-watch-table-head{padding:0 8px 8px;border-bottom:1px solid #393539;color:#8c857e;font-size:10px}.suvi-watch-table-row{min-height:56px;padding:8px;border-bottom:1px solid #302d31;color:#c5beb5;font-size:11px}.suvi-watch-table-row:last-child{border-bottom:0}.suvi-watch-table-row>button{min-width:0;padding:0;border:0;background:none;color:#eee9e2;text-align:left;font:inherit;cursor:pointer}.suvi-watch-table-row strong,.suvi-watch-table-row small,.suvi-estimate-unavailable small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.suvi-watch-table-row strong{font-size:11px;font-weight:600}.suvi-watch-table-row small{margin-top:3px;color:#8e8780;font-size:9px}.suvi-estimate-unavailable{color:#aea69a}.suvi-estimate-unavailable small{font-size:9px}.suvi-account-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.suvi-account-metrics>div{padding:12px 14px;border:1px solid #353236;border-radius:8px;background:#141416}.suvi-account-metrics small,.suvi-account-metrics strong{display:block}.suvi-account-metrics small{color:#978f86;font-size:10px}.suvi-account-metrics strong{margin-top:7px;color:#eee9e2;font-size:17px;font-variant-numeric:tabular-nums}.suvi-market-dashboard .suvi-market-ask{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding:12px 15px;border-radius:9px;background:#1b1919;color:#bbb1a3;font-size:11px}
+@media(max-width:1100px){.suvi-market-board-grid{grid-template-columns:1fr}.suvi-market-board-grid>.suvi-account-board{grid-column:auto}}
+@media(max-width:600px){.suvi-market-top h1{font-size:19px}.suvi-market-top p{font-size:10px}.suvi-market-top>button{white-space:nowrap}.suvi-market-dashboard .suvi-market-tabs{gap:19px;overflow-x:auto;white-space:nowrap}.suvi-quote-board{padding:14px 12px}.suvi-quote-board-head h2{font-size:16px}.suvi-quote-head-actions>span{display:none}.suvi-quote-grid{gap:7px}.suvi-quote-tile{padding:10px}.suvi-quote-tile strong{font-size:16px}.suvi-watch-table-head,.suvi-watch-table-row{grid-template-columns:minmax(108px,1.5fr) minmax(80px,1fr) minmax(60px,.7fr)}.suvi-watch-table-head span:last-child,.suvi-watch-table-row>span:last-child{display:none}.suvi-account-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.suvi-account-metrics>div:last-child{grid-column:1/-1}.suvi-market-dashboard .suvi-market-ask{align-items:flex-start;flex-direction:column}}
+
+/* Strategy question entry stays compact until a message opens the full conversation. */
+.panda-strategy-chat-idle .strategy-page .strategy-idle-chat-host{
+  width:min(960px,100%);margin:16px auto 0;padding:11px 13px 12px;
+  border:1px solid #514b44;border-radius:12px;background:#19191b;box-shadow:none;
+}
+.panda-strategy-chat-idle .strategy-detail-page .strategy-idle-chat-host{
+  width:min(900px,calc(100vw - 300px));padding:11px 13px 12px;
+  border:1px solid #514b44;border-radius:12px;background:#19191b;
+}
+.strategy-idle-chat-host .strategy-ask-top{display:flex;align-items:center;gap:9px;min-width:0;margin:0 0 8px}
+.strategy-idle-chat-host .strategy-ask-top strong{flex:none;color:#eee8de;font-size:12px;font-weight:650;white-space:nowrap}
+.strategy-idle-chat-host .strategy-ask-top>span{min-width:0;overflow:hidden;color:#9d958b;font-size:10px;text-overflow:ellipsis;white-space:nowrap}
+.strategy-idle-chat-host .strategy-ask-top .suvi-resume-chat{flex:none;margin:0 0 0 auto;padding:3px 0;color:#d6c09d;font-size:10px;white-space:nowrap}
+.strategy-idle-chat-host .strategy-ask-prompts{display:flex;gap:6px;min-width:0;margin:0 0 9px;overflow-x:auto;scrollbar-width:none}
+.strategy-idle-chat-host .strategy-ask-prompts::-webkit-scrollbar{display:none}
+.strategy-idle-chat-host .strategy-ask-prompts button{flex:none;min-height:28px;padding:4px 9px;border:1px solid #4b4642;border-radius:6px;background:#242224;color:#d3c9bb;font:inherit;font-size:10px;white-space:nowrap;cursor:pointer}
+.strategy-idle-chat-host .strategy-ask-prompts button:hover,.strategy-idle-chat-host .strategy-ask-prompts button:focus-visible{border-color:#aa9472;color:#f3e4ce}
+.panda-strategy-chat-idle .strategy-idle-chat-host .panda-agent-composer{display:flex;align-items:center;gap:8px;min-height:50px;margin:0;padding:6px 7px 6px 12px;border:1px solid #746651;border-radius:9px;background:#101012;box-shadow:none}
+.panda-strategy-chat-idle .strategy-idle-chat-host .panda-agent-composer:focus-within{border-color:#c7b18d;box-shadow:0 0 0 2px #c7b18d24}
+.panda-strategy-chat-idle .strategy-idle-chat-host .suvi-composer-context,.panda-strategy-chat-idle .strategy-idle-chat-host .agent-composer-hint{display:none}
+.panda-strategy-chat-idle .strategy-idle-chat-host .panda-agent-composer textarea{flex:1;min-width:0;min-height:36px;max-height:96px;margin:0;padding:7px 2px 4px;border:0;background:transparent;font-size:12px;line-height:1.5;resize:none}
+.panda-strategy-chat-idle .strategy-idle-chat-host .panda-agent-controls{flex:none;margin:0}
+.panda-strategy-chat-idle .strategy-idle-chat-host #agent-send{min-width:68px;height:36px}
+@media(max-width:800px){.panda-strategy-chat-idle .strategy-page .strategy-idle-chat-host{width:100%;padding:10px}.panda-strategy-chat-idle .strategy-detail-page .strategy-idle-chat-host{width:calc(100vw - 22px);padding:10px}.strategy-idle-chat-host .strategy-ask-top>span{display:none}}
+@media(max-height:800px) and (min-width:801px){.panda-strategy-chat-idle .strategy-page .strategy-idle-chat-host{position:fixed;left:calc(50% + 116px);bottom:10px;width:min(900px,calc(100vw - 300px));margin:0;transform:translateX(-50%)}.panda-strategy-chat-idle .panda-content{padding-bottom:155px}}
+
+/* Strategy discovery: readable backtest evidence, one inline prompt, and object-based views. */
+.strategy-discovery-page{max-width:1500px;margin:0 auto;padding-bottom:28px}
+.strategy-discovery-header{min-height:38px;margin:0 0 10px}
+.strategy-discovery-header h1{font-size:22px;line-height:1.25}
+.strategy-library-tools{display:flex;align-items:center;gap:8px}
+.strategy-search{display:flex;align-items:center;gap:7px;width:min(260px,34vw);height:36px;padding:0 10px;border:1px solid #3f3b3a;border-radius:8px;background:#141416;color:#c4b9a7}
+.strategy-search:focus-within{border-color:#b29b75;box-shadow:0 0 0 2px #b29b7522}
+.strategy-search>span{font-size:17px;line-height:1}
+.strategy-search input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:#eeeae4;font:inherit;font-size:12px}
+.strategy-search input::placeholder{color:#938c83}
+.strategy-favorites-filter{height:36px;padding:0 11px;border:1px solid #3f3b3a;border-radius:8px;background:#141416;color:#cec2ae;font:inherit;font-size:12px;cursor:pointer}
+.strategy-favorites-filter:hover,.strategy-favorites-filter.active{border-color:#a28e6e;background:#29241e;color:#f0dfc1}
+.panda-strategy-chat-idle .strategy-page .strategy-idle-chat-host,.panda-strategy-chat-idle .strategy-detail-page .strategy-idle-chat-host{position:relative;inset:auto;z-index:auto;display:block;width:100%;margin:0 0 12px;padding:0;transform:none;border:0;border-radius:0;background:transparent;box-shadow:none}
+.panda-strategy-chat-idle .strategy-page .strategy-idle-chat-host .panda-agent-shell,.panda-strategy-chat-idle .strategy-detail-page .strategy-idle-chat-host .panda-agent-shell{width:100%;height:auto;min-height:0;border:0;background:transparent;box-shadow:none}
+.strategy-idle-chat-host .strategy-ask-prompts{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 8px}
+.strategy-idle-chat-host .strategy-ask-prompts button{min-height:30px;padding:4px 10px;border:1px solid #45413e;border-radius:7px;background:#171719;color:#d8cebf;font:inherit;font-size:11px;white-space:nowrap;cursor:pointer}
+.strategy-idle-chat-host .strategy-ask-prompts button:hover,.strategy-idle-chat-host .strategy-ask-prompts button:focus-visible{border-color:#b09a75;background:#25211c;color:#f4e7d1}
+.strategy-idle-chat-host .strategy-ask-prompts .strategy-prompt-compare{color:#d5c09c}
+.panda-strategy-chat-idle .strategy-idle-chat-host .panda-agent-composer{min-height:56px;margin:0;padding:7px 8px 7px 14px;border:1px solid #736653;border-radius:10px;background:#111113;box-shadow:0 5px 18px #0005}
+.panda-strategy-chat-idle .strategy-idle-chat-host .panda-agent-composer:focus-within{border-color:#d0ba93;box-shadow:0 0 0 2px #c5ae8627}
+.panda-strategy-chat-idle .strategy-idle-chat-host .panda-agent-composer textarea{min-height:38px;max-height:90px;padding:8px 2px 5px;color:#eeeae4;font-size:13px;line-height:1.5}
+.panda-strategy-chat-idle .strategy-idle-chat-host .panda-agent-composer textarea::placeholder{color:#a59d92;opacity:1}
+.panda-strategy-chat-idle .strategy-idle-chat-host #agent-send{min-width:72px;height:38px;border:1px solid #d0bd9a;border-radius:8px;background:#ddd0b8;color:#211e1a;font-size:12px;font-weight:650}
+.panda-strategy-chat-idle .strategy-idle-chat-host #agent-send:disabled{border-color:#60584c;background:#302c26;color:#aaa092;opacity:1}
+.strategy-discovery-page .strategy-category-tabs{display:flex;align-items:center;gap:6px;margin:0 0 10px;padding:0;overflow-x:auto;scrollbar-width:thin}
+.strategy-discovery-page .strategy-category-tabs button{flex:none;min-height:32px;padding:5px 11px;border:1px solid #3e3b3d;border-radius:7px;background:#171719;color:#bcb5ab;font-size:11px;white-space:nowrap}
+.strategy-discovery-page .strategy-category-tabs button.active{border-color:#ad9874;background:#29251f;color:#f0dfc2}
+.strategy-discovery-page .strategy-filter-meta{margin-left:auto;color:#a49b8e;font-size:11px}
+.strategy-discovery-page .strategy-finder-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:stretch}
+.strategy-discovery-page .panda-strategy-card{min-width:0;padding:15px 16px 13px;border:1px solid #343235;border-radius:11px;background:#151517;box-shadow:0 8px 22px #0002}
+.strategy-discovery-page .panda-strategy-card:hover{border-color:#70634f;background:#19191b}
+.strategy-discovery-page .strategy-card-head{gap:8px;margin:0 0 8px}
+.strategy-discovery-page .strategy-glyph{width:27px;height:27px;font-size:14px}
+.strategy-discovery-page .strategy-badge{padding:4px 8px;font-size:11px}
+.strategy-favorite{display:grid;place-items:center;width:31px;height:31px;margin-left:auto;border:1px solid transparent;border-radius:7px;background:transparent;color:#a99b80;font-size:17px;cursor:pointer}
+.strategy-favorite:hover,.strategy-favorite.is-favorite{border-color:#5b5040;background:#25211c;color:#e7cf9f}
+.strategy-discovery-page .strategy-card-title{display:block;width:100%;padding:0;border:0;background:transparent;text-align:left;cursor:pointer}
+.strategy-discovery-page .panda-strategy-card h3{margin:0 0 6px;font-size:16px;line-height:1.35}
+.strategy-discovery-page .strategy-card-summary{min-height:0;margin:0 0 10px;color:#c0b9af;font-size:12px;line-height:1.55;-webkit-line-clamp:2}
+.strategy-card-backtest{padding:11px 12px 10px;border:1px solid #39363a;border-radius:9px;background:#101012}
+.strategy-card-backtest-head{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#d3c4a6;font-size:11px}
+.strategy-card-backtest-head>span:last-child{overflow:hidden;color:#a99f91;text-align:right;text-overflow:ellipsis;white-space:nowrap}
+.strategy-card-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:10px 0 6px}
+.strategy-card-metrics>div{min-width:0}
+.strategy-card-metrics small,.strategy-card-metrics strong{display:block}
+.strategy-card-metrics small{margin-bottom:4px;color:#a79f95;font-size:11px;line-height:1.35}
+.strategy-card-metrics strong{overflow:hidden;color:#f0eae0;font-size:16px;font-weight:650;font-variant-numeric:tabular-nums;text-overflow:ellipsis;white-space:nowrap}
+.strategy-card-metrics strong.drawdown{color:#dfbda9}
+.strategy-card-chart-wrap{position:relative;height:90px;margin:6px 0 4px;overflow:hidden}
+.strategy-card-chart{display:block;width:100%;height:100%;overflow:visible}
+.strategy-card-chart .chart-zero{stroke:#343237;stroke-width:1;stroke-dasharray:3 4}
+.strategy-card-chart .chart-return{fill:none;stroke:#d7c39b;stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.strategy-card-chart .chart-benchmark{fill:none;stroke:#8e9bab;stroke-width:1.45;stroke-dasharray:4 4;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.strategy-chart-legend{position:relative;display:inline-flex;align-items:center;gap:5px;margin-right:10px;color:#a49a8d;font-size:10px}
+.strategy-chart-legend i{display:inline-block;width:12px;height:2px;background:#8e9bab}
+.strategy-chart-legend i.strategy-line{background:#d7c39b}
+.strategy-card-backtest-meta{display:grid;gap:3px;margin-top:5px;color:#a39b90;font-size:11px;line-height:1.45;font-variant-numeric:tabular-nums}
+.strategy-card-backtest-meta span{overflow-wrap:anywhere}
+.strategy-card-chart-empty{display:grid;place-items:center;min-height:88px;color:#aaa196;font-size:12px}
+.strategy-card-backtest.is-loading .strategy-card-backtest-head i{width:50%;height:9px;border-radius:5px;background:#242326}
+.strategy-card-backtest.is-unavailable{min-height:160px}
+.strategy-card-backtest.is-unavailable p{margin:12px 0;color:#b8aea0;font-size:12px;line-height:1.55}
+.strategy-card-backtest.is-unavailable button{min-height:32px;padding:5px 10px;border:1px solid #615745;border-radius:7px;background:#25211c;color:#e7d5b5;font:inherit;font-size:11px;cursor:pointer}
+.strategy-card-ruleline{display:grid;gap:5px;margin:10px 0 0;padding-top:9px;border-top:1px solid #302e30}
+.strategy-card-ruleline span{display:-webkit-box;overflow:hidden;color:#c7bfb4;font-size:11px;line-height:1.45;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.strategy-card-ruleline span+span{color:#a69a86}
+.strategy-discovery-page .strategy-card-actions{grid-template-columns:1fr 1fr;gap:7px;margin-top:auto;padding-top:12px}
+.strategy-discovery-page .strategy-card-actions .panda-button{min-height:37px;padding:7px;border:1px solid #595148;border-radius:8px;background:#211f1f;color:#e4dace;font-size:12px}
+.strategy-discovery-page .strategy-card-actions .panda-button.primary{border-color:#d0bd9a;background:#d0bd9a;color:#201d19}
+.strategy-discovery-page .strategy-compare-toggle{grid-column:auto;width:100%;min-height:32px;margin-top:7px;border-color:transparent;background:transparent;color:#c1b198;font-size:11px}
+.strategy-discovery-page .strategy-compare-toggle:hover,.strategy-discovery-page .strategy-compare-toggle[aria-pressed="true"]{border-color:#5c5141;background:#25211d;color:#e9d8b6}
+.strategy-finder-empty{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:12px;min-height:116px;border:1px dashed #464144;border-radius:10px;color:#c0b8ad;font-size:13px}
+.strategy-finder-empty button,.strategy-clear-search{border:0;background:transparent;color:#dbc49c;font:inherit;font-size:12px;cursor:pointer}
+.strategy-show-all{width:100%;min-height:36px;margin-top:10px;border:1px solid #3d393b;border-radius:8px;background:#171719;color:#d8c6a3;font:inherit;font-size:12px;cursor:pointer}
+.strategy-compare-tray{display:flex;align-items:center;gap:12px;margin-top:12px;padding:10px 12px;border:1px solid #524939;border-radius:9px;background:#1b1917;color:#eee8df;font-size:12px}
+.strategy-compare-tray strong{flex:none;color:#e1cfad}
+.strategy-compare-tray span{min-width:0;flex:1;overflow:hidden;color:#bbb2a6;text-overflow:ellipsis;white-space:nowrap}
+.strategy-compare-tray button{flex:none;min-height:32px;padding:5px 10px;border:1px solid #9c896a;border-radius:7px;background:#d0bd9a;color:#201d19;font:inherit;font-size:11px;font-weight:600;cursor:pointer}
+.strategy-compare-tray button:disabled{border-color:#464144;background:#242225;color:#837b72;cursor:not-allowed}
+.strategy-continue-task{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;margin-top:10px;padding:10px 12px;border:1px solid #39363a;border-radius:8px;background:#151517;color:#c9c0b4;text-align:left;font:inherit;font-size:12px;cursor:pointer}
+.strategy-continue-task span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.strategy-continue-task b{flex:none;color:#d6c29e;font-size:11px}
+.strategy-compare-page{max-width:1500px;margin:0 auto;padding-bottom:30px}
+.strategy-compare-toolbar{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #333135;color:#eee9e0}
+.strategy-compare-toolbar strong{font-size:17px}.strategy-compare-toolbar span{color:#aaa094;font-size:12px}.strategy-compare-toolbar button{min-height:34px;padding:6px 11px;border:1px solid #4a4540;border-radius:7px;background:#1c1a19;color:#d7c7a8;font:inherit;font-size:12px;cursor:pointer}.strategy-compare-toolbar button:last-child{margin-left:auto;border-color:#d0bd9a;background:#d0bd9a;color:#211e19;font-weight:600}
+.strategy-compare-table-wrap{width:100%;overflow:auto;border:1px solid #39363a;border-radius:10px;background:#151517}
+.strategy-compare-table{width:100%;min-width:720px;border-collapse:collapse;font-size:12px;line-height:1.55}
+.strategy-compare-table th,.strategy-compare-table td{min-width:155px;padding:11px 12px;border-bottom:1px solid #302e31;text-align:left;vertical-align:top}
+.strategy-compare-table thead th{background:#1b1a1c;color:#eee8df}
+.strategy-compare-table thead th:first-child,.strategy-compare-table tbody th{position:sticky;left:0;z-index:1;min-width:145px;background:#19181a;color:#c4b8a6}
+.strategy-compare-table thead th>div{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px}
+.strategy-compare-table thead th>div button{width:25px;height:25px;border:1px solid #464144;border-radius:6px;background:#242225;color:#c8bda9;cursor:pointer}
+.strategy-compare-table thead th>small{display:block;margin:4px 0;color:#a99d89;font-size:11px;font-weight:400}
+.strategy-compare-table thead th>button{padding:0;border:0;background:transparent;color:#ddc79f;font:inherit;font-size:11px;cursor:pointer}
+.strategy-compare-table td{color:#d0c8bc}.strategy-compare-basis{margin:10px 0 0;color:#b2a899;font-size:12px;line-height:1.55}
+.strategy-compare-mobile{display:none}
+.strategy-compare-mobile-card{padding:13px;border:1px solid #3b383b;border-radius:9px;background:#151517}
+.strategy-compare-mobile-card>header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:9px;border-bottom:1px solid #302e31}
+.strategy-compare-mobile-card>header strong,.strategy-compare-mobile-card>header small{display:block}.strategy-compare-mobile-card>header strong{color:#eee8df;font-size:14px}.strategy-compare-mobile-card>header small{margin-top:3px;color:#aaa093;font-size:11px}
+.strategy-compare-mobile-card>header button{padding:5px 8px;border:1px solid #474144;border-radius:6px;background:#211f20;color:#cfc2ad;font:inherit;font-size:11px;cursor:pointer}
+.strategy-compare-mobile-card dl{display:grid;gap:0;margin:0}.strategy-compare-mobile-card dl>div{display:grid;grid-template-columns:minmax(98px,.7fr) minmax(0,1.3fr);gap:9px;padding:8px 0;border-bottom:1px solid #29272a}
+.strategy-compare-mobile-card dt{color:#a79d90;font-size:11px}.strategy-compare-mobile-card dd{margin:0;color:#ddd5ca;font-size:12px;line-height:1.5;overflow-wrap:anywhere}
+.strategy-compare-mobile-card .compare-mobile-detail{margin-top:9px;padding:0;border:0;background:none;color:#dfc9a1;font:inherit;font-size:12px;cursor:pointer}
+.strategy-detail-page .strategy-idle-chat-host{margin:16px 0 24px}
+.strategy-detail-page .strategy-ask-prompts{margin-bottom:8px}
+@media(min-width:1600px){.strategy-discovery-page .strategy-finder-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:800px){.strategy-discovery-page{padding-bottom:18px}.strategy-discovery-page .strategy-finder-grid{grid-template-columns:1fr}.strategy-discovery-header{align-items:flex-start}.strategy-search{width:min(220px,48vw)}.strategy-compare-toolbar{flex-wrap:wrap}.strategy-compare-toolbar button:last-child{margin-left:auto}.strategy-compare-tray{flex-wrap:wrap}.strategy-compare-tray span{flex-basis:100%;order:3}.strategy-detail-page .strategy-idle-chat-host{margin-top:12px}.strategy-compare-table-wrap{display:none}.strategy-compare-mobile{display:grid;gap:9px}}
+@media(max-width:520px){.strategy-discovery-header{gap:8px}.strategy-discovery-header h1{font-size:19px}.strategy-library-tools{gap:5px}.strategy-search{width:min(172px,45vw);height:34px}.strategy-search input{font-size:11px}.strategy-favorites-filter{height:34px;padding:0 7px;font-size:11px}.strategy-idle-chat-host .strategy-ask-prompts{flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}.strategy-idle-chat-host .strategy-ask-prompts::-webkit-scrollbar{display:none}.strategy-idle-chat-host .strategy-ask-prompts button{flex:none}.strategy-discovery-page .panda-strategy-card{padding:13px}.strategy-card-metrics strong{font-size:15px}.strategy-card-backtest-meta{font-size:11px}.strategy-finder-empty{flex-direction:column;padding:16px}.strategy-compare-toolbar{gap:8px}.strategy-compare-toolbar strong{font-size:15px}}
+.suvi-main-conversation .suvi-conversation-compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px}
+.suvi-main-conversation .suvi-conversation-compare>article{display:grid;align-content:start;gap:6px;min-width:0;padding:11px 12px;border:1px solid #383538;border-radius:8px;background:#151517}
+.suvi-main-conversation .suvi-conversation-compare>article strong{color:#eee8df;font-size:13px}
+.suvi-main-conversation .suvi-conversation-compare>article span{color:#dfcba9;font-size:12px;line-height:1.45}
+.suvi-main-conversation .suvi-conversation-compare>article small{color:#a79f94;font-size:11px;line-height:1.45;overflow-wrap:anywhere}
+@media(max-width:600px){.suvi-main-conversation .suvi-conversation-compare{display:flex;overflow-x:auto;scroll-snap-type:x mandatory}.suvi-main-conversation .suvi-conversation-compare>article{flex:0 0 min(290px,82vw);scroll-snap-align:start}}
+
+/* Find strategies v2: concise start and evidence-first cards. */
+.strategy-discovery-page{padding-bottom:24px}
+.strategy-discovery-header{min-height:32px;margin-bottom:8px}
+.strategy-discovery-header h1{font-size:21px;line-height:1.2}
+.strategy-start-zone{margin:0 0 14px;padding:13px 16px 14px;border:1px solid #383538;border-left:3px solid #c5ad86;border-radius:10px;background:linear-gradient(110deg,#1b1a1a,#141416 72%)}
+.strategy-start-head{display:flex;align-items:center;gap:12px;min-height:26px;margin-bottom:9px}
+.strategy-start-head h2{margin:0;color:#f1ece4;font-size:16px;font-weight:620}
+.strategy-start-head>[data-action="strategy-start-back"]{padding:4px 0;border:0;background:transparent;color:#c7b08a;font:inherit;font-size:11px;cursor:pointer}
+.strategy-start-head>[data-action="strategy-start-back"]+h2{margin-left:2px}
+.strategy-scenario-label{padding:4px 7px;border:1px solid #49423a;border-radius:20px;color:#cfb98f;font-size:10px}
+.strategy-resume-link{margin-left:auto;padding:5px 0;border:0;background:transparent;color:#cdb995;font:inherit;font-size:11px;cursor:pointer}
+.strategy-start-actions{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.strategy-scenarios,.strategy-first-answers{display:flex;flex-wrap:wrap;gap:7px}
+.strategy-scenarios button,.strategy-first-answers button{min-height:34px;padding:6px 11px;border:1px solid #454144;border-radius:7px;background:#211f20;color:#d9d1c6;font:inherit;font-size:11px;cursor:pointer}
+.strategy-scenarios button:hover,.strategy-first-answers button:hover{border-color:#b29b75;background:#29251f;color:#f1e2ca}
+.strategy-start-button{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-width:142px;min-height:38px;padding:7px 13px;border:1px solid #d6c4a2;border-radius:8px;background:#d7c5a3;color:#201d19;font:inherit;font-size:12px;font-weight:650;cursor:pointer}
+.strategy-start-button:hover{background:#e4d6bb;transform:translateY(-1px)}
+.strategy-first-question .strategy-start-head{margin-bottom:5px}
+.strategy-question-support{margin:0 0 10px 42px;color:#c0b8ad;font-size:12px;line-height:1.5}
+.strategy-first-question>small{display:block;margin:9px 0 0 42px;color:#968e83;font-size:10px}
+.strategy-tools-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px}
+.strategy-tools-row>strong{color:#eee8df;font-size:14px;font-weight:610}
+.strategy-discovery-chat #agent-provider,.strategy-discovery-chat .panda-agent-head,.strategy-discovery-chat .panda-agent-status,.strategy-discovery-chat .panda-agent-messages,.strategy-discovery-chat #agent-question,.strategy-discovery-chat #agent-data-consent,.strategy-discovery-chat .panda-agent-setting,.strategy-discovery-chat #agent-run-state,.strategy-discovery-chat .agent-composer-hint{display:none!important}
+.strategy-discovery-chat .panda-agent-controls{justify-content:flex-end;min-height:0;margin:0}
+.panda-strategy-chat-idle .strategy-idle-chat-host .panda-agent-composer{min-height:58px;border-color:#76684f;background:#111113;box-shadow:0 6px 22px #0006}
+.panda-strategy-chat-idle .strategy-idle-chat-host .panda-agent-composer:focus-within{border-color:#d0ba93;box-shadow:0 0 0 2px #c5ae8627}
+.strategy-discovery-page .strategy-finder-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.strategy-discovery-page .panda-strategy-card{padding:12px 13px 11px;border-radius:10px}
+.strategy-discovery-page .strategy-card-head{gap:7px;margin-bottom:6px}
+.strategy-discovery-page .strategy-glyph{width:24px;height:24px;font-size:12px}
+.strategy-discovery-page .strategy-badge{padding:3px 7px;font-size:10px}
+.strategy-compare-quick{min-height:25px;margin-left:auto;padding:3px 7px;border:1px solid #454144;border-radius:6px;background:transparent;color:#b7aa94;font:inherit;font-size:10px;cursor:pointer}
+.strategy-compare-quick:hover,.strategy-compare-quick.active{border-color:#7f7058;background:#25221d;color:#e7d6b5}
+.strategy-discovery-page .panda-strategy-card h3{margin-bottom:4px;font-size:14px;line-height:1.3}
+.strategy-discovery-page .strategy-card-summary{min-height:30px;margin-bottom:7px;font-size:11px;line-height:1.45}
+.strategy-card-backtest{padding:8px 9px 7px;border-radius:8px}
+.strategy-card-backtest-head{gap:8px;font-size:10px}
+.strategy-card-evidence{display:grid;grid-template-columns:1fr 1.1fr;align-items:center;gap:8px}
+.strategy-card-evidence>div:not(.strategy-card-chart-wrap){min-width:0}
+.strategy-card-evidence small,.strategy-card-evidence strong{display:block}
+.strategy-card-evidence small{margin-bottom:3px;color:#a79f95;font-size:10px;line-height:1.25}
+.strategy-card-evidence strong{overflow:hidden;color:#f0eae0;font-size:15px;font-weight:650;font-variant-numeric:tabular-nums;text-overflow:ellipsis;white-space:nowrap}
+.strategy-card-evidence strong.drawdown{color:#dfbda9}
+.strategy-card-chart-wrap{position:relative;grid-column:1/-1;height:46px;margin:0;overflow:hidden}
+.strategy-chart-legend{position:absolute;right:0;bottom:0;margin:0;font-size:9px}
+.strategy-card-backtest-meta{gap:2px;margin-top:5px;font-size:9px;line-height:1.35}
+.strategy-card-chart-empty{min-height:40px;font-size:10px}
+.strategy-card-backtest.is-unavailable{min-height:94px}
+.strategy-card-backtest.is-unavailable p{margin:7px 0;font-size:10px;line-height:1.45}
+.strategy-discovery-page .strategy-card-actions{grid-template-columns:1.1fr .9fr;gap:6px;padding-top:9px}
+.strategy-discovery-page .strategy-card-actions .panda-button{min-height:32px;padding:6px;border-radius:7px;font-size:10px}
+.strategy-plan-draft-form{display:grid;gap:12px;padding:4px 2px 2px}
+.strategy-plan-draft-form>label{display:grid;gap:6px;color:#d5cbbb;font-size:12px}
+.strategy-plan-draft-form input{min-height:38px;padding:8px 10px;border:1px solid #454144;border-radius:7px;background:#111113;color:#eee9e0;font:inherit;font-size:12px}
+.strategy-plan-draft-backtest{display:grid;gap:5px;padding:10px 11px;border:1px solid #39363a;border-radius:8px;background:#171719}
+.strategy-plan-draft-backtest span{color:#c9b590;font-size:10px}
+.strategy-plan-draft-backtest strong{color:#eee8df;font-size:12px}
+.strategy-plan-draft-backtest small,.strategy-plan-draft-form>p,.strategy-plan-saved>p{margin:0;color:#a69e93;font-size:11px;line-height:1.5}
+.strategy-plan-saved{display:grid;gap:14px;padding:4px 2px 2px}
+.strategy-plan-saved .panda-dialog-actions{display:flex;justify-content:flex-end;gap:8px}
+.suvi-strategy-candidates{display:grid;gap:7px;margin-top:11px;padding:10px;border:1px solid #373438;border-radius:9px;background:#151517}
+.suvi-strategy-candidates>strong{color:#e9ddc7;font-size:11px}
+.suvi-strategy-candidates article{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 10px;border:1px solid #302e31;border-radius:7px;background:#111113}
+.suvi-strategy-candidates article>div:first-child{display:grid;gap:4px;min-width:0}
+.suvi-strategy-candidates article b{color:#eee8df;font-size:12px}
+.suvi-strategy-candidates article small,.suvi-strategy-candidates article span{color:#a79f94;font-size:10px;line-height:1.4}
+.suvi-strategy-candidates article>div:last-child{display:flex;flex:none;gap:6px}
+.suvi-strategy-candidates article button{min-height:29px;padding:4px 8px;border:1px solid #575044;border-radius:6px;background:#211f1e;color:#d9cfbf;font:inherit;font-size:10px;cursor:pointer}
+.suvi-strategy-candidates article button:first-child{border-color:#c1ab84;background:#d0bd9a;color:#201d19;font-weight:600}
+.suvi-strategy-candidates>small{color:#8f887e;font-size:9px;line-height:1.4}
+@media(max-width:1360px){.strategy-discovery-page .strategy-finder-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:800px){.strategy-start-actions{align-items:stretch;flex-direction:column}.strategy-start-button{width:100%}.strategy-discovery-page .strategy-finder-grid{grid-template-columns:1fr}.strategy-tools-row{align-items:flex-start;flex-direction:column}.strategy-tools-row .strategy-library-tools{width:100%}.strategy-tools-row .strategy-search{flex:1;width:auto}.strategy-start-zone{padding:12px}.strategy-question-support,.strategy-first-question>small{margin-left:0}.strategy-first-answers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.strategy-first-answers button{min-height:38px}}
+@media(max-width:520px){.strategy-scenarios{display:grid;grid-template-columns:1fr 1fr}.strategy-scenarios button{white-space:normal}.strategy-discovery-page .strategy-card-evidence strong{font-size:14px}.strategy-discovery-page .strategy-card-backtest-meta{font-size:9px}.strategy-discovery-page .strategy-library-tools{gap:6px}.suvi-strategy-candidates article{align-items:flex-start;flex-direction:column}.suvi-strategy-candidates article>div:last-child{width:100%}.suvi-strategy-candidates article button{flex:1}}
+@media(max-height:800px) and (min-width:801px){.panda-strategy-chat-idle .strategy-page .strategy-idle-chat-host{position:relative;inset:auto;left:auto;width:100%;margin:0 0 14px;padding:0;transform:none}.panda-strategy-chat-idle .panda-content{padding-bottom:24px}}
+
+/* Start with a recognizable investment need; keep its editable question in the same surface. */
+.strategy-discovery-page .strategy-start-zone{margin-bottom:16px;padding:16px;border:1px solid #403d3a;border-radius:12px;background:#171719;box-shadow:none}
+.strategy-start-head{margin-bottom:12px}
+.strategy-start-head h2{font-size:15px}
+.strategy-goal-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.strategy-goal-option{position:relative;display:grid;align-content:center;gap:5px;min-width:0;min-height:78px;padding:12px 28px 12px 13px;border:1px solid #45413f;border-radius:9px;background:#1e1d1f;color:#eee8de;font:inherit;text-align:left;cursor:pointer;transition:border-color .15s,background .15s,transform .15s}
+.strategy-goal-option strong{font-size:13px;font-weight:640;line-height:1.35}
+.strategy-goal-option small{color:#aea59a;font-size:11px;line-height:1.35}
+.strategy-goal-option>span{position:absolute;top:12px;right:11px;color:#c8ad7e;font-size:15px}
+.strategy-goal-option:hover,.strategy-goal-option:focus-visible{border-color:#c2ab83;background:#29251f;transform:translateY(-1px);outline:none}
+.strategy-goal-option.is-selected{border-color:#c2ab83;background:#29251f;box-shadow:inset 0 0 0 1px #c2ab8340}
+.strategy-start-zone .strategy-discovery-chat{margin-top:12px}
+.strategy-example-row{display:flex;align-items:center;gap:9px;min-width:0;margin-top:11px;color:#a99f92;font-size:11px}
+.strategy-example-row>span{flex:none}
+.strategy-example-row button{padding:2px 0;border:0;background:transparent;color:#d6c09b;font:inherit;font-size:11px;text-align:left;cursor:pointer}
+.strategy-example-row button:hover,.strategy-example-row button:focus-visible{text-decoration:underline;outline:none}
+.strategy-example-row .strategy-example{overflow:hidden;min-width:0;text-overflow:ellipsis;white-space:nowrap}
+.strategy-example-row [data-action="strategy-next-example"]{flex:none;margin-left:auto;color:#bbb1a2;white-space:nowrap}
+.strategy-start-zone .strategy-idle-chat-host{margin:0!important}
+.strategy-start-zone .strategy-idle-chat-host .panda-agent-composer{min-height:50px!important}
+@media(max-width:1250px){.strategy-goal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.strategy-discovery-page .strategy-start-zone{padding:12px}.strategy-goal-grid{gap:7px}.strategy-goal-option{min-height:72px;padding:10px 20px 10px 10px}.strategy-goal-option strong{font-size:12px}.strategy-goal-option small{font-size:10px}.strategy-goal-option>span{top:9px;right:8px;font-size:12px}}
+@media(max-width:380px){.strategy-goal-grid{grid-template-columns:1fr}.strategy-goal-option{min-height:58px}}
+
+.panda-market-page .panda-topbar{display:none}
+.panda-market-page .panda-content{padding-top:10px}
