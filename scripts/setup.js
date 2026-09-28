@@ -8,6 +8,8 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const venvPython = path.join(root, '.venv', process.platform === 'win32' ? 'Scripts' : 'bin',
   process.platform === 'win32' ? 'python.exe' : 'python');
+const cli = path.join(root, '.venv', process.platform === 'win32' ? 'Scripts' : 'bin',
+  process.platform === 'win32' ? 'aijijin.exe' : 'aijijin');
 const sdkWheel = path.join(root, 'reference', 'thsfund', 'vendor', 'aijijin_sdk-0.2.3-py3-none-any.whl');
 
 function run(command, args, options = {}) {
@@ -64,6 +66,17 @@ function checkSdk() {
   return result.status === 0;
 }
 
+function checkCli() {
+  if (!fs.existsSync(cli)) return false;
+  if (process.platform === 'win32') return true;
+  try {
+    fs.accessSync(cli, fs.constants.X_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 try {
   if (!fs.existsSync(venvPython)) {
     const python = findPython();
@@ -71,10 +84,14 @@ try {
     if (result.status !== 0) throw result.error || new Error('创建 Python 虚拟环境失败。');
   }
   validateVenvPython();
-  if (!checkSdk()) {
+  if (!checkSdk() || !checkCli()) {
     if (!fs.existsSync(sdkWheel)) throw new Error('仓库中的同花顺 SDK 安装包不存在。');
-    const result = run(venvPython, ['-m', 'pip', 'install', '--disable-pip-version-check', sdkWheel], { windowsHide: true });
+    const result = run(venvPython, ['-m', 'pip', 'install', '--disable-pip-version-check',
+      '--no-deps', '--force-reinstall', sdkWheel], { windowsHide: true });
     if (result.status !== 0) throw result.error || new Error('安装同花顺 SDK 失败，请检查网络后重试。');
+  }
+  if (!checkSdk() || !checkCli()) {
+    throw new Error('基金接口运行环境未完整安装，请重新运行 npm run setup。');
   }
   process.stdout.write(`项目 Python 环境已就绪：${venvPython}\n`);
 } catch (error) {

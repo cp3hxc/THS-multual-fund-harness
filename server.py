@@ -40,7 +40,7 @@ FINANCE_LOCK = threading.Lock()
 CSRF = secrets.token_urlsafe(32)
 AI_CONFIG = {'mode': 'subscription', 'baseUrl': 'https://api.openai.com/v1',
              'protocol': 'responses', 'model': '', 'apiKey': ''}
-AUTH_JOB = {'running': False, 'success': False, 'mode': 'login', 'message': ''}
+AUTH_JOB = {'running': False, 'success': False, 'mode': 'login', 'message': '', 'authUrl': ''}
 AI_JOBS = {}
 STRATEGY_JOBS = {}
 TRANSACTION_INTENTS = {}
@@ -234,6 +234,40 @@ def cli_run(args, timeout=60):
             continue
         break
     return d
+
+
+def trusted_fund_auth_url(value):
+    """Accept only HTTPS scan pages on the configured gateway's official domain."""
+    try:
+        parsed = urlparse(str(value or '').strip())
+        gateway = urlparse(os.environ.get('AIJIJIN_GATEWAY_URL', 'https://trade.5ifund.com'))
+        host = (parsed.hostname or '').lower().rstrip('.')
+        gateway_host = (gateway.hostname or '').lower().rstrip('.')
+        if (parsed.scheme != 'https' or not host or parsed.username or parsed.password
+                or parsed.port not in (None, 443)):
+            return ''
+        if host != gateway_host and not host.endswith('.5ifund.com'):
+            return ''
+        return parsed.geturl()
+    except (TypeError, ValueError):
+        return ''
+
+
+def login_progress_message(line):
+    """Translate only known, non-sensitive CLI progress into UI status text."""
+    messages = (
+        ('会话已创建', '扫码会话已创建，正在打开官方授权页。'),
+        ('等待扫码', '请使用同花顺 App 扫描授权页二维码。'),
+        ('已扫码，等待确认', '已扫码，请在同花顺 App 确认授权。'),
+        ('已授权', '授权成功，正在完成账户连接。'),
+        ('用户已拒绝', '本次授权已取消。'),
+        ('会话已过期', '扫码会话已过期，请重新发起。'),
+        ('正在交换凭证', '授权已确认，正在安全地完成连接。'),
+    )
+    for marker, message in messages:
+        if marker in line:
+            return message
+    return ''
 
 
 def _find_value(value, *keys):
@@ -772,6 +806,36 @@ def orders(q):
             if len(rows) == 20 else None}
 
 
+def holding_trade_history(code):
+    """Return a bounded, read-only five-year trade history for one held fund."""
+    code = require_code(code)
+    end_date = dt.date.today()
+    start_date = end_date - dt.timedelta(days=365 * 5)
+    start, end = start_date.strftime('%Y%m%d'), end_date.strftime('%Y%m%d')
+    cursor, matched, truncated = None, [], False
+    max_pages = 15
+    for page in range(1, max_pages + 1):
+        query = {'start': start, 'end': end, 'kind': 'all', 'processing': 'false', 'page': str(page)}
+        if cursor:
+            query.update(lastTime=cursor.get('lastTime', ''), lastId=cursor.get('lastId', ''))
+        result = orders(query)
+        matched.extend(row for row in result['orders'] if str(row.get('code') or '') == code)
+        cursor = result.get('next')
+        if not cursor:
+            break
+    else:
+        truncated = bool(cursor)
+
+    # Keep only fields needed to plot and explain transactions; no account or bank data.
+    safe_rows = [{key: row.get(key) for key in (
+        'code', 'name', 'type', 'subtype', 'status', 'statusDetail', 'amount',
+        'confirmedAmount', 'shares', 'confirmedShares', 'acceptedAt', 'confirmedAt'
+    )} for row in matched]
+    return {'code': code, 'period': {'start': start_date.isoformat(), 'end': end_date.isoformat()},
+            'orders': safe_rows, 'truncated': truncated, 'fetchedAt': now(),
+            'source': '同花顺爱基金 · thsfund'}
+
+
 def holding_details(code):
     accounts, dates, failures = {}, [], []
     for category in ('01', '02', '03', '04', '05', '06', '07'):
@@ -1243,11 +1307,13 @@ def strategy_job_read(job_id):
     return job
 
 
-def fund_nav_detail(code):
+def fund_nav_detail(code, range_='tyear'):
     code = require_code(code)
+    if range_ not in ('tyear', 'fyear'):
+        raise AppError('净值区间无效。')
     try:
         client = FuyaoClient(RUNTIME)
-        rows = client.fund_nav(code)
+        rows = client.fund_nav(code, range_)
         profile = client.fund_profile(code)
     except FuyaoError as exc:
         raise AppError(str(exc), 502, 'market_data')
@@ -1581,7 +1647,9 @@ class Handler(BaseHTTPRequestHandler):
             elif p.path == '/api/fund/redeem-preview':
                 data = redeem_preview(require_code(q.get('code')), q.get('account'))
             elif p.path == '/api/fund/nav':
-                data = fund_nav_detail(q.get('code'))
+                data = fund_nav_detail(q.get('code'), q.get('range', 'tyear'))
+            elif p.path == '/api/fund/trade-history':
+                data = holding_trade_history(require_code(q.get('code')))
             elif p.path == '/api/ai/status':
                 data = ai_status()
             elif p.path == '/api/ai/job':
@@ -1668,16 +1736,50 @@ class Handler(BaseHTTPRequestHandler):
                     if AUTH_JOB['running']:
                         raise AppError('扫码登录已在进行中。', 409)
                     AUTH_JOB.update(running=True, success=False, mode='switch' if force else 'login',
-                                    message='官方授权页已打开，请使用同花顺 App 扫码并确认。')
+                                    message='正在启动官方扫码授权。', authUrl='')
                 def login():
                     try:
-                        command = [str(CLI), 'auth', 'login']
+                        command = [str(CLI), 'auth', 'login', '--verbose']
                         if force:
                             command.append('--force')
                         with FINANCE_LOCK:
-                            p = subprocess.run(command, capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=320)
-                        result = json.loads(p.stdout or '{}')
-                        success = bool(result.get('ok'))
+                            p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                                 text=True, encoding='utf-8', errors='replace')
+                            stdout_chunks = []
+
+                            def read_stdout():
+                                stdout_chunks.append(p.stdout.read())
+
+                            def read_stderr():
+                                for raw_line in p.stderr:
+                                    line = raw_line.strip()
+                                    fallback = re.search(r'无法自动打开浏览器，请访问:\s*(\S+)', line)
+                                    if fallback:
+                                        auth_url = trusted_fund_auth_url(fallback.group(1))
+                                        if auth_url:
+                                            with LOCK:
+                                                AUTH_JOB.update(authUrl=auth_url,
+                                                                message='系统浏览器未能自动打开，正在由桌面端打开官方扫码页。')
+                                    else:
+                                        message = login_progress_message(line)
+                                        if message:
+                                            with LOCK:
+                                                AUTH_JOB['message'] = message
+
+                            stdout_thread = threading.Thread(target=read_stdout, daemon=True)
+                            stderr_thread = threading.Thread(target=read_stderr, daemon=True)
+                            stdout_thread.start()
+                            stderr_thread.start()
+                            try:
+                                p.wait(timeout=320)
+                            except subprocess.TimeoutExpired:
+                                p.kill()
+                                p.wait()
+                                raise
+                            stdout_thread.join(timeout=2)
+                            stderr_thread.join(timeout=2)
+                            result = json.loads(''.join(stdout_chunks) or '{}')
+                        success = p.returncode == 0 and bool(result.get('ok'))
                         message = ('账户切换成功，正在读取新账户。' if force else '授权成功，正在读取账户。') if success else '授权未完成，请重新发起扫码。'
                     except Exception:
                         success = False

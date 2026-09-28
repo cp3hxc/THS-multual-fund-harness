@@ -33,7 +33,7 @@
       </div>
     </aside>
     <main class="panda-main">
-      <header class="panda-topbar"><div class="panda-top-actions"><span id="panda-data-status">正在连接本地数据</span><button class="icon-button" data-nav="settings" aria-label="设置">⚙</button></div></header>
+      <header class="panda-topbar"><div class="panda-top-actions"><span id="panda-data-status">正在连接本地数据</span><button class="panda-agent-page-toggle" id="agent-page-toggle" type="button" aria-expanded="false">AI 助手</button><button class="icon-button" data-nav="settings" aria-label="设置">⚙</button></div></header>
       <section id="panda-content" class="panda-content" aria-live="polite"></section>
     </main>
   </div>
@@ -45,10 +45,16 @@
       <div id="agent-question" class="panda-agent-question" hidden></div>
       <form id="agent-form" class="panda-agent-composer">
         <textarea id="agent-input" maxlength="12000" placeholder="说说你的目标，或让 Agent 分析持仓、选择策略、修改参数并回测"></textarea>
-        <div class="panda-agent-controls"><label><input id="agent-data-consent" type="checkbox">账户权限：只读查询</label><button class="panda-agent-setting" type="button" data-nav="settings">模型 / 推理</button><span id="agent-run-state">就绪</span><button id="agent-stop" class="panda-button quiet" type="button" hidden>停止</button><button id="agent-send" class="panda-button primary">发送 ↑</button></div>
+        <small class="panda-agent-context-note">Agent 可读取账户、自选、策略、计划、回测与订单等工作台数据；每条消息会附带当前页面摘要。账户与订单信息仅用于查询分析，实际交易由你本人完成。</small>
+        <div class="panda-agent-controls"><span class="panda-agent-data-scope">工作台数据 · 可查询</span><button class="panda-agent-setting" type="button" data-nav="settings">模型 / 推理</button><span id="agent-run-state">就绪</span><button id="agent-stop" class="panda-button quiet" type="button" hidden>停止</button><button id="agent-send" class="panda-button primary">发送 ↑</button></div>
       </form>
     </div>
   </aside>
   <dialog id="panda-dialog"><div id="panda-dialog-content"></div></dialog>
+  <dialog id="panda-share-dialog" class="panda-share-dialog"><div id="panda-share-content"></div></dialog>
+  <dialog id="panda-share-viewer-dialog" class="panda-share-viewer-dialog" aria-label="策略分享图片大图">
+    <button type="button" data-action="close-share-viewer" aria-label="关闭大图">×</button>
+    <img id="panda-share-viewer-image" alt="策略分享卡片大图">
+  </dialog>
 </body>
 </html>

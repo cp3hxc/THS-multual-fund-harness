@@ -3,6 +3,24 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { CodexAgentRuntime, PUBLIC_TOOLS } = require('./desktop/agent-runtime');
+const { validateFundLoginUrl } = require('./desktop/fund-login-url');
+
+test('fund login fallback opens only HTTPS URLs on the official fund domain', () => {
+  assert.equal(
+    validateFundLoginUrl('https://trade.5ifund.com/scan?session=temporary'),
+    'https://trade.5ifund.com/scan?session=temporary'
+  );
+  assert.equal(
+    validateFundLoginUrl('https://login.custom.example/scan', 'https://login.custom.example/api'),
+    'https://login.custom.example/scan'
+  );
+  for (const url of [
+    'http://trade.5ifund.com/scan',
+    'https://trade.5ifund.com.evil.example/scan',
+    'https://evil.example@trade.5ifund.com/scan',
+    'https://trade.5ifund.com:8443/scan'
+  ]) assert.throws(() => validateFundLoginUrl(url));
+});
 
 const enabledTools = [
   'open_workbench', 'list_strategy_templates', 'create_strategy',
@@ -121,4 +139,16 @@ test('strategy research UI exposes default results, run replay and agent feedbac
   assert.match(css, /panda-phone-mark/);
   assert.match(fs.readFileSync(path.join(__dirname, 'server.py'), 'utf8'), /command\.append\('--force'\)/);
   assert.equal(fs.existsSync(path.join(__dirname, 'assets', 'paradoxai-mark.png')), true);
+});
+
+test('holdings diagnosis offers user-voiced prompts and a non-modal free-form Agent drawer', () => {
+  const script = fs.readFileSync(path.join(__dirname, 'panda-strategy-agent.js'), 'utf8');
+  const styles = fs.readFileSync(path.join(__dirname, 'panda-strategy-agent-fixes.css'), 'utf8');
+  assert.match(script, /AI 诊断/);
+  assert.match(script, /自己描述问题/);
+  assert.match(script, /我最近赚\/亏/);
+  assert.match(script, /data-open-holdings-agent/);
+  assert.doesNotMatch(script, /holdings-agent-backdrop/);
+  assert.match(styles, /\.holdings-split\{[^}]*align-items:stretch/);
+  assert.match(styles, /body\.panda-holdings-agent-open \.panda-main\{margin-right:/);
 });

@@ -1,11 +1,13 @@
-const { app, BrowserWindow, ipcMain, safeStorage, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, safeStorage, shell, dialog, ShareMenu } = require('electron');
 const { spawn, execFileSync } = require('node:child_process');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const http = require('node:http');
-const { CodexAgentRuntime, PUBLIC_TOOLS } = require('./agent-runtime');
+const QRCode = require('qrcode');
+const { CodexAgentRuntime, PUBLIC_TOOLS, ACCOUNT_DATA_TOOLS, BLOCKED_AGENT_TOOLS } = require('./agent-runtime');
+const { validateFundLoginUrl } = require('./fund-login-url');
 
 function venvPython(root = ROOT) {
   return process.env.FUND_PYTHON || path.join(root, '.venv', process.platform === 'win32' ? 'Scripts' : 'bin',
@@ -22,6 +24,7 @@ const ROOT = resolveWorkbenchRoot();
 const WORKBENCH_URL = 'http://127.0.0.1:8765';
 const DEFAULT_SUBSCRIPTION_MODEL = 'gpt-6-astra';
 const DEFAULT_REASONING_EFFORT = 'high';
+const STRATEGY_SHARE_SCHEME = 'fund-ai-workbench';
 const REASONING_EFFORTS = new Set(['minimal', 'low', 'medium', 'high', 'xhigh', 'max', 'ultra']);
 const TOOLS = [
   'open_workbench', 'get_dashboard', 'get_account_brief', 'list_holdings', 'analyze_portfolio',
@@ -39,6 +42,69 @@ let ownsPythonProcess = false;
 let runtime = null;
 let currentThreadId = null;
 let isQuitting = false;
+let pendingStrategyShare = null;
+
+function cleanStrategyShare(value) {
+  if (!value || typeof value !== 'object' || value.version !== 1) throw new Error('分享策略格式不受支持。');
+  const strategyId = String(value.strategyId || '');
+  const strategyVersion = String(value.strategyVersion || '');
+  const strategyName = String(value.strategyName || '').trim();
+  const fundCode = String(value.fundCode || '');
+  if (!/^[a-z0-9][a-z0-9-]{0,79}$/i.test(strategyId)) throw new Error('分享策略标识无效。');
+  if (!/^[\w.-]{1,40}$/.test(strategyVersion)) throw new Error('分享策略版本无效。');
+  if (fundCode && !/^\d{6}$/.test(fundCode)) throw new Error('分享基金代码无效。');
+  if (strategyName.length > 80) throw new Error('分享策略名称过长。');
+  const source = value.params && typeof value.params === 'object' && !Array.isArray(value.params) ? value.params : {};
+  const params = {};
+  for (const [key, entry] of Object.entries(source).slice(0, 40)) {
+    if (!/^[a-zA-Z][a-zA-Z0-9_]{0,63}$/.test(key)) continue;
+    if (typeof entry === 'number' && Number.isFinite(entry)) params[key] = entry;
+    else if (typeof entry === 'string' && entry.length <= 120) params[key] = entry;
+    else if (typeof entry === 'boolean') params[key] = entry;
+  }
+  const fundPool = Array.isArray(value.fundPool)
+    ? value.fundPool.filter(code => /^\d{6}$/.test(String(code))).slice(0, 20).map(String)
+    : [];
+  return { version: 1, strategyId, strategyVersion, strategyName, fundCode, params, fundPool };
+}
+
+function parseStrategyShareUrl(raw) {
+  try {
+    if (typeof raw !== 'string' || raw.length > 12000) return null;
+    const url = new URL(raw);
+    if (url.protocol !== `${STRATEGY_SHARE_SCHEME}:` || url.hostname !== 'strategy-share') return null;
+    const encoded = url.searchParams.get('payload') || '';
+    if (!encoded || encoded.length > 10000) return null;
+    const value = JSON.parse(Buffer.from(encoded, 'base64url').toString('utf8'));
+    return cleanStrategyShare(value);
+  } catch { return null; }
+}
+
+function handleStrategyShareUrl(raw) {
+  const payload = parseStrategyShareUrl(raw);
+  if (!payload) return false;
+  pendingStrategyShare = payload;
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.show();
+    mainWindow.focus();
+    sendToRenderer('strategy-share:open', payload);
+  }
+  return true;
+}
+
+function registerStrategyShareProtocol() {
+  if (app.isPackaged) app.setAsDefaultProtocolClient(STRATEGY_SHARE_SCHEME);
+  else if (process.argv[1]) {
+    app.setAsDefaultProtocolClient(STRATEGY_SHARE_SCHEME, process.execPath, [path.resolve(process.argv[1])]);
+  }
+}
+
+const initialStrategyShare = process.argv.find(value => value.startsWith(`${STRATEGY_SHARE_SCHEME}://`));
+if (initialStrategyShare) pendingStrategyShare = parseStrategyShareUrl(initialStrategyShare);
+app.on('open-url', (event, url) => {
+  event.preventDefault();
+  handleStrategyShareUrl(url);
+});
 
 const appData = () => app.getPath('userData');
 const settingsPath = () => path.join(appData(), 'settings.json');
@@ -143,7 +209,7 @@ function writeCodexConfig(settings) {
     'startup_timeout_sec = 15',
     'tool_timeout_sec = 180',
     'default_tools_approval_mode = "approve"',
-    `enabled_tools = [${TOOLS.filter(tool => PUBLIC_TOOLS.has(tool)).map(tomlString).join(', ')}]`
+    `enabled_tools = [${TOOLS.filter(tool => !BLOCKED_AGENT_TOOLS.has(tool) && (PUBLIC_TOOLS.has(tool) || ACCOUNT_DATA_TOOLS.has(tool))).map(tomlString).join(', ')}]`
   ];
   for (const provider of settings.providers) {
     if (!/^fund_api_[a-f0-9]{12}$/.test(provider.id)) continue;
@@ -275,7 +341,7 @@ async function ensureWorkbench() {
 function readSessions() {
   const rows = readJson(sessionsPath(), []);
   if (!Array.isArray(rows)) return [];
-  return rows.map(row => ({
+  return rows.map(({ dataAuthorized: _legacyPermission, ...row }) => ({
     ...row,
     pinned: row.pinned === true,
     model: row.model || (row.mode === 'api' ? null : DEFAULT_SUBSCRIPTION_MODEL),
@@ -327,7 +393,6 @@ function recordSession(thread, provider, title = '新会话') {
     providerName: provider.name,
     model: provider.model,
     effort: provider.effort,
-    dataAuthorized: false,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   });
@@ -336,31 +401,190 @@ function recordSession(thread, provider, title = '新会话') {
 }
 
 function sanitizePageContext(value) {
-  if (!value || typeof value !== 'object') return null;
-  const routes = new Set(['home', 'workbench', 'holdings', 'account', 'trades', 'watchlist', 'library', 'strategies', 'strategy-invest', 'settings', 'plans', 'history']);
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const routes = new Set(['home', 'workbench', 'holdings', 'account', 'trades', 'watchlist', 'library', 'strategy-detail', 'strategies', 'strategy-invest', 'settings', 'plans', 'history']);
   const context = {};
+  const text = (raw, max = 120) => typeof raw === 'string' ? raw.slice(0, max) : '';
+  const number = raw => {
+    if (raw === null || raw === undefined || raw === '') return null;
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) && Math.abs(parsed) < 1e12 ? Number(parsed.toFixed(6)) : null;
+  };
+  const count = raw => {
+    if (raw === null || raw === undefined || raw === '') return null;
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) && parsed >= 0 ? Math.min(1000000, Math.floor(parsed)) : null;
+  };
+  const metricKeys = ['returnPct', 'absoluteReturnPct', 'excessReturnPct', 'benchmarkReturnPct', 'maxDrawdownPct', 'volatilityPct', 'annualizedReturnPct', 'sharpe', 'sortino', 'winRatePct', 'tradeCount', 'dataCoveragePct', 'totalInvested', 'netProfit'];
+  const metrics = raw => {
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
+    return Object.fromEntries(metricKeys.map(key => [key, number(raw[key])]).filter(([, entry]) => entry !== null));
+  };
+  const params = raw => {
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
+    const result = {};
+    for (const [key, entry] of Object.entries(raw).slice(0, 40)) {
+      if (!/^[A-Za-z][A-Za-z0-9_]{0,63}$/.test(key)) continue;
+      if (typeof entry === 'number' && Number.isFinite(entry)) result[key] = entry;
+      else if (typeof entry === 'string' && entry.length <= 120) result[key] = entry;
+    }
+    return result;
+  };
   if (routes.has(value.route)) context.route = value.route;
   if (typeof value.pageTitle === 'string') context.pageTitle = value.pageTitle.slice(0, 30);
   if (typeof value.tab === 'string') context.tab = value.tab.slice(0, 40);
   if (typeof value.filter === 'string') context.filter = value.filter.slice(0, 60);
+  if (typeof value.sort === 'string') context.sort = value.sort.slice(0, 40);
   if (value.selectedFund && typeof value.selectedFund === 'object' && /^\d{6}$/.test(String(value.selectedFund.code || ''))) {
+    const recentPoints = (Array.isArray(value.selectedFund.recentPoints) ? value.selectedFund.recentPoints : []).slice(-12).map(row => ({
+      date: text(row?.date, 20), value: number(row?.value)
+    }));
     context.selectedFund = {
-      code: String(value.selectedFund.code),
-      name: String(value.selectedFund.name || '').slice(0, 80)
+      code: String(value.selectedFund.code), name: text(value.selectedFund.name, 80),
+      dataAsOf: text(value.selectedFund.dataAsOf, 20), source: text(value.selectedFund.source, 100),
+      manager: text(value.selectedFund.manager, 80), periodStart: text(value.selectedFund.periodStart, 20),
+      periodEnd: text(value.selectedFund.periodEnd, 20), recentPoints
     };
   }
   if (value.strategy && typeof value.strategy === 'object') {
     context.strategy = {
-      id: String(value.strategy.id || '').slice(0, 80),
-      name: String(value.strategy.name || '').slice(0, 80),
-      version: String(value.strategy.version || '').slice(0, 40)
+      id: text(value.strategy.id, 80),
+      name: text(value.strategy.name, 80),
+      version: text(value.strategy.version, 40),
+      fundCode: /^\d{6}$/.test(String(value.strategy.fundCode || '')) ? String(value.strategy.fundCode) : null,
+      tab: text(value.strategy.tab, 40),
+      variantName: text(value.strategy.variantName, 80),
+      unsavedChanges: value.strategy.unsavedChanges === true,
+      params: params(value.strategy.params)
     };
   }
   if (value.backtest && typeof value.backtest === 'object') {
     context.backtest = {
-      status: String(value.backtest.status || '').slice(0, 30),
+      status: text(value.backtest.status, 30),
       fundCode: /^\d{6}$/.test(String(value.backtest.fundCode || '')) ? String(value.backtest.fundCode) : null,
-      dataAsOf: String(value.backtest.dataAsOf || '').slice(0, 20)
+      dataAsOf: text(value.backtest.dataAsOf, 20),
+      source: text(value.backtest.source, 100),
+      benchmarkName: text(value.backtest.benchmarkName, 80),
+      periodStart: text(value.backtest.periodStart, 20),
+      periodEnd: text(value.backtest.periodEnd, 20),
+      metrics: metrics(value.backtest.metrics),
+      parameters: params(value.backtest.parameters),
+      totalInvested: number(value.backtest.totalInvested),
+      netProfit: number(value.backtest.netProfit),
+      missingData: (Array.isArray(value.backtest.missingData) ? value.backtest.missingData : []).slice(0, 10).map(item => text(item, 200))
+    };
+  }
+  if (value.holdingsDiagnosis && typeof value.holdingsDiagnosis === 'object') {
+    context.holdingsDiagnosis = {
+      origin: '持仓组合回测',
+      concern: text(value.holdingsDiagnosis.concern, 600),
+      requestedAnalysis: text(value.holdingsDiagnosis.requestedAnalysis, 800)
+    };
+  }
+  if (value.pageSnapshot && typeof value.pageSnapshot === 'object') {
+    const snapshot = value.pageSnapshot;
+    const safeItems = Array.isArray(snapshot.items) ? snapshot.items.slice(0, 30) : [];
+    const itemText = (row, key, max = 120) => text(row?.[key], max);
+    const itemCode = row => /^\d{6}$/.test(String(row?.fundCode || row?.code || '')) ? String(row.fundCode || row.code) : null;
+    let safeSnapshot = null;
+    if (snapshot.kind === 'workbench') {
+      const summary = snapshot.summary && typeof snapshot.summary === 'object' ? snapshot.summary : {};
+      safeSnapshot = {
+        kind: 'workbench',
+        summary: {
+          strategyCount: count(summary.strategyCount),
+          watchlistCount: count(summary.watchlistCount),
+          activePlanCount: count(summary.activePlanCount),
+          holdingsCount: count(summary.holdingsCount)
+        },
+        items: safeItems.map(row => ({
+          id: itemText(row, 'id', 80), name: itemText(row, 'name', 80), version: itemText(row, 'version', 40),
+          category: itemText(row, 'category', 60), fundCode: itemCode(row), dataAsOf: itemText(row, 'dataAsOf', 20), metrics: metrics(row?.metrics)
+        }))
+      };
+    } else if (snapshot.kind === 'strategies') {
+      safeSnapshot = {
+        kind: 'strategies', items: safeItems.map(row => ({
+          id: itemText(row, 'id', 80), name: itemText(row, 'name', 80), version: itemText(row, 'version', 40),
+          category: itemText(row, 'category', 60), fundCode: itemCode(row), dataAsOf: itemText(row, 'dataAsOf', 20), metrics: metrics(row?.metrics)
+        }))
+      };
+    } else if (snapshot.kind === 'watchlist') {
+      safeSnapshot = { kind: 'watchlist', items: safeItems.map(row => ({ code: itemCode(row), name: itemText(row, 'name', 80) })).filter(row => row.code) };
+    } else if (snapshot.kind === 'account') {
+      safeSnapshot = {
+        kind: 'account', connected: snapshot.connected === true, loginInProgress: snapshot.loginInProgress === true,
+        holdingsCount: count(snapshot.holdingsCount)
+      };
+    } else if (snapshot.kind === 'settings') {
+      safeSnapshot = { kind: 'settings', model: itemText(snapshot, 'model', 80), effort: itemText(snapshot, 'effort', 20) };
+    } else if (snapshot.kind === 'plans') {
+      safeSnapshot = {
+        kind: 'plans', note: '本地策略计划及关联回测快照，不代表账户实际收益', items: safeItems.map(row => ({
+          name: itemText(row, 'name', 80), strategyId: itemText(row, 'strategyId', 80),
+          strategyVersion: itemText(row, 'strategyVersion', 40), fundCode: itemCode(row), status: itemText(row, 'status', 30),
+          amount: number(row?.amount), budget: number(row?.budget), dataAsOf: itemText(row, 'dataAsOf', 20),
+          signalStatus: itemText(row, 'signalStatus', 30), signalState: itemText(row, 'signalState', 80),
+          signalAsOf: itemText(row, 'signalAsOf', 20), metrics: metrics(row?.metrics)
+        }))
+      };
+    } else if (snapshot.kind === 'history' || snapshot.kind === 'backtest-detail') {
+      safeSnapshot = {
+        kind: snapshot.kind, note: '本地策略回测记录，不代表账户实际收益', items: safeItems.map(row => ({
+          id: itemText(row, 'id', 100), strategyId: itemText(row, 'strategyId', 80),
+          strategyName: itemText(row, 'strategyName', 80), version: itemText(row, 'version', 40),
+          fundCode: itemCode(row), status: itemText(row, 'status', 30), dataAsOf: itemText(row, 'dataAsOf', 20),
+          periodStart: itemText(row, 'periodStart', 20), periodEnd: itemText(row, 'periodEnd', 20),
+          benchmarkName: itemText(row, 'benchmarkName', 80), source: itemText(row, 'source', 100), metrics: metrics(row?.metrics), parameters: params(row?.parameters),
+          totalInvested: number(row?.totalInvested), netProfit: number(row?.netProfit),
+          missingData: (Array.isArray(row?.missingData) ? row.missingData : []).slice(0, 10).map(item => text(item, 200))
+        }))
+      };
+    }
+    if (safeSnapshot) context.pageSnapshot = safeSnapshot;
+  }
+  if (value.holdingsSnapshot && typeof value.holdingsSnapshot === 'object') {
+    const snapshot = value.holdingsSnapshot;
+    const summary = snapshot.summary && typeof snapshot.summary === 'object' ? snapshot.summary : {};
+    const simulation = snapshot.simulation && typeof snapshot.simulation === 'object' ? snapshot.simulation : null;
+    const selectedFund = snapshot.selectedFund && typeof snapshot.selectedFund === 'object' && /^\d{6}$/.test(String(snapshot.selectedFund.code || ''))
+      ? { code: String(snapshot.selectedFund.code), name: text(snapshot.selectedFund.name, 80) } : null;
+    const selectedDetail = snapshot.selectedDetail && typeof snapshot.selectedDetail === 'object' ? snapshot.selectedDetail : null;
+    context.holdingsSnapshot = {
+      asOf: text(snapshot.asOf, 40),
+      source: text(snapshot.source || '同花顺爱基金 · thsfund', 100),
+      summary: {
+        totalAmount: number(summary.totalAmount), confirmedAmount: number(summary.confirmedAmount),
+        pendingAmount: number(summary.pendingAmount), pendingCount: number(summary.pendingCount),
+        holdingIncome: number(summary.holdingIncome), latestDailyIncome: number(summary.latestDailyIncome),
+        latestDailyRatePct: number(summary.latestDailyRatePct), latestDailyCoverage: text(summary.latestDailyCoverage, 20)
+      },
+      funds: (Array.isArray(snapshot.funds) ? snapshot.funds : []).slice(0, 50).map(row => ({
+        code: /^\d{6}$/.test(String(row?.code || '')) ? String(row.code) : null,
+        name: text(row?.name, 80), amount: number(row?.amount), weightPct: number(row?.weightPct),
+        holdingIncome: number(row?.holdingIncome), holdingIncomeRate: text(row?.holdingIncomeRate, 24),
+        latestIncome: number(row?.latestIncome), shareStatus: row?.shareStatus === '待确认' ? '待确认' : '已确认'
+      })).filter(row => row.code),
+      selectedFund,
+      selectedDetail: selectedDetail ? {
+        code: /^\d{6}$/.test(String(selectedDetail.code || '')) ? String(selectedDetail.code) : null,
+        nav: selectedDetail.nav && typeof selectedDetail.nav === 'object' ? {
+          dataAsOf: text(selectedDetail.nav.dataAsOf, 20), pointCount: count(selectedDetail.nav.pointCount),
+          periodStart: text(selectedDetail.nav.periodStart, 20), periodEnd: text(selectedDetail.nav.periodEnd, 20)
+        } : null,
+        trades: (Array.isArray(selectedDetail.trades) ? selectedDetail.trades : []).slice(-30).map(row => ({
+          date: text(row?.date, 20), side: ['buy', 'sell'].includes(row?.side) ? row.side : '',
+          amount: number(row?.amount), type: text(row?.type, 40), status: text(row?.status, 40)
+        }))
+      } : null,
+      simulation: simulation ? {
+        label: '当前权重历史模拟，不是账户实际收益',
+        periodStart: text(simulation.periodStart, 20), periodEnd: text(simulation.periodEnd, 20),
+        returnPct: number(simulation.returnPct), maxDrawdownPct: number(simulation.maxDrawdownPct),
+        volatilityPct: number(simulation.volatilityPct), sharpe: number(simulation.sharpe),
+        benchmarkReturnPct: number(simulation.benchmarkReturnPct), dataCoveragePct: number(simulation.dataCoveragePct),
+        source: text(simulation.source, 100)
+      } : null
     };
   }
   return Object.keys(context).length ? context : null;
@@ -380,6 +604,10 @@ function handle(channel, fn) {
 }
 
 function registerIpc() {
+  handle('fund:open-login-url', async ({ url }) => {
+    await shell.openExternal(validateFundLoginUrl(url));
+    return { opened: true };
+  });
   handle('agent:get-status', async () => {
     await runtime.start();
     let account = null;
@@ -395,7 +623,7 @@ function registerIpc() {
   handle('agent:new-session', async () => {
     if (runtime.active) throw new Error('请先停止或等待当前 Agent 任务完成。');
     const provider = activeProvider();
-    const thread = await runtime.startThread(provider, false, false);
+    const thread = await runtime.startThread(provider, false);
     currentThreadId = thread.id;
     const session = recordSession(thread, provider);
     return { session, thread };
@@ -406,7 +634,7 @@ function registerIpc() {
     if (!session) throw new Error('未找到这个基金工作台会话。');
     let thread;
     try {
-      thread = await runtime.resumeThread(threadId, providerForSession(session), session.dataAuthorized);
+      thread = await runtime.resumeThread(threadId, providerForSession(session));
     } catch (error) {
       if (/no rollout found|thread.*not found|not found.*thread/i.test(error.message || '')) {
         const sessions = readSessions().filter(row => row.threadId !== threadId);
@@ -458,17 +686,16 @@ function registerIpc() {
     writeSessions(rows);
     return readSessions();
   });
-  handle('agent:send-message', async ({ threadId, text, authorizeAccountData, pageContext }) => {
+  handle('agent:send-message', async ({ threadId, text, pageContext }) => {
     const message = String(text || '').trim();
     if (!message || message.length > 12000) throw new Error('请输入 1 至 12000 字的问题。');
     if (!threadId || threadId !== currentThreadId) throw new Error('请先选择或新建会话。');
+    if (runtime.active) throw new Error('已有一个 Agent 任务正在运行。');
     const sessions = readSessions();
     const session = sessions.find(row => row.threadId === threadId);
     if (!session) throw new Error('会话索引不存在。');
-    if (!session.dataAuthorized && authorizeAccountData === true) {
-      await runtime.resumeThread(threadId, providerForSession(session), true);
-      session.dataAuthorized = true;
-    }
+    await runtime.resumeThread(threadId, providerForSession(session));
+    delete session.dataAuthorized; // discard the legacy permission field from older session indexes
     if (session.title === '新会话') session.title = message.slice(0, 28);
     session.updatedAt = new Date().toISOString();
     writeSessions(sessions.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)));
@@ -577,6 +804,61 @@ function registerIpc() {
     const turn = await done;
     return { connection: true, ...observed, completed: turn.status === 'completed' };
   });
+  handle('strategy-share:create-link', async ({ payload }) => {
+    const share = cleanStrategyShare(payload);
+    const encoded = Buffer.from(JSON.stringify(share), 'utf8').toString('base64url');
+    if (encoded.length > 2200) throw new Error('策略参数过多，无法放入分享二维码。');
+    const link = `${STRATEGY_SHARE_SCHEME}://strategy-share?payload=${encoded}`;
+    const qrDataUrl = await QRCode.toDataURL(link, {
+      width: 320, margin: 1, errorCorrectionLevel: 'M',
+      color: { dark: '#171817', light: '#FFFFFF' }
+    });
+    return { link, qrDataUrl };
+  });
+  handle('strategy-share:save-image', async ({ dataUrl, filename }) => {
+    const match = /^data:image\/png;base64,([A-Za-z0-9+/=]+)$/.exec(String(dataUrl || ''));
+    if (!match || match[1].length > 20 * 1024 * 1024) throw new Error('分享图片数据无效或超过大小限制。');
+    const safeName = path.basename(String(filename || '策略分享.png')).slice(0, 120).replace(/[^\w.\-\u3400-\u9fff]/g, '-');
+    const choice = await dialog.showSaveDialog(mainWindow, {
+      title: '保存策略分享图片', defaultPath: safeName.endsWith('.png') ? safeName : `${safeName}.png`,
+      filters: [{ name: 'PNG 图片', extensions: ['png'] }]
+    });
+    if (choice.canceled || !choice.filePath) return { canceled: true };
+    await fs.promises.writeFile(choice.filePath, Buffer.from(match[1], 'base64'), { mode: 0o600 });
+    return { canceled: false, filePath: choice.filePath };
+  });
+  handle('strategy-share:share-channel', async ({ dataUrl, filename, caption, channel }) => {
+    if (process.platform !== 'darwin') throw new Error('系统分享面板当前仅支持 macOS；可使用“保存图片”后手动分享。');
+    if (!['wechat', 'moments'].includes(channel)) throw new Error('暂不支持这个分享渠道。');
+    const match = /^data:image\/png;base64,([A-Za-z0-9+/=]+)$/.exec(String(dataUrl || ''));
+    if (!match || match[1].length > 20 * 1024 * 1024) throw new Error('分享图片数据无效或超过大小限制。');
+    const safeName = path.basename(String(filename || '策略分享.png')).slice(0, 120).replace(/[^\w.\-\u3400-\u9fff]/g, '-');
+    const safeCaption = String(caption || '').slice(0, 5000);
+    if (!safeCaption) throw new Error('分享文案为空。');
+    const shareDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'fund-ai-share-'));
+    const filePath = path.join(shareDir, safeName.endsWith('.png') ? safeName : `${safeName}.png`);
+    await fs.promises.writeFile(filePath, Buffer.from(match[1], 'base64'), { mode: 0o600 });
+    try {
+      const menu = new ShareMenu({ texts: [safeCaption], filePaths: [filePath] });
+      let cleaned = false;
+      const cleanup = () => {
+        if (cleaned) return;
+        cleaned = true;
+        fs.promises.rm(shareDir, { recursive: true, force: true }).catch(() => {});
+      };
+      menu.popup({ browserWindow: mainWindow, callback: cleanup });
+      setTimeout(cleanup, 60000).unref?.();
+      return { opened: true };
+    } catch (error) {
+      await fs.promises.rm(shareDir, { recursive: true, force: true }).catch(() => {});
+      throw error;
+    }
+  });
+  handle('strategy-share:get-pending', async () => pendingStrategyShare);
+  handle('strategy-share:clear-pending', async () => {
+    pendingStrategyShare = null;
+    return true;
+  });
 }
 
 function createWindow() {
@@ -602,17 +884,23 @@ function createWindow() {
   mainWindow.webContents.on('will-navigate', (event, url) => {
     if (!url.startsWith(`${WORKBENCH_URL}/`)) event.preventDefault();
   });
+  mainWindow.webContents.on('did-finish-load', () => {
+    if (pendingStrategyShare) sendToRenderer('strategy-share:open', pendingStrategyShare);
+  });
   mainWindow.loadURL(`${WORKBENCH_URL}/panda-strategy-agent.html`);
 }
 
 const gotLock = app.requestSingleInstanceLock();
 if (!gotLock) app.quit();
 else {
-  app.on('second-instance', () => {
+  app.on('second-instance', (_event, commandLine) => {
+    const shareUrl = commandLine.find(value => value.startsWith(`${STRATEGY_SHARE_SCHEME}://`));
+    if (shareUrl) handleStrategyShareUrl(shareUrl);
     if (mainWindow) { if (mainWindow.isMinimized()) mainWindow.restore(); mainWindow.focus(); }
   });
   app.whenReady().then(async () => {
     app.setName('基金 AI 工作台');
+    registerStrategyShareProtocol();
     await ensureWorkbench();
     runtime = createRuntime();
     registerIpc();

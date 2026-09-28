@@ -13,9 +13,20 @@ contextBridge.exposeInMainWorld('fundDesktop', Object.freeze({
   answerUserInput: (payload) => ipcRenderer.invoke('agent:answer-user-input', payload),
   interrupt: () => ipcRenderer.invoke('agent:interrupt'),
   startSubscriptionLogin: () => ipcRenderer.invoke('agent:login-subscription'),
+  openFundLoginUrl: (url) => ipcRenderer.invoke('fund:open-login-url', { url }),
   getSettings: () => ipcRenderer.invoke('agent:get-settings'),
   saveProvider: (settings) => ipcRenderer.invoke('agent:save-provider', settings),
   testProvider: () => ipcRenderer.invoke('agent:test-provider'),
+  createStrategyShareLink: (payload) => ipcRenderer.invoke('strategy-share:create-link', { payload }),
+  saveStrategyShareImage: (payload) => ipcRenderer.invoke('strategy-share:save-image', payload),
+  shareStrategyShare: (payload) => ipcRenderer.invoke('strategy-share:share-channel', payload),
+  getPendingStrategyShare: () => ipcRenderer.invoke('strategy-share:get-pending'),
+  clearPendingStrategyShare: () => ipcRenderer.invoke('strategy-share:clear-pending'),
+  onStrategyShare: (listener) => {
+    const handler = (_event, payload) => listener(payload);
+    ipcRenderer.on('strategy-share:open', handler);
+    return () => ipcRenderer.removeListener('strategy-share:open', handler);
+  },
   onEvent: (listener) => {
     const handler = (_event, payload) => listener(payload);
     ipcRenderer.on('agent:event', handler);

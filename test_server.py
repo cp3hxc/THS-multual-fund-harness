@@ -14,6 +14,19 @@ import server as app
 
 
 class Contracts(unittest.TestCase):
+    def test_login_fallback_url_is_limited_to_trusted_https_domains(self):
+        self.assertEqual(
+            app.trusted_fund_auth_url('https://trade.5ifund.com/scan?session=temporary'),
+            'https://trade.5ifund.com/scan?session=temporary')
+        self.assertEqual(
+            app.trusted_fund_auth_url('https://login.custom.example/scan'), '')
+        self.assertEqual(
+            app.trusted_fund_auth_url('http://trade.5ifund.com/scan'), '')
+        self.assertEqual(
+            app.trusted_fund_auth_url('https://trade.5ifund.com.evil.example/scan'), '')
+        self.assertEqual(app.login_progress_message('[login] 已扫码，等待确认'),
+                         '已扫码，请在同花顺 App 确认授权。')
+
     def test_root_serves_current_dark_agent_and_legacy_page_is_not_available(self):
         httpd = HTTPServer(('127.0.0.1', 0), app.Handler)
         thread = threading.Thread(target=httpd.serve_forever, daemon=True)
