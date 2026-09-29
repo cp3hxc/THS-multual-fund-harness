@@ -898,3 +898,24 @@ html,body,.panda-main{background:#09090b;color:#edeae5}
 
 .panda-market-page .panda-topbar{display:none}
 .panda-market-page .panda-content{padding-top:10px}
+
+/* Strategy discovery: compact evidence and a visible route to a personal plan. */
+.strategy-discovery-page .panda-strategy-card{min-height:0}
+.strategy-discovery-page .strategy-card-summary{min-height:0;margin-bottom:9px}
+.strategy-discovery-page .strategy-card-snapshot{display:grid;gap:7px;min-height:0;margin-top:auto;padding:10px 0 0;border:0;border-top:1px solid #343135;border-radius:0;background:transparent}
+.strategy-card-snapshot .strategy-snapshot-label{overflow:hidden;color:#cbb895;font-size:10px;text-overflow:ellipsis;white-space:nowrap}
+.strategy-card-snapshot .strategy-snapshot-metrics{display:flex;flex-wrap:wrap;gap:7px 20px;color:#aaa197;font-size:10px}
+.strategy-card-snapshot .strategy-snapshot-metrics span{display:flex;align-items:baseline;gap:6px;white-space:nowrap}
+.strategy-card-snapshot .strategy-snapshot-metrics strong{color:#e9e2d6;font-size:16px;font-variant-numeric:tabular-nums}
+.strategy-card-snapshot .strategy-snapshot-metrics strong.drawdown{color:#dcb9a2}
+.strategy-card-snapshot>small{color:#928a81;font-size:9px;line-height:1.4}
+.strategy-discovery-page .strategy-card-snapshot.is-unavailable{display:flex;flex-wrap:wrap;align-items:center;gap:6px 9px;min-height:0}
+.strategy-card-snapshot.is-unavailable small{flex:1;min-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.strategy-card-snapshot.is-unavailable button{min-height:25px;margin:0;padding:3px 7px}
+.strategy-discovery-page .strategy-card-actions{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding-top:11px}
+.strategy-discovery-page .strategy-card-actions .panda-button{min-height:34px;padding:6px 4px;font-size:11px;white-space:nowrap}
+.strategy-detail-next-actions{display:flex;flex-wrap:wrap;gap:8px;margin:13px 0 16px}
+.strategy-detail-next-actions button{min-height:35px;padding:7px 12px;border:1px solid #635848;border-radius:7px;background:#211f1d;color:#e9dcc5;font:inherit;font-size:11px;cursor:pointer}
+.strategy-detail-next-actions button:hover,.strategy-detail-next-actions button:focus-visible{border-color:#d0bd9a;background:#312b23;outline:none}
+.strategy-detail-next-actions button:last-child{border-color:#d0bd9a;background:#d0bd9a;color:#211c17;font-weight:650}
+@media(max-width:520px){.strategy-discovery-page .strategy-card-actions .panda-button{font-size:10px}.strategy-card-snapshot .strategy-snapshot-metrics{gap:6px 12px}}
