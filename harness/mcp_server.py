@@ -14,6 +14,7 @@ import hashlib
 import hmac
 import json
 import os
+import re
 import subprocess
 import sys
 import threading
@@ -49,6 +50,7 @@ AMOUNT = {"oneOf": [{"type": "number", "exclusiveMinimum": 0}, {"type": "string"
 
 TOOLS = [
     {"name": "open_workbench", "description": "启动并返回固定的基金 HTML 工作台入口。适合用户要求打开、查看或操作可视化工作台时使用。", "inputSchema": obj()},
+    {"name": "read_uploaded_holdings_image", "description": "读取用户在当前持仓导入流程上传的单张截图图像，供 Agent 视觉识别。仅接受本地工作台刚上传或已保存快照关联的图片编号；不会读取其他本机文件。", "inputSchema": obj({"imageId": {"type": "string", "pattern": "^[a-f0-9]{32}$"}}, ["imageId"])},
     {"name": "get_dashboard", "description": "读取 HTML 首页需要的账户、策略、自选、交易待办和连接状态汇总。", "inputSchema": obj()},
     {"name": "get_account_brief", "description": "账户日常概览的首选工具。一次读取真实基金资产、最新日收益率、涨跌分布、主要贡献与拖累、待确认资金、钱包及各基金净值/收益日期；无需再逐只查询账户明细。", "inputSchema": obj()},
     {"name": "list_holdings", "description": "读取同花顺爱基金真实持仓、钱包和收益快照。", "inputSchema": obj()},
@@ -296,6 +298,22 @@ def call(name: str, args: Dict[str, Any]):
         if os.environ.get("FUND_WORKBENCH_DESKTOP") == "1":
             return {"desktopAction": {"type": "navigate", "route": "holdings"}, "running": True}
         return ensure_web()
+    if name == "read_uploaded_holdings_image":
+        image_id = str(args.get("imageId") or "")
+        if not re.fullmatch(r"[a-f0-9]{32}", image_id):
+            raise server.AppError("截图编号无效。")
+        try:
+            with urllib.request.urlopen(WEB_URL + "/api/holdings/images?id=" + image_id, timeout=15) as response:
+                if response.status != 200 or response.headers.get_content_type() != "image/jpeg":
+                    raise server.AppError("截图不存在或暂时无法读取。", 404)
+                image = response.read(7_000_001)
+        except server.AppError:
+            raise
+        except Exception:
+            raise server.AppError("本地持仓服务暂时无法读取截图。", 503)
+        if not image or len(image) > 7_000_000:
+            raise server.AppError("截图大小超出可识别范围。", 413)
+        return image
     if name == "get_dashboard":
         account, state = server.overview(), server.state_read()
         return {"account": account["summary"], "wallet": account["wallet"],
@@ -411,10 +429,19 @@ def main():
             elif method == "tools/call":
                 params = request.get("params") or {}
                 try:
-                    data = call(str(params.get("name") or ""), params.get("arguments") or {})
-                    payload = {"result": data, "meta": result_meta(str(params.get("name") or ""), data)}
-                    content = [{"type": "text", "text": json.dumps(payload, ensure_ascii=False, indent=2)}]
-                    if params.get("name") == "open_workbench":
+                    name = str(params.get("name") or "")
+                    arguments = params.get("arguments") or {}
+                    data = call(name, arguments)
+                    if name == "read_uploaded_holdings_image":
+                        payload = {"result": {"imageId": arguments.get("imageId"), "read": True},
+                                   "meta": result_meta(name, {"fetchedAt": server.now()})}
+                        content = [{"type": "text", "text": "已读取用户上传的持仓截图。"},
+                                   {"type": "image", "data": base64.b64encode(data).decode("ascii"),
+                                    "mimeType": "image/jpeg"}]
+                    else:
+                        payload = {"result": data, "meta": result_meta(name, data)}
+                        content = [{"type": "text", "text": json.dumps(payload, ensure_ascii=False, indent=2)}]
+                    if name == "open_workbench":
                         content.append({"type": "resource_link", "uri": WEB_URL, "name": "基金 AI 工作台", "mimeType": "text/html"})
                     reply(rpc_id, {"content": content, "structuredContent": payload, "isError": False})
                 except (server.AppError, FuyaoError, ValueError, TypeError) as exc:

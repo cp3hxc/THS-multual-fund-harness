@@ -14,6 +14,25 @@ import server as app
 
 
 class Contracts(unittest.TestCase):
+    def test_market_nav_keeps_every_point_for_drawdown_calculation(self):
+        rows = [('2026-09-25', 1.0), ('2026-09-28', 0.5), ('2026-09-29', 1.1)]
+        client = SimpleNamespace(fund_nav=lambda code, range_: rows,
+                                 fund_profile=lambda code: {'fund_name': '测试基金'})
+        with patch('server.FuyaoClient', return_value=client):
+            result = app.fund_nav_detail('000001', 'fyear')
+        self.assertEqual(result['points'], [{'date': day, 'value': value} for day, value in rows])
+
+    def test_intraday_batch_validates_codes_and_deduplicates(self):
+        with app.LOCK:
+            app.FUND_INTRADAY_CACHE.clear()
+        with patch('server.watchlist_intraday', return_value={'funds': []}) as source:
+            self.assertEqual(app.fund_intraday_batch('000001,000001'), {'funds': []})
+            source.assert_called_once_with(['000001'])
+        with self.assertRaises(app.AppError):
+            app.fund_intraday_batch('000001,abc')
+        with app.LOCK:
+            app.FUND_INTRADAY_CACHE.clear()
+
     def test_login_fallback_url_is_limited_to_trusted_https_domains(self):
         self.assertEqual(
             app.trusted_fund_auth_url('https://trade.5ifund.com/scan?session=temporary'),

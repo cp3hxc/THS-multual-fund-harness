@@ -8,6 +8,7 @@ confirmation. They are never retried by this service.
 from __future__ import annotations
 
 import argparse
+import base64
 import copy
 import datetime as dt
 import importlib.metadata
@@ -27,15 +28,21 @@ from decimal import Decimal, InvalidOperation
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
+from urllib.request import Request, urlopen
 
 from fund_data import FuyaoClient, FuyaoError, portfolio_analysis
+from intraday_adapter import watchlist_intraday
 from strategy_engine import catalog as strategy_catalog, get_strategy, latest_signal, run_backtest, run_showcase, validate_params
 from workbench_runtime import ROOT, file_lock, venv_script
 
 RUNTIME = Path(os.environ.get('FUND_WORKBENCH_DATA_DIR', ROOT / '.runtime')).expanduser().resolve()
 CLI = Path(os.environ.get('FUND_WORKBENCH_CLI', venv_script('aijijin'))).expanduser()
 STATE_PATH = RUNTIME / 'state.json'
+HOLDINGS_ACCOUNTS_PATH = RUNTIME / 'holdings-accounts.json'
+HOLDINGS_IMAGES_DIR = RUNTIME / 'holdings-import-images'
 LOCK = threading.RLock()
+HOLDINGS_LOCK = threading.RLock()
+HOLDINGS_IMAGE_STAGE = set()
 FINANCE_LOCK = threading.Lock()
 CSRF = secrets.token_urlsafe(32)
 AI_CONFIG = {'mode': 'subscription', 'baseUrl': 'https://api.openai.com/v1',
@@ -47,6 +54,67 @@ TRANSACTION_INTENTS = {}
 TRANSACTION_TTL = 10 * 60
 ACCOUNT_REFS = {}
 ACCOUNT_REF_TTL = 30 * 60
+INDEX_QUOTES = (
+    ('sh000001', '上证指数'), ('sz399001', '深证成指'),
+    ('sh000300', '沪深300'), ('sz399006', '创业板指'),
+    ('sh000905', '中证500'), ('sh000852', '中证1000'),
+)
+INDEX_QUOTE_CACHE = {'expires': 0.0, 'value': None}
+FUND_PUBLIC_CACHE = {}
+FUND_INTRADAY_CACHE = {}
+
+def market_index_quotes(force=False):
+    """Public index snapshots only. Never infer fund NAV or account income from them."""
+    now = time.monotonic()
+    with LOCK:
+        if not force and INDEX_QUOTE_CACHE['value'] is not None and now < INDEX_QUOTE_CACHE['expires']:
+            return copy.deepcopy(INDEX_QUOTE_CACHE['value'])
+    codes = ','.join(code for code, _ in INDEX_QUOTES)
+    request = Request('https://qt.gtimg.cn/q=' + codes,
+                      headers={'User-Agent': 'Mozilla/5.0', 'Referer': 'https://gu.qq.com/'})
+    try:
+        with urlopen(request, timeout=5) as response:
+            raw = response.read(32000).decode('gb18030', errors='replace')
+    except Exception as exc:
+        raise AppError('指数行情暂时无法更新，请稍后重试。', 502, 'market_data') from exc
+    china_now = dt.datetime.now(dt.timezone(dt.timedelta(hours=8)))
+    quotes = []
+    for code, name in INDEX_QUOTES:
+        match = re.search(r'v_' + re.escape(code) + r'="([^"]+)"', raw)
+        if not match:
+            continue
+        fields = match.group(1).split('~')
+        if len(fields) < 33:
+            continue
+        try:
+            point = float(fields[3])
+            change_pct = float(fields[32])
+            quote_time = dt.datetime.strptime(fields[30], '%Y%m%d%H%M%S').replace(tzinfo=china_now.tzinfo)
+        except (ValueError, IndexError):
+            continue
+        if not 0 < point < 1000000 or not -100 < change_pct < 100:
+            continue
+        if quote_time.date() != china_now.date():
+            status = '最近交易日'
+        elif china_now.weekday() >= 5 or china_now.hour >= 15:
+            status = '已收盘'
+        elif china_now.hour < 9 or (china_now.hour == 9 and china_now.minute < 30):
+            status = '开盘前'
+        elif china_now.hour == 12 or (china_now.hour == 11 and china_now.minute >= 30):
+            status = '午间休市'
+        elif (china_now - quote_time).total_seconds() > 300:
+            status = '行情延迟'
+        else:
+            status = '交易中'
+        quotes.append({'code': code, 'name': name, 'point': point,
+                       'changePct': change_pct, 'asOf': quote_time.isoformat(),
+                       'status': status})
+    if not quotes:
+        raise AppError('指数行情暂时无法解析，请稍后重试。', 502, 'market_data')
+    value = {'source': '腾讯行情', 'fetchedAt': china_now.isoformat(), 'quotes': quotes}
+    with LOCK:
+        INDEX_QUOTE_CACHE.update(value=value, expires=time.monotonic() + 30)
+    return copy.deepcopy(value)
 
 TEMPLATES = [
     {'id': 'nav-swing', 'name': '净值波动高抛低吸', 'category': '波动', 'symbol': '〰',
@@ -156,6 +224,217 @@ def state_write(data):
     with LOCK, open(STATE_PATH.with_suffix('.lock'), 'a+') as lock:
         with file_lock(lock):
             _state_write_unlocked(data)
+
+
+def _holdings_accounts_read_unlocked():
+    if not HOLDINGS_ACCOUNTS_PATH.exists():
+        return {'version': 1, 'accounts': []}
+    try:
+        data = json.loads(HOLDINGS_ACCOUNTS_PATH.read_text(encoding='utf-8'))
+        if data.get('version') == 1 and isinstance(data.get('accounts'), list):
+            return data
+    except (OSError, ValueError, AttributeError):
+        pass
+    raise AppError('本地截图持仓记录无法读取。', 500)
+
+
+def holdings_accounts_read():
+    RUNTIME.mkdir(mode=0o700, exist_ok=True)
+    with HOLDINGS_LOCK, open(HOLDINGS_ACCOUNTS_PATH.with_suffix('.lock'), 'a+') as lock:
+        with file_lock(lock, shared=True):
+            return _holdings_accounts_read_unlocked()
+
+
+def holdings_accounts_update(mutator):
+    RUNTIME.mkdir(mode=0o700, exist_ok=True)
+    with HOLDINGS_LOCK, open(HOLDINGS_ACCOUNTS_PATH.with_suffix('.lock'), 'a+') as lock:
+        with file_lock(lock):
+            data = _holdings_accounts_read_unlocked()
+            result = mutator(data)
+            fd, temp = tempfile.mkstemp(dir=RUNTIME, prefix='holdings-accounts-')
+            try:
+                with os.fdopen(fd, 'w', encoding='utf-8', newline='\n') as stream:
+                    json.dump(data, stream, ensure_ascii=False, indent=2)
+                os.chmod(temp, 0o600)
+                os.replace(temp, HOLDINGS_ACCOUNTS_PATH)
+            finally:
+                if os.path.exists(temp):
+                    os.unlink(temp)
+            return result
+
+
+def holdings_text(value, label, maximum=100, required=False):
+    text = str(value or '').strip()
+    if required and not text:
+        raise AppError(label + '不能为空。')
+    if len(text) > maximum:
+        raise AppError(label + '长度超出限制。')
+    return text
+
+
+def holdings_number(value, label, nonnegative=False):
+    if value is None or value == '':
+        return None
+    if isinstance(value, bool):
+        raise AppError(label + '格式无效。')
+    try:
+        number = Decimal(str(value).replace(',', '').replace('¥', '').replace('%', '').strip())
+    except (InvalidOperation, ValueError):
+        raise AppError(label + '格式无效。')
+    if not number.is_finite() or abs(number) >= Decimal('1000000000000') or (nonnegative and number < 0):
+        raise AppError(label + '超出有效范围。')
+    return float(number)
+
+
+def _holdings_account(data, account_id):
+    account = next((row for row in data['accounts'] if row.get('id') == account_id), None)
+    if account is None:
+        raise AppError('没有找到这个持仓账户。', 404)
+    return account
+
+
+def holdings_accounts_public():
+    data = holdings_accounts_read()
+    accounts = []
+    for account in data['accounts']:
+        snapshots = sorted(account.get('snapshots', []), key=lambda row: row.get('importedAt', ''))
+        current = {}
+        for snapshot in snapshots:
+            if snapshot.get('complete') is True:
+                current = {}
+            for fund in snapshot.get('funds', []):
+                key = fund.get('fundCode') or 'name:' + str(fund.get('fundName') or '').casefold()
+                current[key] = copy.deepcopy(fund)
+        latest = copy.deepcopy(snapshots[-1]) if snapshots else None
+        if latest:
+            latest['funds'] = list(current.values())
+        accounts.append({
+            'id': account['id'], 'platform': account['platform'], 'name': account['name'],
+            'createdAt': account.get('createdAt', ''), 'snapshotCount': len(snapshots),
+            'latestSnapshot': copy.deepcopy(latest),
+            'history': [{'id': row.get('id'), 'asOf': row.get('asOf'),
+                         'importedAt': row.get('importedAt'), 'sourceName': row.get('sourceName'),
+                         'complete': row.get('complete') is True, 'fundCount': len(row.get('funds', []))}
+                        for row in reversed(snapshots[-20:])]
+        })
+    return {'accounts': accounts}
+
+
+def holdings_image_path(image_id):
+    if not isinstance(image_id, str) or not re.fullmatch(r'[a-f0-9]{32}', image_id):
+        raise AppError('图片记录无效。')
+    path = HOLDINGS_IMAGES_DIR / (image_id + '.jpg')
+    staged = image_id in HOLDINGS_IMAGE_STAGE
+    if not staged:
+        data = holdings_accounts_read()
+        staged = any(image_id in snapshot.get('imageIds', [])
+                     for account in data['accounts'] for snapshot in account.get('snapshots', []))
+    if not staged or not path.is_file():
+        raise AppError('图片不存在或已删除。', 404)
+    return path
+
+
+def holdings_account_action(body):
+    action = body.get('action')
+    if action == 'create':
+        platforms = {'ths': '同花顺', '天天基金': '天天基金', '蚂蚁财富': '蚂蚁财富',
+                     '理财通': '理财通', '其他': '其他'}
+        platform = body.get('platform')
+        if platform not in platforms:
+            raise AppError('请选择有效的平台。')
+        name = holdings_text(body.get('name'), '账户名称', 40, required=True)
+        account = {'id': secrets.token_hex(16), 'platform': platforms[platform], 'name': name,
+                   'createdAt': now(), 'snapshots': []}
+        def create(data):
+            data['accounts'].append(account)
+            return {'account': {'id': account['id'], 'platform': account['platform'],
+                                'name': account['name'], 'createdAt': account['createdAt'],
+                                'snapshotCount': 0, 'latestSnapshot': None}}
+        return holdings_accounts_update(create)
+    if action == 'rename':
+        account_id = require_id(body.get('accountId'))
+        name = holdings_text(body.get('name'), '账户名称', 40, required=True)
+        def rename(data):
+            account = _holdings_account(data, account_id)
+            account['name'] = name
+            return {'accountId': account_id, 'name': name}
+        return holdings_accounts_update(rename)
+    if action == 'delete':
+        account_id = require_id(body.get('accountId'))
+        def delete(data):
+            account = _holdings_account(data, account_id)
+            data['accounts'] = [row for row in data['accounts'] if row['id'] != account_id]
+            remaining = {image for row in data['accounts'] for snapshot in row.get('snapshots', [])
+                         for image in snapshot.get('imageIds', [])}
+            removed = [image for snapshot in account.get('snapshots', [])
+                       for image in snapshot.get('imageIds', []) if image not in remaining]
+            return {'deleted': True, 'imageIds': removed}
+        result = holdings_accounts_update(delete)
+        for image_id in result['imageIds']:
+            (HOLDINGS_IMAGES_DIR / (image_id + '.jpg')).unlink(missing_ok=True)
+            HOLDINGS_IMAGE_STAGE.discard(image_id)
+        return {'deleted': True}
+    if action == 'save-snapshot':
+        account_id = require_id(body.get('accountId'))
+        as_of = holdings_text(body.get('asOf'), '持仓日期', 10, required=True)
+        try:
+            dt.date.fromisoformat(as_of)
+        except ValueError:
+            raise AppError('持仓日期格式无效。')
+        source_name = holdings_text(body.get('sourceName'), '截图名称', 120)
+        image_ids = body.get('imageIds', [])
+        if not isinstance(image_ids, list) or len(image_ids) > 12:
+            raise AppError('一次最多关联 12 张截图。')
+        image_ids = list(dict.fromkeys(image_ids))
+        for image_id in image_ids:
+            holdings_image_path(image_id)
+        rows = body.get('funds', [])
+        if not isinstance(rows, list) or len(rows) > 300:
+            raise AppError('持仓条数超出限制。')
+        funds = []
+        seen_codes = set()
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            code = holdings_text(row.get('fundCode'), '基金代码', 6)
+            if code and not re.fullmatch(r'\d{6}', code):
+                raise AppError('基金代码应为 6 位数字；无法确认时请留空。')
+            name = holdings_text(row.get('fundName'), '基金名称', 100)
+            if not code and not name:
+                continue
+            if code and code in seen_codes:
+                raise AppError('同一张持仓快照中有重复基金代码，请合并或删除重复行。')
+            if code:
+                seen_codes.add(code)
+            daily_date = holdings_text(row.get('dailyIncomeDate'), '日收益日期', 10)
+            if daily_date:
+                try:
+                    dt.date.fromisoformat(daily_date)
+                except ValueError:
+                    raise AppError('日收益日期格式无效。')
+            funds.append({
+                'fundCode': code, 'fundName': name,
+                'amount': holdings_number(row.get('amount'), '持有金额', nonnegative=True),
+                'holdingIncome': holdings_number(row.get('holdingIncome'), '持有收益'),
+                'dailyIncome': holdings_number(row.get('dailyIncome'), '日收益'),
+                'dailyIncomeDate': daily_date, 'recordAsOf': as_of,
+                'shareStatus': '用户截图记录'
+            })
+        if not funds:
+            raise AppError('请至少补充一只基金后再保存。')
+        snapshot = {'id': secrets.token_hex(16), 'asOf': as_of, 'importedAt': now(),
+                    'source': '用户上传截图 · 用户核对', 'sourceName': source_name,
+                    'complete': body.get('complete') is True,
+                    'imageIds': image_ids, 'funds': funds}
+        def save(data):
+            account = _holdings_account(data, account_id)
+            account.setdefault('snapshots', []).append(snapshot)
+            return {'accountId': account_id, 'snapshot': copy.deepcopy(snapshot)}
+        result = holdings_accounts_update(save)
+        for image_id in image_ids:
+            HOLDINGS_IMAGE_STAGE.discard(image_id)
+        return result
+    raise AppError('持仓账户操作无效。')
 
 
 def require_code(code):
@@ -748,6 +1027,28 @@ def overview():
             'topProfit': d.get('topProfitFunds', []), 'topLoss': d.get('topLossFunds', [])}
 
 
+def portfolio_analysis_snapshot(body):
+    rows = body.get('funds', [])
+    if not isinstance(rows, list) or len(rows) > 300:
+        raise AppError('组合持仓条数超出限制。')
+    funds = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        code = row.get('fundCode')
+        amount = holdings_number(row.get('totalAmount'), '持有金额', nonnegative=True)
+        if isinstance(code, str) and re.fullmatch(r'\d{6}', code) and amount and amount > 0:
+            funds.append({'fundCode': code,
+                          'fundName': holdings_text(row.get('fundName'), '基金名称', 100) or code,
+                          'totalAmount': amount, 'holdVol': '截图记录已核对'})
+    if not funds:
+        raise AppError('所选账户中没有可用于模拟的已核对基金金额。')
+    try:
+        return portfolio_analysis(funds, state_read()['strategies'], RUNTIME)
+    except FuyaoError as exc:
+        raise AppError(str(exc), 502, 'market_data')
+
+
 CONFIRM = {'0': '待确认', '1': '已撤单', '2': '部分确认', '3': '确认成功',
            '4': '确认失败', '5': '认购已受理', '6': '订单作废'}
 PROCESS = {'0': '等待支付结果', '1': '等待份额确认', '2': '交易失败，等待退款',
@@ -1319,13 +1620,98 @@ def fund_nav_detail(code, range_='tyear'):
         raise AppError(str(exc), 502, 'market_data')
     if not rows:
         raise AppError('未返回可用复权净值。', 502, 'market_data')
-    step = max(1, len(rows) // 180)
-    points = [{'date': date, 'value': value} for date, value in rows[::step]]
-    if points[-1]['date'] != rows[-1][0]:
-        points.append({'date': rows[-1][0], 'value': rows[-1][1]})
+    # Risk measures on the market page use the complete series. Omitting a
+    # trough during chart sampling would understate historical drawdown.
+    points = [{'date': date, 'value': value} for date, value in rows]
     return {'code': code, 'name': profile.get('fund_name') or profile.get('name') or code,
             'manager': profile.get('manager_name'), 'dataAsOf': rows[-1][0],
             'source': '扶摇 Fuyao · 复权净值', 'points': points}
+
+
+def fund_public_detail(code):
+    """Published unit NAV and notices from documented public THS fund endpoints."""
+    code = require_code(code)
+    with LOCK:
+        cached = FUND_PUBLIC_CACHE.get(code)
+        if cached and cached['expires'] > time.monotonic():
+            return copy.deepcopy(cached['value'])
+    value = {'code': code, 'formalNav': None, 'realtimeEstimate': None,
+             'estimateStatus': '未接入可核验的盘中估值源', 'profile': None, 'announcements': [],
+             'formalNavStatus': '暂不可用', 'announcementsStatus': '暂不可用',
+             'source': '同花顺基金', 'fetchedAt': now()}
+    url = ('https://fund.10jqka.com.cn/quotation/fund_detail/v2/getNavData'
+           f'?fundCode={code}&range=year&type=unit&scale=4')
+    try:
+        req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urlopen(req, timeout=7) as response:
+            body = json.loads(response.read(1000000).decode('utf-8'))
+        if body.get('status_code') == 0 and isinstance(body.get('data', {}).get('unit'), list):
+            rows = body['data']['unit']
+            valid = [(str(row.get('date') or ''), row.get('value')) for row in rows
+                     if isinstance(row, dict) and re.fullmatch(r'\d{8}', str(row.get('date') or ''))]
+            if valid:
+                day, raw = max(valid, key=lambda item: item[0])
+                amount = float(raw)
+                if 0 < amount < 100000:
+                    value['formalNav'] = {'date': f'{day[:4]}-{day[4:6]}-{day[6:]}', 'value': amount}
+                    value['formalNavStatus'] = '已披露'
+    except (OSError, ValueError, KeyError, TypeError):
+        pass
+    try:
+        req = Request(f'https://fund.10jqka.com.cn/quotation/fund_detail/v2/base/{code}',
+                      headers={'User-Agent': 'Mozilla/5.0'})
+        with urlopen(req, timeout=7) as response:
+            body = json.loads(response.read(200000).decode('utf-8'))
+        profile = body.get('data') or {}
+        if body.get('status_code') == 0 and isinstance(profile, dict) and profile.get('fundCode') == code:
+            rate = profile.get('tradeRate') or {}
+            value['profile'] = {'name': str(profile.get('simpleName') or '')[:80],
+                                'type': str(profile.get('fundTypeName') or '')[:40],
+                                'subtype': str(profile.get('secFundTypeName') or '')[:60],
+                                'riskLevel': str(profile.get('riskLevel') or '')[:40],
+                                'establishedAt': str((profile.get('handicap') or {}).get('establishmentDate') or '')[:10],
+                                'minTradeAmount': rate.get('minTradeAmount'),
+                                'preferredRate': rate.get('preferredRate')}
+    except (OSError, ValueError, KeyError, TypeError):
+        pass
+    try:
+        req = Request(f'https://fund.10jqka.com.cn/interface/net/pubnote2/0_{code}_1_5',
+                      headers={'User-Agent': 'Mozilla/5.0'})
+        with urlopen(req, timeout=7) as response:
+            body = json.loads(response.read(500000).decode('gb18030'))
+        rows = body.get('data', {}).get('info', [])
+        if isinstance(rows, list):
+            for row in rows[:5]:
+                if not isinstance(row, dict):
+                    continue
+                title, date = str(row.get('title') or '').strip(), str(row.get('pubtime') or '')[:10]
+                raw_url = str(row.get('rawURL') or '')
+                if title and re.fullmatch(r'\d{4}-\d{2}-\d{2}', date):
+                    value['announcements'].append({'title': title[:180], 'date': date,
+                                                   'type': str(row.get('showTypeName') or '')[:40],
+                                                   'url': raw_url if raw_url.startswith('https://notice.10jqka.com.cn/') else None})
+            value['announcementsStatus'] = '已更新'
+    except (OSError, ValueError, KeyError, TypeError):
+        pass
+    with LOCK:
+        FUND_PUBLIC_CACHE[code] = {'value': copy.deepcopy(value), 'expires': time.monotonic() + 300}
+    return value
+
+
+def fund_intraday_batch(raw_codes):
+    codes = list(dict.fromkeys(part.strip() for part in str(raw_codes or '').split(',')))
+    if not codes or len(codes) > 25 or any(not re.fullmatch(r'\d{6}', code) for code in codes):
+        raise AppError('请选择最多 25 只有效基金。', 400)
+    key = tuple(codes)
+    with LOCK:
+        cached = FUND_INTRADAY_CACHE.get(key)
+        if cached and cached['expires'] > time.monotonic():
+            return copy.deepcopy(cached['value'])
+    value = watchlist_intraday(codes)
+    with LOCK:
+        FUND_INTRADAY_CACHE[key] = {'value': copy.deepcopy(value),
+                                    'expires': time.monotonic() + 90}
+    return value
 
 
 def strategy_plan_create(body):
@@ -1580,7 +1966,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header('X-Content-Type-Options', 'nosniff')
         self.send_header('X-Frame-Options', 'DENY')
         self.send_header('Referrer-Policy', 'no-referrer')
-        self.send_header('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
+        self.send_header('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
         self.end_headers()
         self.wfile.write(blob)
 
@@ -1603,7 +1989,9 @@ class Handler(BaseHTTPRequestHandler):
                       '/panda-strategy-agent.html': ('panda-strategy-agent.html', 'text/html; charset=utf-8'),
                       '/panda-strategy-agent.css': ('panda-strategy-agent.css', 'text/css; charset=utf-8'),
                       '/panda-strategy-agent-fixes.css': ('panda-strategy-agent-fixes.css', 'text/css; charset=utf-8'),
+                      '/market-studio.css': ('market-studio.css', 'text/css; charset=utf-8'),
                       '/panda-strategy-agent.js': ('panda-strategy-agent.js', 'text/javascript; charset=utf-8'),
+                      '/market-studio.js': ('market-studio.js', 'text/javascript; charset=utf-8'),
                       '/assets/paradoxai-mark.png': ('assets/paradoxai-mark.png', 'image/png')}
             if p.path in static:
                 name, mime = static[p.path]
@@ -1626,10 +2014,17 @@ class Handler(BaseHTTPRequestHandler):
                 data = state_read().get('strategyRuns', [])[-100:]
             elif p.path == '/api/strategy-variants':
                 data = strategy_variants()
+            elif p.path == '/api/market/indices':
+                data = market_index_quotes(q.get('force') == '1')
             elif p.path == '/api/strategy-invest/job':
                 data = strategy_job_read(q.get('id', ''))
             elif p.path == '/api/holdings':
                 data = overview()
+            elif p.path == '/api/holdings/accounts':
+                data = holdings_accounts_public()
+            elif p.path == '/api/holdings/images':
+                image = holdings_image_path(q.get('id', ''))
+                return self.send(200, image.read_bytes(), 'image/jpeg')
             elif p.path == '/api/portfolio-analysis':
                 account = overview()
                 try:
@@ -1648,6 +2043,10 @@ class Handler(BaseHTTPRequestHandler):
                 data = redeem_preview(require_code(q.get('code')), q.get('account'))
             elif p.path == '/api/fund/nav':
                 data = fund_nav_detail(q.get('code'), q.get('range', 'tyear'))
+            elif p.path == '/api/market/fund-detail':
+                data = fund_public_detail(q.get('code'))
+            elif p.path == '/api/market/fund-intraday':
+                data = fund_intraday_batch(q.get('codes'))
             elif p.path == '/api/fund/trade-history':
                 data = holding_trade_history(require_code(q.get('code')))
             elif p.path == '/api/ai/status':
@@ -1673,14 +2072,50 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
             self.guard(write=True)
+            path = urlparse(self.path).path
             size = int(self.headers.get('Content-Length', '0'))
-            if size < 0 or size > 180000:
+            max_size = 10_000_000 if path == '/api/holdings/images' else 180_000
+            if size < 0 or size > max_size:
                 raise AppError('请求体过大。', 413)
             b = json.loads(self.rfile.read(size) or '{}')
             if not isinstance(b, dict):
                 raise AppError('请求格式无效。')
-            path = urlparse(self.path).path
-            if path == '/api/strategy-invest/backtest':
+            if path == '/api/holdings/accounts':
+                data = holdings_account_action(b)
+            elif path == '/api/portfolio-analysis/snapshot':
+                data = portfolio_analysis_snapshot(b)
+            elif path == '/api/holdings/images':
+                if b.get('action') == 'delete':
+                    image_id = b.get('id')
+                    image = holdings_image_path(image_id)
+                    data = holdings_accounts_read()
+                    if any(image_id in snapshot.get('imageIds', [])
+                           for account in data['accounts'] for snapshot in account.get('snapshots', [])):
+                        raise AppError('已保存到账户的截图不能单独删除。')
+                    image.unlink(missing_ok=True)
+                    HOLDINGS_IMAGE_STAGE.discard(image_id)
+                    data = {'deleted': True}
+                    self.send(200, {'ok': True, 'data': data})
+                    return
+                data_url = b.get('dataUrl')
+                match = re.fullmatch(r'data:image/jpeg;base64,([A-Za-z0-9+/=]+)', str(data_url or ''))
+                if not match:
+                    raise AppError('请上传 JPG 图片。')
+                try:
+                    blob = base64.b64decode(match.group(1), validate=True)
+                except (ValueError, base64.binascii.Error):
+                    raise AppError('图片数据无效。')
+                if not blob or len(blob) > 7_000_000:
+                    raise AppError('单张图片须小于 7 MB。', 413)
+                image_id = secrets.token_hex(16)
+                HOLDINGS_IMAGES_DIR.mkdir(parents=True, mode=0o700, exist_ok=True)
+                image_path = HOLDINGS_IMAGES_DIR / (image_id + '.jpg')
+                image_path.write_bytes(blob)
+                os.chmod(image_path, 0o600)
+                HOLDINGS_IMAGE_STAGE.add(image_id)
+                data = {'id': image_id, 'url': '/api/holdings/images?id=' + image_id,
+                        'agentPath': str(image_path)}
+            elif path == '/api/strategy-invest/backtest':
                 data = strategy_backtest(b)
             elif path == '/api/strategy-invest/showcase':
                 data = strategy_showcase(b)

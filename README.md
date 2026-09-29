@@ -2,14 +2,14 @@
 
 > **协作与隐私提示**：本仓库包含可共享的项目代码和运行依赖，不包含任何人的扶摇密钥、同花顺授权、模型 API Key、账户资料或个人持仓快照。每位使用者必须在自己的电脑上配置扶摇密钥，并在应用内独立完成同花顺扫码授权；请勿把这些个人信息提交到 GitHub、Issue、PR 或聊天记录中。
 
-本仓库只保留当前深色版场外基金策略 Agent。浏览器根入口、桌面应用和安装包都会打开同一套策略工作台；旧版白色工作台与演示页面已从当前版本移除。
+本仓库提供同花顺理财基金投资助手桌面客户端与场外基金策略 Agent。桌面端集成行情、策略研究、自选、持仓、可编辑页面和 AI 对话，浏览器入口使用同一套本机工作台。
 
 ## Windows 和 macOS 首次配置
 
-仓库提供 Windows 与 macOS 共用的 Node 启动器、独立 Python 虚拟环境和双系统 CI。运行源码需要 Python 3.10+、Node.js 22.12+；桌面 Agent 还需要本人安装并登录 Codex CLI。源码版首次启动会在项目目录创建 `.venv`，并安装仓库中的固定版本同花顺 SDK。开发环境需联网安装 Python SDK 依赖和 npm 包。
+仓库提供 Windows 与 macOS 共用的 Node 启动器、独立 Python 虚拟环境和双系统 CI。运行源码需要 Python 3.10+、Node.js 22.12+；桌面 Agent 还需要本人安装并登录 Codex CLI。请使用 `npm install -g @openai/codex@latest` 更新 CLI（本客户端要求 0.156.0 或更新版本）；旧版 CLI 可能列出模型，却在发送消息时被 ChatGPT 订阅拒绝。源码版首次启动会在项目目录创建 `.venv`，并安装仓库中的固定版本同花顺 SDK。开发环境需联网安装 Python SDK 依赖和 npm 包。
 
 1. 克隆仓库后，在项目目录运行 `npm run setup`。桌面版先运行 `npm ci`。
-2. 浏览器预览运行 `npm run start:web`；桌面 Agent 运行 `npm start`。也可以用 macOS 的 `start.command` / `start-panda-strategy.command`，或 Windows PowerShell 的 `start.ps1` / `start-panda-strategy.ps1`。
+2. 浏览器预览运行 `npm run start:web`，本机策略工作台位于 <http://127.0.0.1:8765/panda-strategy-agent.html>。桌面 Agent 运行 `npm start`。也可以用 macOS 的 `start.command` / `start-panda-strategy.command`，或 Windows PowerShell 的 `start.ps1` / `start-panda-strategy.ps1`。Windows 用户希望减少 C 盘占用时，可把仓库放在 D 盘；应用账户授权和模型设置仍保存在当前系统用户的数据目录。
 3. 在“接入设置”中按页面提示完成同花顺扫码授权。授权和模型设置保存在当前操作系统用户的本机目录，不要复制到仓库。
 4. 源码版需要真实复权净值数据时，可在项目目录创建 `.runtime/fuyao.key`，也可使用环境变量 `FUYAO_API_KEY`。安装包版请使用环境变量配置扶摇 Key。不要把密钥写进源码、`.env`、截图、Issue 或 PR。
 
@@ -67,6 +67,8 @@ npm run start:web -- --port 8766
 - 真实订单、处理中/历史筛选、日期过滤、游标分页及订单详情。
 - 策略模板、个人策略草稿、参数预算校验、同基金冲突检查、版本快照与归档。
 - 独立自选清单。
+- 行情工作区：指数快照、自选基金正式净值、扶摇复权净值走势，以及基于公开披露持仓或跟踪指数的盘中参考涨跌。盘中参考不是正式基金净值或账户收益；行情缺失或过期时显示不可用状态。
+- “我的页面”：可调整行情与基金详情页的组件、预览模板、保存本机布局并载入旧版本。Agent 修改只生成待确认草稿；页面配置存于本机，不会公开发布，也不包含账户金额或登录信息。
 - 内嵌 Codex Harness Agent：持续会话、历史恢复、工具进度、可读推理摘要、澄清问题、中断和 Markdown 结果卡片。
 - 场外基金策略 Agent：左侧历史会话与置顶、策略/持仓/自选/计划分类首页、受控策略定义编辑、参数版本、异步回测阶段、耗时与日志。
 - Agent 可调用五策略目录、真实历史回测和策略版本保存工具；网页和 Agent 共用同一确定性策略引擎。
@@ -87,7 +89,7 @@ Agent 仅挂载 [harness/mcp_server.py](harness/mcp_server.py) 提供的固定�
 
 ## 模型配置
 
-订阅模式优先复用本机 Codex CLI 的有效 ChatGPT 登录；也可在“接入设置”启动 OpenAI 官方登录。API 模式填写服务商的 HTTPS Base URL、模型 ID 和密钥，首版仅支持 Responses 协议。
+在“模型与推理设置”中可切换 ChatGPT / Codex 订阅或自备 API。订阅模式复用本机 Codex CLI 登录，也可从应用启动 OpenAI 官方登录；API 模式提供 OpenAI、DeepSeek、阿里云百炼、xAI、OpenRouter 预设，也可填写其他 OpenAI Responses API 兼容服务。Codex 的模型清单会分页读取并包含目录隐藏项，GPT-6 系列排在选择列表前面。
 
 API 与订阅的凭据、权限和额度独立。兼容性检测使用无账户数据的策略模板工具，分别验证连接、文本流、工具调用和工具结果续接。没有使用用户真实密钥完成检测的第三方服务保持“未验证”。
 

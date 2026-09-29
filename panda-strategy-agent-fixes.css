@@ -29,7 +29,7 @@
 .panda-workbench-nav.active .nav-symbol{color:#eef3ef}
 .panda-new{margin-bottom:0;border-style:dashed;background:transparent;color:#72807c;justify-content:center}
 .panda-new:hover{border-color:#53615e;background:#151b1d;color:#dbe4df}
-.panda-agent-panel{display:none!important}
+.panda-agent-panel[hidden]{display:none!important}
 .panda-start-hero{padding:25px 0 18px;text-align:center}
 .panda-start-hero h1{margin:0;color:#f0f4f1;font-size:25px;font-weight:560;letter-spacing:-.02em}
 .panda-start-hero p{margin:11px 0 0;color:#7b8884;font-size:11px}
@@ -71,7 +71,7 @@ html,body{background:#050505}.panda-sidebar{background:#080808;border-color:#242
 .panda-workbench-nav.active,.panda-nav button.active{background:#ededed;color:#0a0a0a;box-shadow:none}.panda-workbench-nav.active .nav-symbol,.panda-nav button.active .nav-symbol{color:#0a0a0a}.panda-workbench-nav:hover,.panda-nav button:hover{background:#181818}.panda-workbench-nav.active:hover,.panda-nav button.active:hover{background:#fff;color:#000}.panda-new{border-color:#343434;color:#777}.panda-new span{color:#eee}.panda-data-note i{background:#eee;box-shadow:0 0 0 4px #ffffff12}.panda-credit strong{color:#eee}
 .panda-mode{border-color:#303030;background:#0a0a0a}.panda-mode button.active{background:#242424;color:#fff}.panda-button{border-color:#393939;background:#121212;color:#e5e5e5}.panda-button:hover{border-color:#777;background:#1a1a1a}.panda-button.primary{border-color:#f0f0f0;background:#f0f0f0;color:#090909}.panda-button.primary:hover{background:#fff}.panda-heading .eyebrow{color:#898989}.panda-heading h1{color:#f5f5f5}
 .panda-start-hero{padding-top:28px}.panda-start-hero h1{font-size:28px;font-weight:560}.panda-workspace-block{margin-top:22px;padding:18px;border:1px solid #252525;border-radius:14px;background:#090909}.panda-workspace-block .panda-section-head{margin-bottom:15px}.panda-workspace-block .panda-section-head>div{display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-items:center}.panda-workspace-block .panda-section-head>div>span{grid-row:1/3;color:#5e5e5e;font:11px ui-monospace,SFMono-Regular,monospace}.panda-workspace-block .panda-section-head h2{font-size:16px}.panda-workspace-block .panda-section-head p{grid-column:2}.panda-section-head .link-button{color:#d1d1d1}
-.panda-strategy-card{min-height:330px;border-color:#2b2b2b;background:#111}.panda-strategy-card:hover{border-color:#5c5c5c;background:#141414}.strategy-glyph{background:#242424;color:#f5f5f5}.strategy-badge{border-color:#3b3b3b;color:#aaa}.panda-strategy-card>p{color:#a5a5a5}.strategy-card-footer{border-color:#292929}.strategy-card-footer small{color:#747474}.strategy-performance{margin:13px 0;padding:11px 12px;border:1px solid #2d2d2d;border-radius:8px;background:#090909}.strategy-performance small,.strategy-performance em{display:block;color:#707070;font-size:8px;font-style:normal}.strategy-performance>div{display:flex;gap:15px;margin:8px 0 7px}.strategy-performance span{color:#9b9b9b;font-size:9px}.strategy-performance b{display:block;margin-top:3px;font:600 13px ui-monospace,SFMono-Regular,monospace}.strategy-performance.empty>div{color:#8a8a8a;font-size:9px}.panda-my-grid button{border-color:#292929;background:#0f0f0f}.panda-my-grid button:hover{border-color:#555;background:#151515}.panda-my-grid span{background:#222;color:#eee}
+.panda-strategy-card{min-height:330px;border-color:#2b2b2b;background:#111}.panda-strategy-card:hover{border-color:#5c5c5c;background:#141414}.strategy-glyph{background:#242424;color:#f5f5f5}.strategy-badge{border-color:#3b3b3b;color:#aaa}.panda-strategy-card>p{color:#a5a5a5}.strategy-card-footer{border-color:#292929}.strategy-card-footer small{color:#747474}.strategy-performance{margin:13px 0;padding:11px 12px;border:1px solid #2d2d2d;border-radius:8px;background:#090909}.strategy-performance small,.strategy-performance em{display:block;color:#707070;font-size:8px;font-style:normal}.strategy-performance span{color:#9b9b9b;font-size:9px}.strategy-performance b{display:block;margin-top:3px;font:600 13px ui-monospace,SFMono-Regular,monospace}.strategy-performance.empty>div{color:#8a8a8a;font-size:9px}.panda-my-grid button{border-color:#292929;background:#0f0f0f}.panda-my-grid button:hover{border-color:#555;background:#151515}.panda-my-grid span{background:#222;color:#eee}
 .up{color:var(--gain)!important}.down{color:var(--loss)!important}.panda-metrics strong.up,.panda-run-result strong.up{color:var(--gain)!important}.panda-metrics strong.down,.panda-run-result strong.down{color:var(--loss)!important}
 .panda-detail-shell{grid-template-columns:minmax(0,1fr);gap:14px;min-height:0}.panda-detail-left,.panda-detail-right{border-color:#292929;background:#0d0d0d}.panda-detail-intro{padding:20px 22px}.panda-detail-titlebar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}.panda-detail-titlebar .panda-back{margin:0}.panda-strategy-title{padding:0;border:0}.panda-strategy-title h1{margin:0 0 7px;color:#f1f1f1;font-size:25px;font-weight:560;letter-spacing:-.02em}.panda-strategy-title>p{max-width:920px;font-size:11px;color:#b3b3b3}.panda-explain-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:16px}.panda-explain-grid>div{padding:11px;border:1px solid #292929;border-radius:8px;background:#090909}.panda-explain-grid small{display:block;margin-bottom:7px;color:#777;font-size:8px;text-transform:uppercase;letter-spacing:.08em}.panda-explain-grid p,.panda-explain-grid ul{min-height:0;margin:0;padding:0;color:#aaa;font-size:9px;line-height:1.65}.panda-explain-grid ul{padding-left:14px}.panda-tabs{border-color:#292929}.panda-tabs button.active{border-color:#eee;color:#eee}.panda-parameter-heading{display:flex;justify-content:space-between;align-items:center;margin:5px 0 11px}.panda-parameter-heading strong{display:block;font-size:11px}.panda-parameter-heading small{display:block;margin-top:4px;color:#6d6d6d;font-size:8px}.panda-parameter-heading>span{padding:4px 7px;border:1px solid #333;border-radius:99px;color:#858585;font-size:8px}.panda-form-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.panda-param-card{align-content:start;padding:11px;border:1px solid #2c2c2c;border-radius:8px;background:#090909}.panda-param-card label{min-height:36px;color:#8f8f8f;line-height:1.55}.panda-param-card label b{color:#e5e5e5;font-weight:560}.panda-param-card label span{font-size:8px}.panda-param-card input,.panda-param-card select{border-color:#363636;background:#111;color:#f2f2f2}.panda-number-input{position:relative}.panda-number-input input{padding-right:47px}.panda-number-input span{position:absolute;right:9px;top:9px;color:#696969;font-size:8px}.panda-fund-contract{grid-column:1/-1}.panda-fixed-contract{border-color:#333;background:#111}.panda-contract{margin-top:11px;border:1px solid #292929;border-radius:8px;background:#080808}.panda-contract summary{padding:10px 11px;color:#888;font-size:8px;cursor:pointer}.panda-contract pre{max-height:220px;margin:0;padding:12px;overflow:auto;border-top:1px solid #252525;color:#bdbdbd;font:8px/1.65 ui-monospace,SFMono-Regular,monospace}.panda-code-state i{background:#ddd}
 .panda-job{border-color:#333;background:#080808}.panda-progress{background:#262626}.panda-progress i{background:linear-gradient(90deg,#777,#fff)}.panda-stage-row span.done{color:#ddd}.panda-run-logs{color:#828282}.panda-metrics{border-color:#292929;background:#292929}.panda-metrics div{background:#111}.panda-chart-wrap{border-color:#292929;background:#070707}.panda-chart .grid{stroke:#222}.panda-chart .zero-line{stroke:#575757;stroke-width:1}.panda-chart .strategy-line{stroke:#f1f1f1;stroke-width:2.3}.panda-chart .benchmark-line{stroke:#777;stroke-width:1.5;stroke-dasharray:5 5}.panda-chart .axis-label,.panda-chart .date,.panda-chart .axis-title{fill:#666;font-size:8px}.panda-chart .axis-title{font-size:7px;letter-spacing:.04em}.panda-chart .chart-trade text{font-size:7px;text-anchor:middle}.panda-chart .chart-trade circle{stroke:#080808;stroke-width:1.5}.panda-chart .chart-buy circle{fill:var(--gain)}.panda-chart .chart-buy text{fill:var(--gain)}.panda-chart .chart-sell circle{fill:var(--loss)}.panda-chart .chart-sell text{fill:var(--loss)}.panda-chart-legend .strategy{background:#f1f1f1}.panda-chart-legend .buy{width:7px;height:7px;border-radius:50%;background:var(--gain)}.panda-chart-legend .sell{width:7px;height:7px;border-radius:50%;background:var(--loss)}
@@ -79,18 +79,16 @@ html,body{background:#050505}.panda-sidebar{background:#080808;border-color:#242
 .panda-run-card{width:100%;border-color:#292929;background:#0d0d0d;color:#ddd;text-align:left;cursor:pointer}.panda-run-card:hover{border-color:#555;background:#121212}.panda-run-card>span{color:#777;font-size:8px}.panda-dialog-result{padding:0 22px 22px}.panda-run-params{display:flex;gap:6px;flex-wrap:wrap;margin:0 22px 16px}.panda-run-params span{display:flex;gap:7px;padding:6px 8px;border:1px solid #2c2c2c;border-radius:6px;color:#929292;font-size:8px}.panda-run-params b{color:#ddd;font-weight:500}#panda-dialog{width:min(1080px,94vw);max-height:90vh;overflow:auto;background:#090909;border-color:#333}
 .panda-agent-head,.panda-agent-composer{background:#090909}.panda-agent-status{background:#070707}.agent-progress-track{display:flex;align-items:center;gap:6px}.agent-progress-track span{padding:3px 7px;border:1px solid #303030;border-radius:99px;color:#666}.agent-progress-track span.current{border-color:#ddd;color:#fff}.agent-progress-track span.done{color:#aaa}.agent-progress-track em{margin-left:auto;color:#777;font-style:normal}.agent-progress-track.idle span{border:0;padding-left:0}.agent-reasoning,.agent-plan{border-color:#303030;background:#0a0a0a}.agent-reasoning summary{color:#cfcfcf}.agent-live-feedback{display:flex;gap:10px;align-items:center;margin:12px 0;padding:11px 13px;border:1px solid #303030;border-radius:9px;background:#0b0b0b}.agent-live-feedback strong,.agent-live-feedback small{display:block}.agent-live-feedback strong{font-size:9px}.agent-live-feedback small{margin-top:4px;color:#707070;font-size:8px}.spinner,.panda-loading i{border-color:#444;border-top-color:#eee}.panda-conversation-active .panda-agent-composer,.panda-conversation-idle .panda-agent-composer{border-color:#3b3b3b;background:#0c0c0c}.panda-agent-composer textarea{background:#090909;border-color:#333}
 @media(max-width:1250px){.panda-detail-shell{grid-template-columns:1fr}.panda-form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.panda-explain-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:700px){.panda-workspace-block{padding:12px}.panda-form-grid,.panda-explain-grid,.panda-plan-kpis{grid-template-columns:1fr}.panda-plan-performance-head{display:block}.strategy-performance>div{display:block}.strategy-performance span+span{margin-top:7px}}
+@media(max-width:700px){.panda-workspace-block{padding:12px}.panda-form-grid,.panda-explain-grid,.panda-plan-kpis{grid-template-columns:1fr}.panda-plan-performance-head{display:block}}
 
 /* Strategy risk metric and explicit conversation deletion controls. */
 .panda-session-row>button:not(:first-child){width:23px;height:28px;padding:0;border:0;background:transparent;color:#7f8f89;cursor:pointer}
 .panda-session-row>button[data-session-delete]:hover{color:#f04444}
 .panda-session-row>button:disabled{opacity:.35;cursor:not-allowed}
 .ths-finance-brand{color:#f3f3f3;font-size:14px;font-weight:700;letter-spacing:.04em;white-space:nowrap}.ths-finance-brand span{color:#ff2635;font-size:inherit;font-weight:inherit}.panda-top-actions #panda-data-status{color:#666;font-size:8px}
-.strategy-performance>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .strategy-performance span{min-width:0;font-size:8px}
 .strategy-performance b{font-size:12px}
 .strategy-performance.empty>div{display:block}
-@media(max-width:700px){.strategy-performance>div{grid-template-columns:1fr}.strategy-performance span+span{margin-top:7px}}
 .panda-plan-kpis{grid-template-columns:repeat(5,minmax(0,1fr))}
 .panda-plan-formula{margin:2px 0 9px;color:#686868;font-size:8px}
 @media(max-width:900px){.panda-plan-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -404,8 +402,41 @@ body.panda-agent-side .panda-strategy-grid{grid-template-columns:minmax(0,1fr);g
 body.panda-agent-side .panda-strategy-card{min-width:0}
 @media(min-width:1500px){body.panda-agent-side .panda-strategy-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(min-width:1900px){body.panda-agent-side .panda-strategy-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:1200px){body.panda-agent-side .strategy-performance>div{grid-template-columns:1fr;gap:6px}body.panda-agent-side .strategy-performance span+span{margin-top:0}}
 @media(min-width:901px) and (max-width:1100px){.panda-agent-panel{width:320px}.panda-agent-side .panda-main{margin-right:320px}.panda-agent-side .panda-content{padding-left:12px;padding-right:12px}}
+
+/* Codex-style rich message content and structured fund cards. */
+.agent-message>div h1,.agent-message>div h2,.agent-message>div h3,.agent-message>div h4,.agent-message>div h5,.agent-message>div h6{margin:18px 0 8px;color:#f1f1ef;line-height:1.35;font-weight:620}
+.agent-message>div h1{font-size:19px}.agent-message>div h2{font-size:16px}.agent-message>div h3{font-size:14px}.agent-message>div h4,.agent-message>div h5,.agent-message>div h6{font-size:12px}
+.agent-message>div strong{color:#f2f2ee}.agent-message>div em{color:#c3d1c8}.agent-message>div del{color:#78817e;text-decoration-color:#9a625e}
+.agent-message>div a{color:#b9db86;text-decoration:underline;text-decoration-color:#60704c;text-underline-offset:2px;overflow-wrap:anywhere}
+.agent-message>div hr{height:1px;margin:16px 0;border:0;background:#343b3b}
+.agent-message>div blockquote{margin:10px 0;padding:8px 12px;border-left:3px solid #75856d;background:#111718;color:#aebbb4}
+.agent-message>div blockquote p{margin:0 0 6px}.agent-message>div blockquote p:last-child{margin-bottom:0}
+.agent-callout{margin:11px 0;padding:10px 12px;border:1px solid #35443b;border-left:3px solid #9db77c;border-radius:7px;background:#111815;color:#becbbd}
+.agent-callout>strong{display:block;margin-bottom:4px;color:#d5e6bd;font-size:9px;letter-spacing:.06em}.agent-callout p{margin:0 0 6px}.agent-callout p:last-child{margin-bottom:0}
+.agent-callout-warning,.agent-callout-caution{border-color:#594a34;border-left-color:#d2a76d;background:#19150f}.agent-callout-warning>strong,.agent-callout-caution>strong{color:#e7c28f}
+.agent-callout-important{border-color:#58413e;border-left-color:#cf8176;background:#1b1212}.agent-callout-important>strong{color:#e6a69c}
+.agent-list{padding-left:21px}.agent-list li{padding-left:2px;margin:3px 0}.agent-list ul,.agent-list ol{margin:3px 0 4px}.agent-task-item{list-style:none;margin-left:-19px!important}.agent-task-item input{margin:0 7px 0 0;accent-color:#b3d778;vertical-align:-1px}
+.agent-code-block{margin:10px 0;border:1px solid #303a3b;border-radius:8px;overflow:hidden;background:#0b1011}
+.agent-code-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid #252e30;background:#111819;color:#82908a;font:8px ui-monospace,SFMono-Regular,monospace}
+.agent-code-head button{padding:3px 7px;border:1px solid #354143;border-radius:5px;background:#171f20;color:#acb8b1;font-size:8px;cursor:pointer}.agent-code-head button:hover{border-color:#78886b;color:#e2ebd7}
+.agent-message .agent-code-block pre{max-height:440px;margin:0;padding:12px;overflow:auto;border-radius:0;background:transparent;color:#d7e6dc;white-space:pre}
+.agent-message .agent-code-block code{font:9px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre}
+.agent-message code:not(pre code){padding:2px 4px;border-radius:4px;background:#232929;color:#dce6d9}
+.agent-table-wrap{max-width:100%;margin:10px 0;overflow:auto;border:1px solid #303a3b;border-radius:7px;background:#101516}
+.agent-table{width:100%;min-width:max-content;border-collapse:collapse;font-size:9px;line-height:1.5}
+.agent-table th,.agent-table td{padding:7px 9px;border-bottom:1px solid #272f30;text-align:left;vertical-align:top}
+.agent-table th{position:sticky;top:0;background:#1a2222;color:#b9c6be;font-weight:600;white-space:nowrap}.agent-table td{color:#c7d0ca}.agent-table tbody tr:nth-child(even){background:#12191a}.agent-table tbody tr:last-child td{border-bottom:0}
+.agent-image{display:block;max-width:100%;margin:9px auto;text-align:center}.agent-image img{display:block;max-width:100%;max-height:420px;margin:0 auto;border:1px solid #303a3b;border-radius:7px;object-fit:contain;background:#0b1011}.agent-image>span{display:block;margin-top:5px;color:#84918b;font-size:8px;text-align:center}
+.agent-fund-card,.agent-fund-backtest,.agent-fund-chart{margin:11px 0;padding:12px;border:1px solid #333d3b;border-radius:9px;background:linear-gradient(145deg,#151b1a,#101414)}
+.agent-fund-card>header{display:flex;justify-content:space-between;align-items:flex-start;gap:9px}.agent-fund-card>header>div{min-width:0}.agent-fund-card>header strong{display:block;overflow:hidden;color:#f0f2ec;font-size:12px;text-overflow:ellipsis}.agent-fund-card>header small{display:block;margin-top:3px;color:#83918a;font:8px ui-monospace,SFMono-Regular,monospace}
+.agent-fund-mark{flex:none;padding:3px 6px;border:1px solid #3d5040;border-radius:99px;color:#bfd891;font-size:8px}.agent-fund-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}.agent-fund-chips span{padding:3px 6px;border-radius:99px;background:#202923;color:#aab99c;font-size:8px}
+.agent-fund-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:10px 0 7px}.agent-fund-metric{min-width:0;padding:7px 8px;border:1px solid #2c3432;border-radius:6px;background:#0d1212}.agent-fund-metric small{display:block;color:#7e8b85;font-size:8px}.agent-fund-metric strong{display:block;margin-top:3px;color:#e0e7df;font:600 11px ui-monospace,SFMono-Regular,monospace;overflow-wrap:anywhere}.agent-fund-metric strong.up{color:var(--gain)!important}.agent-fund-metric strong.down{color:var(--loss)!important}
+.agent-fund-detail,.agent-fund-note{margin:7px 0 0;color:#98a49d;font-size:8px;line-height:1.6}.agent-fund-note{padding-top:7px;border-top:1px solid #293130}.agent-fund-card>footer,.agent-fund-backtest>footer{margin-top:8px;padding-top:7px;border-top:1px solid #2b3331;color:#74817b;font-size:8px;line-height:1.5}
+.agent-fund-compare{margin:12px 0}.agent-fund-compare>h4{margin:0 0 8px;color:#e7eee7;font-size:11px}.agent-fund-compare>div{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:8px}.agent-fund-card.compact{margin:0;padding:10px}.agent-fund-card.compact>header strong{font-size:10px}.agent-fund-card.compact .agent-fund-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin:7px 0 5px}.agent-fund-card.compact .agent-fund-metric{padding:6px}.agent-fund-card.compact .agent-fund-metric strong{font-size:10px}.agent-fund-compare>small{display:block;margin-top:5px;color:#738078;font-size:8px}
+.agent-fund-backtest>header>span{display:inline-block;margin-bottom:5px;color:#a9bd85;font-size:8px}.agent-fund-backtest>header h4{margin:0;color:#edf0e9;font-size:12px}.agent-fund-backtest>header small{display:block;margin-top:4px;color:#828e87;font-size:8px}.agent-fund-backtest .agent-fund-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}.agent-fund-disclaimer{display:block;margin-top:8px;color:#8c8174;font-size:8px;line-height:1.5}
+.agent-fund-chart>header{display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:7px}.agent-fund-chart>header strong{color:#e3e9e2;font-size:10px}.agent-fund-chart>header small{color:#78857e;font-size:7px;text-align:right}.agent-fund-chart .panda-chart-wrap{padding:7px 4px 3px}.agent-fund-chart>p{margin:6px 0 0;color:#7d8983;font-size:8px}
+@media(max-width:560px){.agent-fund-backtest .agent-fund-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.agent-fund-chart>header{display:block}.agent-fund-chart>header small{display:block;margin-top:4px;text-align:left}}
 
 /* 2026-09: concise workspace. Detailed evidence remains available on demand. */
 body{font-size:14px;color:#e9e9e9;background:#080808}
@@ -494,3 +525,564 @@ button:focus-visible,summary:focus-visible,input:focus-visible,textarea:focus-vi
 .strategy-performance{margin-top:10px;margin-bottom:10px}.strategy-glyph{height:27px;width:27px}
 .panda-conversation-idle .panda-agent-composer textarea{min-height:44px}
 .agent-fund-card,.agent-fund-backtest,.agent-fund-chart{background:#131313;border-color:#333}.agent-fund-metric{background:#0d0d0d;border-color:#292929}
+
+/* 2026-09: denser strategy cards, detail header, history controls and contextual holdings chat. */
+.panda-start-hero{padding:14px 0 2px}.panda-start-hero h1{margin:0;font-size:24px}
+.panda-strategy-card[role=link]{cursor:pointer;transition:border-color .16s ease,background .16s ease,transform .16s ease}.panda-strategy-card[role=link]:hover{border-color:#5a5a5a;background:#171717;transform:translateY(-1px)}.panda-strategy-card[role=link]:focus-visible{outline:2px solid #ddd;outline-offset:3px}
+.strategy-performance{display:grid;grid-template-columns:minmax(0,1fr) minmax(125px,.62fr);align-items:center;gap:12px;min-height:126px}.strategy-performance-main{min-width:0}.strategy-performance>.strategy-performance-main>.strategy-primary-metric{gap:8px;margin-bottom:7px}.strategy-performance>.strategy-performance-main>.strategy-primary-metric b{font-size:23px}.strategy-performance>.strategy-performance-main>.strategy-secondary-metrics{gap:12px;margin-bottom:7px}.strategy-performance-main .strategy-secondary-metrics span{font-size:9px}.strategy-performance-main .strategy-secondary-metrics b{font-size:12px}.strategy-performance-main>small{display:block;font-size:9px;line-height:1.6}.strategy-sparkline{min-width:0;padding:7px 6px 5px;border:1px solid #292929;border-radius:10px;background:#0b0b0b}.strategy-sparkline svg{display:block;width:100%;height:auto;min-height:58px;overflow:visible}.strategy-sparkline .spark-zero{stroke:#333;stroke-width:1;stroke-dasharray:2 4}.strategy-sparkline .spark-strategy{fill:none;stroke:#eee;stroke-width:2;vector-effect:non-scaling-stroke}.strategy-sparkline .spark-benchmark{fill:none;stroke:#7e7e7e;stroke-width:1.2;stroke-dasharray:3 3;vector-effect:non-scaling-stroke}.strategy-sparkline small{display:block;margin-top:3px;color:#737373;font-size:8px;text-align:right}.strategy-sparkline.unavailable{display:grid;place-items:center;min-height:75px;color:#777;font-size:9px}.strategy-card-footer>span{color:#ddd;font-size:10px;white-space:nowrap}.strategy-performance.empty{grid-template-columns:1fr;min-height:92px}
+.panda-detail-titlebar{margin-bottom:9px}.panda-strategy-title h1{margin-bottom:6px}.panda-strategy-meta{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 6px}.panda-strategy-meta span{padding:4px 8px;border:1px solid #303030;border-radius:99px;background:#101010;color:#aaa;font-size:10px}.panda-detail-share.panda-button.primary{min-height:37px;padding:8px 17px;border:1px solid #f0f0f0;background:#ededed;color:#111;font-weight:650;box-shadow:0 0 0 1px #ffffff12,0 4px 18px #ffffff14}.panda-detail-share.panda-button.primary:hover{background:#fff;box-shadow:0 0 0 1px #fff4,0 5px 22px #ffffff22}
+.panda-history-filters{display:flex;align-items:end;gap:9px;flex-wrap:wrap;margin:0 0 12px;padding:14px;border:1px solid #292929;border-radius:12px;background:#101010}.panda-history-filters label{display:grid;gap:6px;color:#888;font-size:10px}.panda-history-filters select,.panda-history-filters input{height:35px;min-width:120px;padding:0 10px;border:1px solid #353535;border-radius:7px;background:#090909;color:#ddd;font:inherit}.panda-history-filters .panda-history-search{flex:1;min-width:170px}.panda-history-filters .panda-history-search input{width:100%}.panda-history-filters>.panda-button{height:35px}.panda-history-note{margin:8px 0 14px;color:#777;font-size:10px;line-height:1.65}
+.panda-history-list{display:grid;gap:9px}.panda-history-list>.panda-run-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 12px;padding:0;overflow:hidden}.panda-run-card.is-pinned{border-color:#686868}.panda-run-card.is-removed{opacity:.8}.panda-run-open{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:20px;width:100%;padding:17px 18px;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer}.panda-run-open:hover{background:#171717}.panda-run-main{display:grid;gap:6px;min-width:0}.panda-run-main strong{font-size:13px}.panda-run-main small{font-size:10px;line-height:1.55}.panda-run-metrics{display:flex;gap:22px}.panda-run-metrics>span{display:grid;gap:5px;text-align:right}.panda-run-metrics small{color:#888;font-size:9px}.panda-run-metrics b{font-size:14px;font-variant-numeric:tabular-nums}.history-open-arrow{color:#888}.panda-history-row-actions{display:flex;align-items:center;justify-content:flex-end;gap:4px;padding:0 12px 0 4px}.panda-history-row-actions button{display:flex;align-items:center;gap:4px;padding:7px 8px;border:1px solid transparent;border-radius:7px;background:transparent;color:#999;font-size:10px;cursor:pointer;white-space:nowrap}.panda-history-row-actions button:hover,.panda-history-row-actions button[aria-pressed=true]{border-color:#373737;background:#1b1b1b;color:#eee}.panda-history-row-actions button[data-action=history-favorite]{font-size:14px}.panda-history-row-actions button[data-action=history-favorite] span{font-size:9px}.panda-history-list .panda-plan-empty{font-size:12px}
+.panda-plan-actions>.panda-button[data-action=share-plan]{border-color:#444;background:#1a1a1a;color:#eee}.panda-plan-actions>.panda-button[data-action=share-plan]:hover{border-color:#888;background:#242424}
+.agent-fund-name-link,.panda-fund-link{padding:0;border:0;background:transparent;color:#eee5d7;font:inherit;text-align:left;cursor:pointer}
+.agent-fund-name-link{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:650}
+.agent-fund-name-link:hover,.panda-fund-link:hover{text-decoration:underline;text-underline-offset:3px}
+.strategy-performance-meta button{padding:0;border:0;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.strategy-performance-meta button:hover{text-decoration:underline;text-underline-offset:3px}
+.panda-fund-link{font-size:10px;color:#cdbb9d;white-space:nowrap}
+.panda-plan-main .panda-fund-link{white-space:normal}
+.panda-history-row-actions .history-fund-link{max-width:210px;overflow:hidden;text-overflow:ellipsis;color:#c8b591;border-color:#3a3329;white-space:nowrap}
+.holding-detail-head{flex-wrap:wrap;gap:9px}
+.holding-detail-head .panda-fund-link{margin-left:auto}
+.holding-fund-name-link{display:block;max-width:100%;padding:0;border:0;background:transparent;color:#e8e0d4;text-align:left;font:inherit;font-weight:650;cursor:pointer}
+.holding-fund-name-link:hover{text-decoration:underline;text-underline-offset:3px}
+.holding-fund-amount{flex:0 0 auto;padding:0;border:0;background:transparent;color:#e8e0d4;font:600 12px ui-monospace,SFMono-Regular,monospace;cursor:pointer}
+.holding-fund-card-meta[type=button]{width:100%;padding:0;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer}
+.holding-fund-card-meta[type=button]:hover{opacity:.85}
+.holding-fund-card-meta[type=button]:focus-visible,.holding-fund-name-link:focus-visible,.holding-fund-amount:focus-visible{outline:2px solid #b9a37c;outline-offset:2px}
+@media(max-width:1100px){.strategy-performance{grid-template-columns:minmax(0,1fr) minmax(105px,.52fr);gap:8px}.strategy-performance>.strategy-performance-main>.strategy-primary-metric b{font-size:19px}.strategy-performance>.strategy-performance-main>.strategy-secondary-metrics{gap:8px}.panda-history-list>.panda-run-card{grid-template-columns:1fr}.panda-history-row-actions{justify-content:flex-start;padding:0 12px 10px}}
+@media(max-width:700px){.strategy-performance{grid-template-columns:minmax(0,1fr) minmax(96px,.5fr);min-height:110px}.strategy-performance>.strategy-performance-main>.strategy-primary-metric{display:grid;gap:2px}.strategy-performance>.strategy-performance-main>.strategy-primary-metric b{font-size:18px}.strategy-performance>.strategy-performance-main>.strategy-secondary-metrics{display:grid;gap:5px}.panda-history-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.panda-history-filters label,.panda-history-filters select{min-width:0}.panda-history-filters .panda-history-search{grid-column:1/-1}.panda-history-filters>.panda-button{justify-self:start}.panda-run-open{grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:14px}.panda-run-metrics{grid-column:1;grid-row:2;justify-content:flex-start;margin-top:10px}.panda-run-metrics>span{text-align:left}.history-open-arrow{grid-column:2;grid-row:1}.panda-history-row-actions{flex-wrap:wrap}.panda-strategy-meta span{font-size:9px}}
+@media(max-width:520px){.strategy-performance{grid-template-columns:1fr}.strategy-sparkline{max-height:96px}.strategy-sparkline svg{height:50px}.panda-strategy-card{min-height:0}}
+
+/* Fund holding cards and detail fields adapt to the width of the split pane. */
+.holding-detail-pane{container-type:inline-size;container-name:fund-detail}
+.holding-detail-head>div{min-width:0;flex:1}.holding-detail-head h3{max-width:100%;overflow-wrap:anywhere;word-break:normal;line-height:1.4}.holding-detail-head p{min-width:0;flex-wrap:wrap;line-height:1.5;overflow-wrap:anywhere}.holding-detail-refresh{flex:none}
+.holding-detail-kpis small{min-width:0;line-height:1.45;overflow-wrap:anywhere}.holding-detail-kpis strong{min-width:0;max-width:100%;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;white-space:normal;line-height:1.4;font-size:clamp(11px,1.1cqi,15px)}
+.holding-history-kpis{align-items:flex-start;gap:9px}.holding-history-kpis span{min-width:0;flex:1 1 145px;line-height:1.5;overflow-wrap:anywhere}.holding-history-kpis b{overflow-wrap:anywhere;line-height:1.4}
+.holding-detail-subhead{min-width:0;flex-wrap:wrap;align-items:flex-start}.holding-detail-subhead strong{min-width:0;flex:1 1 160px;line-height:1.5;overflow-wrap:anywhere}.holding-detail-subhead small{min-width:0;max-width:100%;text-align:right;line-height:1.5;overflow-wrap:anywhere}
+.holding-fund-card-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.holding-fund-card-meta span{min-width:0;white-space:normal;line-height:1.35}.holding-fund-card-meta b{display:block;max-width:100%;margin:3px 0 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:clamp(7px,.75cqi,10px)}
+@container fund-detail (max-width: 700px){.holding-detail-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.holding-detail-kpis>div{padding:10px}.holding-detail-kpis small{font-size:9px}.holding-detail-kpis strong{font-size:clamp(12px,2.2cqi,16px)}}
+@container fund-detail (max-width: 350px){.holding-detail-head{gap:7px}.holding-detail-head h3{font-size:13px}.holding-detail-refresh{padding:5px 6px}.holding-detail-kpis{grid-template-columns:1fr}.holding-detail-kpis strong{font-size:14px}.holding-detail-subhead small{text-align:left}}
+@media(max-width:650px){.holding-detail-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.holding-detail-kpis small{font-size:9px}.holding-detail-kpis strong{font-size:14px}}
+
+/* Strategy library cards: separate readable metrics from a larger, labeled chart. */
+.panda-strategy-card,.panda-conversation-idle .panda-strategy-card{display:flex;flex-direction:column;align-items:stretch;min-width:0;height:100%;container-type:inline-size;container-name:strategy-card}
+.panda-strategy-card h3,.panda-conversation-idle .panda-strategy-card h3{margin:13px 0 5px;line-height:1.4;overflow-wrap:anywhere}
+.panda-strategy-card>p,.panda-conversation-idle .panda-strategy-card>p{min-height:0;line-height:1.55;overflow-wrap:anywhere}
+.panda-strategy-card .strategy-performance,.panda-conversation-idle .panda-strategy-card .strategy-performance{display:grid;grid-template-columns:minmax(0,1fr);align-items:stretch;gap:10px;min-height:0;margin:13px 0 10px}
+.panda-strategy-card .strategy-performance>.strategy-performance-main{display:grid;grid-template-columns:minmax(0,1fr);gap:9px;min-width:0;margin:0}
+.strategy-performance>.strategy-performance-main>.strategy-primary-metric{display:flex;justify-content:flex-start;flex-wrap:wrap;align-items:baseline;gap:8px;min-width:0;margin:0}
+.strategy-primary-metric span{font-size:10px;line-height:1.4;white-space:nowrap}
+.strategy-performance>.strategy-performance-main>.strategy-primary-metric b{font-size:clamp(20px,5.4cqi,26px);line-height:1.12;font-variant-numeric:tabular-nums}
+.strategy-performance>.strategy-performance-main>.strategy-secondary-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0}
+.strategy-secondary-metrics>span{display:grid;align-content:start;gap:5px;min-width:0;padding:9px 10px;border:1px solid #282828;border-radius:9px;background:#0d0d0d;color:#8f8f8f;font-size:9px;line-height:1.35}
+.strategy-secondary-metrics>span small{color:#898989;font-size:9px;line-height:1.4;overflow-wrap:anywhere}
+.strategy-secondary-metrics>span b{display:block;min-width:0;margin:0;color:#e6e6e6;font-size:13px;line-height:1.35;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.strategy-secondary-metrics>span b.up{color:#f07878}.strategy-secondary-metrics>span b.down{color:#76b887}
+.strategy-performance-meta{display:flex;align-items:baseline;flex-wrap:wrap;gap:3px 12px;min-width:0}
+.strategy-performance-meta small{min-width:0;color:#858585;font-size:9px;line-height:1.5;overflow-wrap:anywhere}
+.strategy-performance-meta small+small{color:#777;white-space:nowrap}
+.panda-strategy-card .strategy-performance>.strategy-sparkline{display:block;grid-template-columns:none;min-width:0;max-height:none;margin:0;padding:8px 9px 5px;border:1px solid #292929;border-radius:10px;background:#0a0a0a}
+.strategy-sparkline-head{display:flex;align-items:center;gap:12px;min-width:0;margin-bottom:2px;color:#858585;font-size:9px}
+.strategy-sparkline-head strong{margin-right:auto;color:#aaa;font-size:9px;font-weight:500;white-space:nowrap}
+.strategy-sparkline-head>span{display:inline-flex;align-items:center;gap:5px;font-size:9px;line-height:1.2;white-space:nowrap}
+.strategy-sparkline-head .spark-key{display:inline-block;width:12px;height:2px;background:#eee}
+.strategy-sparkline-head .spark-key.benchmark{height:0;border-top:1px dashed #929292;background:transparent}
+.strategy-sparkline svg{display:block;width:100%;height:auto;min-height:0;overflow:visible}
+.strategy-sparkline .spark-gridline{stroke:#242424;stroke-width:1;vector-effect:non-scaling-stroke}
+.strategy-sparkline .spark-zero{stroke:#4a4a4a;stroke-width:1;stroke-dasharray:3 4;vector-effect:non-scaling-stroke}
+.strategy-sparkline .spark-axis-label{fill:#777;font-size:8px;text-anchor:end;font-variant-numeric:tabular-nums}
+.strategy-sparkline .spark-strategy{fill:none;stroke:#f0f0f0;stroke-width:2;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.strategy-sparkline .spark-benchmark{fill:none;stroke:#858585;stroke-width:1.5;stroke-dasharray:4 3;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.strategy-sparkline .spark-end{stroke:#0a0a0a;stroke-width:1.5;vector-effect:non-scaling-stroke}.strategy-sparkline .spark-end.strategy{fill:#f0f0f0}.strategy-sparkline .spark-end.benchmark{fill:#929292}
+.strategy-sparkline.unavailable{display:grid;min-height:88px;place-items:center;color:#888;font-size:10px}
+.panda-strategy-card .strategy-card-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:7px;margin-top:auto;padding-top:10px}
+.panda-strategy-card .strategy-card-footer>small{min-width:0;flex:1 1 130px;line-height:1.5;overflow-wrap:anywhere}
+.panda-strategy-card .strategy-card-footer>span{max-width:100%;font-size:10px;line-height:1.4;white-space:normal;text-align:right}
+.panda-strategy-card .strategy-performance.empty{display:flex;min-height:105px;flex-direction:column;justify-content:center;gap:5px}
+.panda-strategy-card .strategy-performance.empty>strong,.panda-strategy-card .strategy-performance.empty>small{min-width:0;line-height:1.6;overflow-wrap:anywhere}
+@container strategy-card (max-width: 340px){.strategy-performance>.strategy-performance-main>.strategy-secondary-metrics{grid-template-columns:1fr}.strategy-secondary-metrics>span{padding:8px 9px}.strategy-sparkline-head{gap:8px}.panda-strategy-card .strategy-card-footer>span{text-align:left}}
+@media(max-width:520px){.panda-strategy-card .strategy-performance,.panda-conversation-idle .panda-strategy-card .strategy-performance{grid-template-columns:minmax(0,1fr)}.strategy-sparkline svg{height:auto;min-height:0}}
+
+/* Unified chat drawer, compact disclosures and scrollable holdings list. */
+.panda-detail-shell .panda-disclosure>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:10px 12px;border:1px solid #303030;border-radius:9px;background:#141414;color:#ddd;list-style:none;font-weight:500;transition:background .15s,border-color .15s}
+.panda-detail-shell .panda-disclosure>summary::-webkit-details-marker{display:none}
+.panda-detail-shell .panda-disclosure>summary:hover{border-color:#595959;background:#1c1c1c}
+.panda-detail-shell .panda-disclosure>summary i{width:7px;height:7px;flex:none;border-right:1.5px solid #aaa;border-bottom:1.5px solid #aaa;transform:rotate(45deg);transition:transform .15s}
+.panda-detail-shell .panda-disclosure[open]>summary{border-color:#454545;border-radius:9px 9px 0 0;background:#1b1b1b;color:#fff}
+.panda-detail-shell .panda-disclosure[open]>summary i{transform:rotate(225deg)}
+.panda-detail-shell .panda-disclosure>div{padding:12px;border:1px solid #303030;border-top:0;border-radius:0 0 9px 9px;background:#0e0e0e}
+.panda-detail-shell .panda-detail-intro>.panda-disclosure{border-top:0;padding-top:0}
+.panda-expand-params.panda-button{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:10px;padding:10px 12px;border:1px solid #303030;border-radius:8px;background:#151515;color:#d5d5d5;text-align:left;font-size:11px}
+.panda-expand-params.panda-button:hover{border-color:#666;background:#1b1b1b}
+.panda-expand-params:after{content:'⌄';font-size:16px;line-height:1;color:#aaa;transition:transform .15s}
+.panda-expand-params[aria-expanded=true]:after{transform:rotate(180deg)}
+.panda-detail-evidence .panda-table-wrap{max-height:420px;overflow-y:auto}
+.holdings-split{align-items:stretch}
+.holdings-fund-list-frame{position:relative;min-width:0;min-height:460px}
+.holdings-fund-list-frame .holdings-fund-list{position:absolute;inset:0;display:grid;align-content:start;gap:7px;width:100%;height:100%;min-height:0;max-height:none;overflow-y:auto;overscroll-behavior:contain;padding-right:5px}
+.panda-agent-panel{top:48px;width:min(420px,36vw);background:#090909;border-left:1px solid #303030}
+body.panda-agent-side .panda-main{margin-right:min(420px,36vw)}
+.panda-agent-panel .panda-agent-shell{padding:0 15px}
+.panda-agent-head{padding:15px 0;border-bottom:1px solid #292929}
+.panda-agent-head-actions{display:flex;align-items:center;gap:7px}
+.panda-agent-head-actions>button{padding:6px 9px;border:1px solid #383838;border-radius:7px;background:#171717;color:#ccc;font-size:11px;cursor:pointer}
+.panda-agent-open-tabs{display:flex;gap:5px;min-height:38px;overflow-x:auto;padding:6px 0;border-bottom:1px solid #252525}
+.panda-agent-open-tabs[hidden]{display:none}
+.panda-open-tab{display:flex;align-items:center;min-width:0;max-width:160px;border:1px solid #282828;border-radius:7px;background:#111;color:#aaa}
+.panda-open-tab.active{border-color:#777;background:#232323;color:#fff}
+.panda-open-tab.running:before{content:'';width:6px;height:6px;margin-left:7px;flex:none;border-radius:50%;background:#ededed;box-shadow:0 0 0 3px #ffffff17}
+.panda-open-tab button{border:0;background:transparent;color:inherit;cursor:pointer}
+.panda-open-tab button:first-child{min-width:0;padding:6px 7px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}
+.panda-open-tab button:last-child{flex:none;padding:4px 7px;font-size:13px}
+.panda-session-list{max-height:28vh;gap:10px}
+.panda-session-group{display:grid;gap:3px}
+.panda-session-group-head{display:flex;justify-content:space-between;gap:8px;padding:4px 8px;color:#777;font-size:10px}
+.panda-session-group-head small{color:#666}
+.panda-session-row{position:relative;gap:2px;min-width:0}
+.panda-session-row>button:first-child{padding:8px 7px 8px 10px}
+.panda-session-menu{flex:none}
+.panda-session-menu>summary{padding:3px 6px;border:0;font-size:17px}
+.panda-session-menu>div{min-width:125px}
+.panda-session-pin{padding-right:4px;color:#ddd;font-size:14px}
+.panda-quick-agent{position:fixed;left:264px;right:32px;bottom:16px;z-index:7;display:grid;gap:8px;max-width:900px;margin:0 auto;padding:10px 12px;border:1px solid #444;border-radius:14px;background:#151515;box-shadow:0 12px 40px #000a}
+.panda-quick-agent[hidden]{display:none}
+.panda-quick-agent-entry{display:flex;align-items:end;gap:10px;min-width:0}.panda-quick-agent textarea{flex:1;min-width:0;min-height:42px;max-height:130px;padding:9px 4px;border:0;outline:0;resize:vertical;background:transparent;color:#eee;font:13px/1.5 inherit}
+.panda-quick-agent textarea::placeholder{color:#777}
+.panda-quick-agent button{flex:none;padding:9px 13px;border:1px solid #eee;border-radius:8px;background:#eee;color:#111;font-size:11px;font-weight:600;cursor:pointer}
+.panda-agent-page-toggle{padding:7px 11px;border-color:#444;background:#181818;color:#ddd;font-size:11px}
+.panda-agent-page-toggle[aria-expanded=true]{border-color:#777;color:#fff}
+@media(max-width:900px){.panda-agent-panel{left:auto;right:0;top:48px;bottom:0;width:min(420px,100vw)}body.panda-agent-side .panda-main{margin-right:0}.panda-quick-agent{left:16px;right:16px;bottom:12px}.holdings-fund-list-frame{height:360px;min-height:0}.holdings-fund-list-frame .holdings-fund-list{max-height:none}}
+.panda-content{padding-bottom:145px}
+body.panda-agent-side .holdings-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+body.panda-agent-side .holdings-summary strong{font-size:clamp(18px,2vw,23px);overflow-wrap:anywhere}
+body.panda-agent-side .holdings-split{grid-template-columns:1fr}
+body.panda-agent-side .holdings-fund-list-frame{height:320px;min-height:0}
+
+/* Cross-platform holdings accounts, screenshot review and contextual AI entry. */
+.holdings-account-bar{display:flex;align-items:stretch;gap:10px;margin:0 0 13px;padding:9px;border:1px solid #292929;border-radius:11px;background:#0b0b0b}
+.holdings-account-tabs{display:flex;flex:1;gap:7px;min-width:0;overflow:auto;scrollbar-width:thin}
+.holdings-account-tabs button,.holdings-add-account{display:grid;align-content:center;gap:3px;flex:0 0 auto;min-width:112px;padding:9px 11px;border:1px solid #292929;border-radius:8px;background:#101010;color:#a9a9a9;text-align:left;cursor:pointer}
+.holdings-account-tabs button:first-child{min-width:88px;text-align:center}
+.holdings-account-tabs button:hover,.holdings-add-account:hover{border-color:#585858;color:#eee}
+.holdings-account-tabs button.active{border-color:#bdbdbd;background:#1a1a1a;color:#fff;box-shadow:inset 0 0 0 1px #ffffff12}
+.holdings-account-tabs button span{font-size:9px;color:#7f7f7f}.holdings-account-tabs button strong{font-size:11px;font-weight:550}.holdings-account-tabs button small{font-size:9px;color:#797979}
+.holdings-add-account{min-width:83px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:10px}
+.holdings-account-manager{display:grid;grid-template-columns:minmax(300px,.8fr) minmax(0,1.2fr);gap:16px;margin:0 0 13px;padding:15px;border:1px solid #333;border-radius:11px;background:#101010}
+.holdings-account-manager form,.holdings-import-create{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.holdings-account-manager form>strong,.holdings-import-create>strong{flex:1 0 100%;font-size:12px}
+.holdings-account-manager input,.holdings-account-manager select,.holdings-import-create input,.holdings-import-create select,.holdings-import-fields input,.holdings-import-fields select{height:36px;min-width:0;padding:0 10px;border:1px solid #363636;border-radius:7px;background:#090909;color:#eee;font:inherit;font-size:11px}
+.holdings-account-manager input,.holdings-import-create input{flex:1;min-width:130px}.holdings-account-manager select,.holdings-import-create select{max-width:160px}
+.holdings-account-manage-list{display:grid;gap:7px;max-height:190px;overflow:auto}.holdings-account-manage-list>div{display:flex;align-items:center;gap:7px;padding:8px 9px;border:1px solid #292929;border-radius:8px;background:#0b0b0b}.holdings-account-manage-list>div>span{display:grid;flex:1;gap:4px;min-width:0}.holdings-account-manage-list strong{font-size:10px;font-weight:500}.holdings-account-manage-list small{font-size:9px;color:#777}.holdings-account-manage-list button{padding:6px 8px;border:1px solid #303030;border-radius:6px;background:#151515;color:#aaa;font-size:9px;cursor:pointer}.holdings-account-manage-list button:hover{color:#fff;border-color:#777}
+.holdings-summary{grid-template-columns:repeat(4,minmax(0,1fr));margin-top:0}.holdings-summary-note{margin:0 0 11px;padding:0 2px;color:#858585;font-size:10px;line-height:1.6}
+.holdings-account-notice{margin:7px 0 12px;padding:9px 11px;border:1px solid #504332;border-radius:8px;background:#17130e;color:#c8b28f;font-size:10px;line-height:1.5}
+.holdings-question-highlight{position:relative;margin:0 0 13px;padding:15px 16px;border:1px solid #777;border-radius:12px;background:linear-gradient(115deg,#1b1b1b,#111 58%,#0c0c0c);box-shadow:inset 3px 0 #ddd,0 8px 24px #0005}
+.holdings-question-highlight:after{position:absolute;top:0;right:15px;width:32%;height:1px;background:linear-gradient(90deg,transparent,#ddd,transparent);content:'';opacity:.65}
+.holdings-question-intro{display:flex;align-items:center;gap:11px}.holdings-ai-badge{display:inline-flex;align-items:center;justify-content:center;flex:none;padding:6px 9px;border:1px solid #777;border-radius:99px;background:#191919;color:#fff;font-size:9px;font-weight:650;letter-spacing:.02em;white-space:nowrap}
+.holdings-question-intro>div{display:grid;gap:4px;min-width:0;margin-right:auto}.holdings-question-intro>div strong{color:#f0f0f0;font-size:12px;font-weight:580}.holdings-question-intro>div small,.holdings-ai-note{color:#858585;font-size:9px;line-height:1.5}
+.holdings-custom-question{flex:none;padding:8px 11px;border:1px solid #aaa;border-radius:7px;background:#e9e9e9;color:#111;font-size:10px;font-weight:600;cursor:pointer}.holdings-custom-question:hover{background:#fff}.holdings-custom-question span{margin-left:5px}
+.holdings-question-highlight .holdings-prompt-chips{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0 6px}.holdings-question-highlight .holdings-prompt-chips button{padding:7px 9px;border:1px solid #393939;border-radius:99px;background:#0d0d0d;color:#c5c5c5;font-size:9px;line-height:1.35;cursor:pointer}.holdings-question-highlight .holdings-prompt-chips button:hover{border-color:#929292;background:#1b1b1b;color:#fff}.holdings-ai-note{display:block;margin-top:7px}
+.holdings-split{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}.holdings-fund-list{min-width:0}.holding-fund-card-wrap{display:block;min-width:0}.holding-fund-card-wrap .holding-fund-card{min-width:0;width:100%}
+.holdings-import-empty{display:grid;justify-items:start;gap:10px;margin:18px 0;padding:25px;border:1px dashed #494949;border-radius:12px;background:#0b0b0b}.holdings-import-empty>span{font-size:23px;color:#ccc}.holdings-import-empty strong{font-size:15px}.holdings-import-empty p{max-width:620px;margin:0;color:#909090;font-size:11px;line-height:1.7}.holdings-import-history{margin:12px 0;padding:12px;border:1px solid #292929;border-radius:9px;background:#0b0b0b;color:#aaa;font-size:10px}.holdings-import-history summary{cursor:pointer;color:#ccc}.holdings-import-history section{display:grid;gap:7px;margin-top:10px}.holdings-import-history section>strong{font-weight:550}.holdings-import-history section>div{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid #222}.holdings-import-history small{color:#737373;white-space:nowrap}
+.holdings-import-workspace{display:grid;gap:13px;max-width:1200px;margin:12px 0 30px;padding:17px;border:1px solid #303030;border-radius:12px;background:#0b0b0b}.holdings-import-form-head{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:10px}.holdings-import-form-head p{margin:0;color:#999;font-size:10px;line-height:1.55}.holdings-import-fields{display:grid;grid-template-columns:minmax(220px,1fr) minmax(180px,.5fr);gap:10px}.holdings-import-fields label{display:grid;gap:6px;color:#999;font-size:9px}.holdings-import-fields input,.holdings-import-fields select{width:100%;font-size:10px}
+.holdings-import-create{padding:11px;border:1px solid #353535;border-radius:9px;background:#111}.holdings-import-drop{display:grid;justify-items:center;gap:8px;padding:23px;border:1px dashed #555;border-radius:10px;background:#0d0d0d;text-align:center;color:#ddd}.holdings-import-drop>span{font-size:22px}.holdings-import-drop>strong{font-size:12px}.holdings-import-drop>small{color:#828282;font-size:9px}.holdings-import-drop label{margin-top:4px;cursor:pointer}.holdings-import-images{display:flex;flex-wrap:wrap;gap:9px}.holdings-import-image{position:relative;display:grid;grid-template-columns:76px minmax(0,1fr);align-items:center;gap:8px;width:min(240px,100%);padding:6px;border:1px solid #303030;border-radius:8px;background:#101010}.holdings-import-image img{grid-row:span 2;width:76px;height:60px;border-radius:5px;object-fit:cover;background:#080808}.holdings-import-image>span{overflow:hidden;color:#aaa;font-size:9px;text-overflow:ellipsis;white-space:nowrap}.holdings-import-image button{justify-self:start;padding:4px 7px;border:1px solid #383838;border-radius:5px;background:#171717;color:#aaa;cursor:pointer}.holdings-import-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.holdings-import-actions>span{color:#828282;font-size:9px}.holdings-import-table-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:5px 0 8px}.holdings-import-table-head>div{display:grid;gap:4px}.holdings-import-table-head strong{font-size:12px}.holdings-import-table-head strong span{color:#888;font-size:9px;font-weight:400}.holdings-import-table-head small{color:#858585;font-size:9px}.holdings-import-table-wrap{max-height:350px;overflow:auto;border:1px solid #292929;border-radius:8px}.holdings-import-table{width:100%;min-width:700px;border-collapse:collapse}.holdings-import-table th,.holdings-import-table td{padding:7px;border-bottom:1px solid #252525;text-align:left}.holdings-import-table th{position:sticky;top:0;background:#151515;color:#aaa;font-size:9px;font-weight:500}.holdings-import-table td input{width:100%;min-width:0;height:33px;padding:0 8px;border:1px solid #303030;border-radius:5px;background:#080808;color:#eee;font:inherit;font-size:10px}.holdings-import-table td button{height:30px;width:30px;border:1px solid #343434;border-radius:6px;background:#121212;color:#aaa;cursor:pointer}.holdings-import-complete{display:flex;align-items:center;gap:8px;color:#aaa;font-size:10px}.holdings-import-footnote{margin:0;color:#777;font-size:9px;line-height:1.6}.holdings-import-save-row{display:flex;justify-content:flex-end;gap:8px;padding-top:4px}.holdings-import-save-row button:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:1000px){.holdings-account-manager{grid-template-columns:1fr}.holdings-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.holdings-question-intro{align-items:flex-start;flex-wrap:wrap}.holdings-custom-question{margin-left:auto}}
+@media(max-width:800px){.holdings-split{grid-template-columns:1fr}.holdings-fund-list{max-height:440px}.holdings-import-fields{grid-template-columns:1fr}.holdings-import-form-head{grid-template-columns:1fr}.holdings-account-bar{align-items:flex-start;flex-direction:column}.holdings-account-tabs{width:100%}.holdings-add-account{align-self:flex-end}}
+@media(max-width:560px){.holdings-question-intro>div{flex-basis:calc(100% - 90px)}.holdings-custom-question{margin-left:0}.holdings-import-workspace{padding:11px}.holdings-import-save-row{justify-content:stretch}.holdings-import-save-row button{flex:1}.holdings-account-manager{padding:11px}}
+
+/* Unified page-aware Agent composer and remote workbench-inspired contrast. */
+.panda-agent-panel:not([hidden]){display:block;box-shadow:-18px 0 42px #0008}
+.panda-agent-panel{background:#080808;border-color:#2c2c2c;color:#e8e8e8}
+.panda-agent-head,.panda-agent-status,.panda-agent-composer{background:#0d0d0d;border-color:#272727}
+.panda-agent-head strong,.panda-agent-head button{color:#ededed}
+.panda-agent-head button,.panda-agent-head-actions>button{border-color:#393939;background:#151515;color:#d4d4d4}
+.panda-agent-status{color:#a0a0a0}
+.agent-message>div{border-color:#303030;background:#141414;color:#e0e0e0}
+.agent-message.user>div{border-color:#454545;background:#202020;color:#f3f3f3}
+.agent-message.assistant>div{background:#101010}
+.agent-tool{border-color:#303030;background:#141414}.agent-tool>span{color:#e5e5e5}
+.agent-reasoning,.agent-plan{border-color:#303030;background:#111;color:#bcbcbc}.agent-plan>strong{color:#e5e5e5}
+.panda-agent-composer{border-top-color:#292929}.panda-agent-composer textarea{border-color:#383838;background:#101010;color:#eee}.panda-agent-composer textarea:focus{border-color:#9b9b9b}
+.panda-agent-controls>span{color:#888}.panda-agent-data-consent{display:flex;align-items:center;gap:6px;margin-right:auto;color:#929292;font-size:9px;cursor:pointer}.panda-agent-data-consent input{accent-color:#eee}.panda-agent-data-consent input:disabled{opacity:.65}.panda-agent-data-consent span{line-height:1.45}
+.panda-quick-agent{left:264px;right:32px;max-width:920px;border-color:#383838;background:#111;box-shadow:0 14px 42px #000b}
+.panda-quick-agent-entry{display:flex;align-items:end;gap:10px}.panda-quick-agent textarea{min-height:40px;max-height:120px;color:#eee;font:13px/1.55 inherit;resize:none}.panda-quick-agent textarea:focus{outline:none}.panda-quick-agent button[type=submit]{min-width:68px;border-color:#eee;background:#eee;color:#111}.panda-quick-agent button[type=submit]:hover{background:#fff}
+.panda-quick-agent-prompts{display:flex;gap:7px;min-width:0;overflow:auto;padding:1px 0 2px;scrollbar-width:thin;scrollbar-color:#444 transparent}
+.panda-quick-agent-prompts:empty{display:none}.panda-quick-agent-prompts button{flex:0 0 auto;max-width:min(300px,45vw);overflow:hidden;padding:6px 10px;border:1px solid #333;border-radius:99px;background:#0b0b0b;color:#aaa;font-size:10px;font-weight:450;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.panda-quick-agent-prompts button:hover{border-color:#8a8a8a;background:#191919;color:#f3f3f3}
+.strategy-card-head{display:flex;align-items:center;gap:8px}.strategy-card-tools{display:flex;align-items:center;gap:5px;margin-left:auto}.strategy-card-tools button{display:inline-flex;align-items:center;gap:4px;padding:5px 7px;border:1px solid #303030;border-radius:7px;background:#0e0e0e;color:#999;font-size:10px;cursor:pointer}.strategy-card-tools button:hover,.strategy-card-tools button[aria-pressed=true]{border-color:#777;background:#1c1c1c;color:#eee}.strategy-card-tools button[aria-label^="取消收藏"]{font-size:14px}.strategy-card-tools button span{font-size:9px}
+.strategy-compare-tray{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0;padding:11px 13px;border:1px solid #303030;border-radius:10px;background:#101010;color:#aaa;font-size:10px}.strategy-compare-tray>span{flex:1;min-width:170px}.strategy-compare-tray>button:not(.panda-button){padding:6px;border:0;background:transparent;color:#aaa;font-size:10px;cursor:pointer}.strategy-compare-page{max-width:1180px;margin:6px auto 50px}.strategy-compare-page>header{display:flex;align-items:center;gap:18px;margin-bottom:18px}.strategy-compare-page>header>button{flex:none;padding:8px 10px;border:1px solid #333;border-radius:7px;background:#111;color:#bbb;cursor:pointer}.strategy-compare-page h1{margin:0;color:#f2f2f2;font-size:22px;font-weight:550}.strategy-compare-page header p{margin:5px 0 0;color:#888;font-size:10px}.strategy-compare-table-wrap{overflow:auto;border:1px solid #292929;border-radius:10px;background:#0d0d0d}.strategy-compare-table-wrap table{width:100%;min-width:620px;border-collapse:collapse;font-size:10px}.strategy-compare-table-wrap th,.strategy-compare-table-wrap td{padding:12px;border-bottom:1px solid #262626;text-align:left;vertical-align:top}.strategy-compare-table-wrap thead th{min-width:170px;background:#151515}.strategy-compare-table-wrap tbody th{width:130px;color:#999;font-weight:500}.strategy-compare-table-wrap td{color:#d0d0d0;line-height:1.6}.strategy-compare-table-wrap th>strong,.strategy-compare-table-wrap th>small{display:block}.strategy-compare-table-wrap th>small{margin-top:4px;color:#777;font-weight:400}.strategy-compare-table-wrap th>button{margin-top:7px;padding:4px 7px;border:1px solid #333;border-radius:5px;background:#101010;color:#999;font-size:9px;cursor:pointer}.strategy-compare-table-wrap td b.up{color:#ef7373}.strategy-compare-table-wrap td b.down{color:#71b982}
+@media(max-width:900px){.panda-quick-agent{left:16px;right:16px}.panda-agent-panel{left:auto;right:0;top:48px;bottom:0;width:min(420px,100vw)}body.panda-agent-side .panda-main{margin-right:0}}
+@media(max-width:560px){.panda-quick-agent{left:10px;right:10px;bottom:10px;padding:8px}.panda-quick-agent-prompts button{max-width:62vw}.panda-quick-agent-entry{gap:5px}.panda-quick-agent button[type=submit]{min-width:55px;padding:8px}.panda-agent-data-consent{flex-basis:100%;margin:0}.panda-agent-controls{gap:7px}.strategy-compare-tray>span{flex-basis:100%}}
+
+/* Neutralize legacy green/blue surfaces while keeping market returns red/green. */
+.panda-my-grid button,.panda-plan-card,.panda-run-card,.panda-connect-grid section,.panda-settings-card{border-color:#292929;background:#101010;color:#e5e5e5}
+.panda-my-grid button:hover,.panda-run-open:hover{border-color:#555;background:#181818}
+.panda-my-grid span{background:#1b1b1b;color:#ddd}
+.panda-plan-summary{border-color:#292929;background:#292929}
+.panda-plan-summary>div{background:#111}
+.panda-plan-summary small,.panda-plan-main small,.panda-plan-signal small,.panda-run-card small{color:#858585}
+.panda-plan-status,.panda-plan-status.paused,.panda-plan-status.archived{border-color:#444;background:#151515;color:#bbb}
+.panda-plan-signal{border-color:#303030}
+.panda-plan-signal strong,.panda-run-result strong{color:#e5e5e5}
+.panda-plan-empty{border-color:#444;background:#101010;color:#999}
+.panda-job{border-color:#303030;background:#101010}
+.panda-progress{background:#303030}
+.panda-progress i{background:#ddd}
+.panda-stage-row span.done{color:#eee}
+.panda-data-note i{background:#ddd;box-shadow:0 0 0 4px #ffffff12}
+.holdings-account-notice{border-color:#383838;background:#111;color:#bdbdbd}
+.holdings-question-highlight{border-color:#444;background:linear-gradient(115deg,#191919,#111 58%,#0c0c0c);box-shadow:inset 3px 0 #ddd,0 8px 24px #0005}
+.holdings-question-highlight:after{background:linear-gradient(90deg,transparent,#ddd,transparent)}
+.trade-buy{color:#ef7373}.trade-sell{color:#71b982}
+.panda-chart-legend .buy{background:#ef7373}.panda-chart-legend .sell{background:#71b982}
+
+/* Current remote direction: charcoal surfaces, restrained gold for navigation and actions. */
+:root{--bg:#09090b;--panel:#121214;--panel2:#171719;--panel3:#1d1d20;--line:#2c2c30;--line2:#3c3a3b;--text:#edeae5;--muted:#aaa6a0;--dim:#77736f;--lime:#cdbd9f;--lime2:#a99573;--orange:#c9aa7a;--blue:#a99c89;--shadow:0 22px 54px #0009}
+html,body{background:var(--bg);color:var(--text)}
+.panda-sidebar{background:#0e0e10;border-color:#29292c}.panda-main{background:radial-gradient(ellipse at 60% -18%,#1b1919 0,#09090b 42%)}
+.panda-topbar{background:#0b0b0ded;border-color:#29292c;color:#d8d3cb}.panda-section-label,.panda-session-group-head,.panda-top-actions #panda-data-status{color:#8f8981}
+.panda-workbench-nav,.panda-nav button,.panda-quiet{color:#aaa6a0}
+.panda-workbench-nav:hover,.panda-nav button:hover,.panda-quiet:hover{background:#1b1a1c;color:#f3f0ea}
+.panda-workbench-nav.active,.panda-nav button.active{background:#e8e4dc;color:#181719}
+.panda-workbench-nav.active:hover,.panda-nav button.active:hover{background:#f4f0e9;color:#171719}
+.panda-workbench-nav.active .nav-symbol,.panda-nav button.active .nav-symbol{color:#51483a}
+.panda-new{border-color:#38373a;background:#111113;color:#aaa6a0}.panda-new span,.panda-credit strong{color:#cdbd9f}.panda-new:hover{border-color:#6b6358;background:#1b1a1a;color:#f1ece4}
+.panda-session-row.active,.panda-open-tab.active{border-color:#726957;background:#25231f;color:#f3ece2;box-shadow:inset 2px 0 0 #cdbd9f}
+.panda-session-row:hover,.panda-open-tab:hover{border-color:#504840;background:#1c1b1c}.panda-open-tab.running:before,.panda-data-note i{background:#cdbd9f;box-shadow:0 0 0 3px #cdbd9f1c}
+.panda-heading h1,.panda-start-hero h1,.panda-section-head h2{color:#f1eee9}.panda-heading p,.panda-section-caption,.panda-section-head p{color:#99948d}
+.panda-workspace-block,.panda-detail-left,.panda-detail-right,.panda-detail-form,.panda-plan-card,.panda-run-card,.panda-settings-card,.panda-connect-grid section,.panda-my-grid button{border-color:#343236;background:#151517;color:#eae6df}
+.panda-workspace-block .panda-section-head>div>span,.panda-section-head .link-button{color:#cdbd9f}
+.panda-strategy-card{border-color:#313135;background:#151517}.panda-strategy-card:hover{border-color:#756c60;background:#1b1a1a}
+.strategy-glyph,.panda-my-grid span{background:#292621;color:#d2bea0}.strategy-badge{border-color:#454045;color:#b4aea4}
+.strategy-performance,.panda-explain-grid>div,.panda-param-card,.panda-backtest-params,.panda-param-value,.panda-run-params span{border-color:#363437;background:#111113}
+.strategy-performance span,.strategy-performance small,.strategy-performance em,.panda-explain-grid small,.panda-param-card label,.panda-plan-kpis span{color:#a29b91}
+.strategy-card-tools button,.strategy-compare-tray,.strategy-compare-page>header>button,.strategy-compare-table-wrap th>button{border-color:#474348;background:#211f1f;color:#ddd2bd}
+.strategy-card-tools button:hover,.strategy-card-tools button[aria-pressed=true],.strategy-compare-page>header>button:hover{border-color:#a38f6b;background:#2b2824;color:#f4e8d1}
+.panda-button,.panda-agent-page-toggle,.panda-agent-head button,.panda-agent-setting{border-color:#484447;background:#1a191b;color:#e7e2d9}
+.panda-button:hover,.panda-agent-page-toggle:hover,.panda-agent-head button:hover,.panda-agent-setting:hover{border-color:#9b896c;background:#252321;color:#f5eee2}
+.panda-button.primary,.panda-quick-agent button[type=submit],#agent-send:not(:disabled){border-color:#e8e4dc;background:#e8e4dc;color:#171719}
+.panda-button.primary:hover,.panda-quick-agent button[type=submit]:hover,#agent-send:not(:disabled):hover{border-color:#fffaf1;background:#fffaf1}
+.panda-detail-flow,.panda-controls-column,.panda-plan-summary>div,.panda-metrics div,.panda-plan-kpis span,.panda-history-note,.panda-result-note{border-color:#343236;background:#1b1a1c}
+.panda-detail-flow b,.panda-column-head>span,.panda-parameter-heading strong,.panda-param-card label b,.panda-param-value strong,.panda-run-params b{color:#ece6dc}
+.panda-detail-flow span,.panda-column-head small,.panda-parameter-heading small,.panda-plan-performance-head,.panda-plan-main small,.panda-run-card small{color:#9c958c}
+.panda-controls-column,.panda-plan-performance,.panda-version-panel,.strategy-card-footer{border-color:#343236}
+.panda-field input,.panda-field select,.panda-param-card input,.panda-param-card select,.panda-inline-form input,.panda-history-filters input,.panda-history-filters select{border-color:#3d3b3d;background:#111113;color:#ece7df}
+.panda-field input:focus,.panda-field select:focus,.panda-param-card input:focus,.panda-param-card select:focus,.panda-inline-form input:focus{border-color:#bda984;outline:none}
+.panda-chart-wrap{border-color:#343236;background:#101012}.panda-chart .grid{stroke:#2b292c}.panda-chart .zero-line{stroke:#5d5650}.panda-chart .strategy-line{stroke:#cbb793}.panda-chart .benchmark-line{stroke:#a3a0a0}.panda-chart .axis-label,.panda-chart .date,.panda-chart .axis-title{fill:#928a80}.panda-chart-legend .strategy{background:#cbb793}
+.strategy-sparkline .spark-strategy{stroke:#cbb793}.strategy-sparkline .spark-end.strategy{fill:#cbb793}.strategy-sparkline-head .spark-key:not(.benchmark){background:#cbb793}.strategy-sparkline .spark-benchmark{stroke:#9a958d}.strategy-sparkline .spark-end.benchmark{fill:#9a958d}
+.panda-progress{background:#333033}.panda-progress i{background:linear-gradient(90deg,#8e7859,#d9c8a7)}.panda-stage-row span.done{color:#d5c2a2}
+.panda-plan-status,.panda-plan-status.paused,.panda-plan-status.archived{border-color:#544d46;background:#25221f;color:#c9b99f}.panda-plan-signal{border-color:#3b3835}.panda-plan-signal strong,.panda-run-result strong{color:#e5dccd}
+.panda-plan-empty,.panda-result-empty{border-color:#49433e;background:#121214;color:#aaa198}
+.holdings-account-notice{border-color:#51493f;background:#1e1b19;color:#c9bdae}.holdings-question-highlight{border-color:#6d5f4b;background:linear-gradient(115deg,#29231d,#181719 64%,#121214);box-shadow:inset 3px 0 #cbb793,0 8px 24px #0005}.holdings-question-highlight:after{background:linear-gradient(90deg,transparent,#cbb793,transparent)}
+.panda-quick-agent{border:1px solid #665b4a;background:#171618;box-shadow:0 18px 50px #000c,0 0 0 1px #b79d7130}.panda-quick-agent:focus-within{border-color:#bea981;box-shadow:0 20px 55px #000d,0 0 0 2px #cbb79329}
+.panda-quick-agent-prompts{align-items:center;gap:8px;padding:1px 0 3px;scrollbar-color:#665c4f transparent}.panda-quick-agent-label{flex:none;margin-right:2px;color:#b8a98f;font-size:10px;font-weight:600;white-space:nowrap}
+.panda-quick-agent-prompts button{min-height:30px;max-width:min(260px,42vw);padding:6px 11px;border-color:#51483f;border-radius:8px;background:#25211e;color:#e0d4c2;font-size:11px;font-weight:520;transition:border-color .16s,background .16s,color .16s,transform .16s}
+.panda-quick-agent-prompts button:hover,.panda-quick-agent-prompts button:focus-visible{border-color:#c2a77d;background:#342d24;color:#fff4df;transform:translateY(-1px);outline:none}
+.panda-quick-agent textarea{color:#f1ede6}.panda-quick-agent textarea::placeholder{color:#938b80}
+.panda-agent-panel{border-color:#39363a;background:#111113;color:#edeae5}.panda-agent-shell{background:#111113}.panda-agent-head,.panda-agent-status,.panda-agent-composer{border-color:#333236;background:#151517}.panda-agent-head strong{color:#eee8de}.panda-agent-status{color:#b3a99d}
+.panda-agent-head>div:first-child{min-width:0;flex:1}.panda-agent-head strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}.panda-agent-head-actions{flex:none}.panda-agent-head-actions>button{white-space:nowrap}
+.panda-agent-composer textarea{border-color:#3b393c;background:#111113;color:#ece8e1}.panda-agent-composer textarea:focus{border-color:#c5b18d}
+.panda-agent-data-consent{color:#aca49a}.panda-agent-data-consent input{accent-color:#cbb793}.panda-agent-controls>span{color:#928b82}
+.agent-message>div,.agent-tool,.agent-reasoning,.agent-plan,.agent-process{border-color:#38363a;background:#1a191b;color:#e6e0d7}.agent-message.user>div{border-color:#65584a;background:#29241f;color:#f2e9dd}.agent-message.assistant>div{background:#1a191b}
+.agent-tool>span,.agent-plan>strong,.agent-reasoning summary,.agent-process summary{color:#ccb893}.agent-progress-track span.current{border-color:#bda984;background:#2b251e;color:#eedfc4}.agent-progress-track em{color:#a79c8c}.spinner,.panda-loading i{border-color:#544b42;border-top-color:#d9c6a5}
+.panda-open-tab.active,.panda-session-row.active{box-shadow:inset 2px 0 0 #cdbd9f}
+@media(max-width:800px){.panda-nav button.active{background:#e8e4dc;color:#181719}}
+@media(max-width:560px){.panda-quick-agent-prompts{gap:6px}.panda-quick-agent-label{font-size:9px}.panda-quick-agent-prompts button{max-width:52vw;font-size:10px;min-height:29px}}
+
+/* Overview: clear section headings without the large tinted panels. */
+.panda-workbench-idle .panda-workspace-block{margin-top:30px;padding:0;border:0;border-radius:0;background:transparent}
+.panda-workbench-idle .panda-workspace-block .panda-section-head{align-items:center;margin:0 0 5px;padding:0;border:0;background:transparent}
+.panda-workbench-idle .panda-section-head h2{display:flex;align-items:center;gap:10px;margin:0;color:#eee9e1;font-size:21px;font-weight:650;letter-spacing:-.025em;line-height:1.3}
+.panda-workbench-idle .panda-section-head h2:before{content:'';width:3px;height:19px;flex:none;border-radius:3px;background:#cbb793}
+.panda-workbench-idle .panda-section-head .link-button{padding:7px 0;color:#cbb793;font-size:11px}
+.panda-workbench-idle .panda-section-caption{margin:0 0 17px;color:#968e84}
+.panda-workbench-idle .my-block{padding-bottom:24px}
+
+/* Strategy library categories match the live catalogue, preserving return order within each tab. */
+.strategy-library-filter{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 18px}
+.strategy-category-tabs{display:flex;align-items:center;gap:7px;min-width:0;overflow-x:auto;padding:2px 1px 5px;scrollbar-width:thin;scrollbar-color:#5d5348 transparent}
+.strategy-category-tabs button{flex:none;min-height:34px;padding:6px 13px;border:1px solid #403c3b;border-radius:8px;background:#181719;color:#b9b1a7;font:inherit;font-size:11px;white-space:nowrap;cursor:pointer;transition:border-color .15s,background .15s,color .15s}
+.strategy-category-tabs button:hover,.strategy-category-tabs button:focus-visible{border-color:#9f8a69;background:#24211e;color:#f3e8d8;outline:none}
+.strategy-category-tabs button.active{border-color:#ad9874;background:#30291f;color:#f0dfc2;font-weight:600}
+.strategy-filter-meta{flex:none;color:#948a7e;font-size:10px;white-space:nowrap}
+.strategy-card-tools button[data-action="share-strategy-card"]{min-height:30px;padding:5px 10px;border-color:#5f5345;background:#26221e;color:#ddc9a9;font-size:10px;font-weight:560}
+.strategy-card-tools button[data-action="share-strategy-card"]:hover{border-color:#b9a27e;background:#352d23;color:#fff0d5}
+.strategy-card-tools button[data-action="share-strategy-card"]:disabled{border-color:#393638;background:#1a191a;color:#776f65;opacity:.8;cursor:not-allowed}
+.strategy-card-tools button[data-action="share-strategy-card"] span:first-child{font-size:13px;line-height:1}
+@media(max-width:680px){.strategy-library-filter{align-items:flex-start;flex-direction:column;gap:4px}.strategy-category-tabs{max-width:100%}.panda-workbench-idle .panda-section-head h2{font-size:19px}}
+
+/* A single visual hierarchy across research, records, holdings and settings. */
+.panda-heading{align-items:flex-end;margin:4px 0 23px;padding:0 0 16px;border-bottom:1px solid #302d2d}
+.panda-heading h1,.panda-strategy-title h1,.strategy-compare-page h1{display:flex;align-items:center;gap:12px;margin:0;color:#f4efe7;font-size:27px;font-weight:630;letter-spacing:-.035em;line-height:1.25}
+.panda-heading h1:before,.panda-strategy-title h1:before,.strategy-compare-page h1:before{content:'';width:3px;height:23px;flex:none;border-radius:3px;background:#c9ae81}
+.panda-heading p{max-width:730px;margin:9px 0 0;color:#aaa198;font-size:12px;line-height:1.55}
+.panda-detail-intro{padding-bottom:8px}.panda-strategy-title>p{max-width:760px;margin-top:13px;color:#c2b9ad;font-size:13px}.panda-strategy-meta{margin-top:11px}
+.panda-backtest-column>h2,.panda-backtest-params-head strong,.panda-result-tabs>strong,.holdings-list-head h2,.holding-detail-subhead>strong,.holdings-card-head h2,.panda-connect-grid h2{color:#ece4d8;font-weight:620;letter-spacing:-.015em}
+.panda-backtest-column>h2,.panda-backtest-params-head strong,.panda-result-tabs>strong{font-size:15px}
+.panda-detail-context{background:linear-gradient(95deg,#242018,#181719 48%,#151517);border-color:#463d32}.panda-detail-context strong{color:#f4e8d5}
+.panda-backtest-column .panda-metrics>div,.panda-metrics>div{min-width:0;padding:0 0 10px;border:0;border-bottom:1px solid #333035;border-radius:0;background:transparent}
+.panda-metrics small{color:#a49a8c}.panda-metrics strong{font-size:clamp(19px,2.2vw,26px)}
+.panda-detail-evidence .panda-table th,.panda-table th{background:#1e1c1b;color:#b9afa1}
+
+/* Library cards: the primary number leads; secondary numbers read as one row. */
+.panda-strategy-card,.panda-conversation-idle .panda-strategy-card{border-color:#38343a;background:linear-gradient(160deg,#1a191b,#131315 65%)}
+.panda-strategy-card:hover,.panda-strategy-card:focus-visible{border-color:#9a876a;background:linear-gradient(160deg,#22201e,#171719 65%);box-shadow:0 16px 38px #0008;outline:none}
+.panda-strategy-card .strategy-performance,.panda-conversation-idle .panda-strategy-card .strategy-performance{border:0;background:transparent}
+.strategy-performance>.strategy-performance-main>.strategy-primary-metric{padding-bottom:11px;border-bottom:1px solid #39353a}
+.strategy-performance>.strategy-performance-main>.strategy-secondary-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:0}
+.strategy-secondary-metrics>span{gap:4px;min-width:0;padding:2px 8px 2px 0;border:0;border-radius:0;background:transparent}
+.strategy-secondary-metrics>span+span{padding-left:12px;border-left:1px solid #39353a}
+.strategy-secondary-metrics>span small{color:#a79f94;font-size:10px}.strategy-secondary-metrics>span b{font-size:14px}
+.strategy-performance-meta{padding-top:3px}.strategy-performance-meta small{font-size:10px}
+.panda-strategy-card .strategy-performance>.strategy-sparkline{border-color:#363235;background:#100f11}
+.strategy-sparkline-head strong{color:#c6b9a7}.strategy-card-footer{border-color:#373238}
+
+/* Holdings: use one calm metric strip and keep data labels readable. */
+.holdings-account-bar{border-color:#38343a;background:#151416}
+.holdings-summary{gap:0;margin:8px 0 9px;border:1px solid #38343a;border-radius:13px;background:#171618;overflow:hidden}
+.holdings-summary>div{min-width:0;padding:18px 20px;border:0;border-radius:0;background:transparent}
+.holdings-summary>div+div{border-left:1px solid #353136}
+.holdings-summary small{color:#b5aa9c;font-size:11px}.holdings-summary em{margin-top:3px;color:#827b73;font-size:10px}
+.holdings-summary strong{margin:9px 0 0;font-size:clamp(18px,2.1vw,26px)}
+.holdings-summary-note{margin:0 0 16px;color:#a59b8e;font-size:11px}
+.holdings-tab-content,.holdings-list-section,.holding-detail{background:transparent}
+.holdings-list-head h2{display:flex;align-items:baseline;gap:7px;margin:0;font-size:18px}
+.holding-detail-kpis>div{padding:11px 12px;border-color:#343035;background:#1b191b}
+.holding-detail-kpis small{color:#a89e90;font-size:10px}.holding-detail-subhead>strong{font-size:12px}
+.holding-detail-head h3{color:#f1e9df;font-size:18px}
+
+/* Records and plans: surface hierarchy comes from spacing, rules and data. */
+.panda-history-filters{gap:12px 10px;padding:4px 0 18px;border:0;border-bottom:1px solid #353137;border-radius:0;background:transparent}
+.panda-history-filters label{color:#a79d91;font-size:11px}.panda-history-filters select,.panda-history-filters input{border-color:#413b3e;background:#171618}
+.panda-history-list{gap:8px}.panda-history-list>.panda-run-card{border-color:#353136;background:#161517}
+.panda-run-open:hover{background:#201d1a}.panda-run-main strong{color:#ede5da;font-size:14px}.panda-run-metrics b{font-size:16px}
+.panda-run-card.is-pinned{border-left:3px solid #cbb793}.panda-history-row-actions button:hover,.panda-history-row-actions button[aria-pressed=true]{border-color:#695e4e;background:#29241f;color:#f0dec1}
+.panda-plan-card{border-color:#38343a;background:#181719}.panda-plan-title strong{color:#f0e8dc;font-size:16px}.panda-plan-signal{border-color:#403a38}
+.panda-plan-performance{border-color:#393438}.panda-plan-performance-head{color:#a79d91}
+.panda-plan-kpis{gap:0;margin:14px 0}.panda-plan-kpis span{min-width:0;padding:0 12px;border:0;border-radius:0;background:transparent;color:#a89d8f;font-size:11px}
+.panda-plan-kpis span:first-child{padding-left:0}.panda-plan-kpis span+span{border-left:1px solid #3e383a}.panda-plan-kpis b{font-size:clamp(15px,1.7vw,21px);overflow-wrap:anywhere}
+.panda-plan-performance>.panda-disclosure{margin:9px 0 0;padding-top:8px;border-top:1px solid #312d30}.panda-plan-performance>.panda-disclosure>summary{color:#c9b9a3}
+
+/* Personal pages and Agent responses share the same restrained surface style. */
+.panda-watch-row,.panda-connect-grid section,.panda-settings-card{border-color:#38343a;background:#181719}
+.panda-watch-row:hover{border-color:#7c6b54;background:#1e1c1a}
+.panda-connect-grid section{padding:22px}.panda-connect-grid h2{display:flex;align-items:center;gap:9px;margin:0 0 10px;font-size:17px}
+.panda-connect-grid h2:before{content:'';width:3px;height:16px;border-radius:3px;background:#cbb793}
+.panda-connect-grid p{color:#aea499}.panda-settings-card{max-width:750px;padding:22px}
+.agent-fund-card,.agent-fund-backtest,.agent-fund-chart{border-color:#3b3639;background:#181719}
+.agent-fund-metric{border:0;border-top:1px solid #383237;border-radius:0;background:transparent}
+.agent-fund-mark,.agent-fund-chips span{border-color:#6b5b43;background:#28231e;color:#ddc9a7}
+
+@media(max-width:1000px){.holdings-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.holdings-summary>div:nth-child(3){border-left:0;border-top:1px solid #353136}.holdings-summary>div:nth-child(4){border-top:1px solid #353136}}
+@media(max-width:800px){.panda-plan-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 0}.panda-plan-kpis span:nth-child(3){padding-left:0;border-left:0}}
+@media(max-width:560px){.panda-heading h1,.panda-strategy-title h1{font-size:23px}.panda-heading h1:before,.panda-strategy-title h1:before{height:20px}.holdings-summary>div{padding:13px}.holdings-summary strong{font-size:18px}.panda-plan-kpis span{padding-right:7px}.panda-plan-kpis span:nth-child(even){padding-left:9px}}
+
+/* Holdings: one overview, a scannable fund list, and details on demand. */
+body.panda-holdings-page #panda-page-title{visibility:hidden}
+body.panda-holdings-page .panda-content{padding-bottom:112px}
+.panda-start-hero{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.workbench-layout-edit{border:1px solid #4b4439;border-radius:8px;background:#1f1b17;color:#d8c4a1;padding:8px 11px;font:inherit;cursor:pointer}
+.workbench-layout-edit:hover{border-color:#c4a873;background:#2c241c}
+.workbench-brief{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:0 0 20px}
+.workbench-brief.count-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.workbench-brief button{display:grid;gap:4px;text-align:left;border:1px solid #3b3530;border-radius:9px;background:#171514;padding:12px 14px;cursor:pointer}
+.workbench-brief small,.market-workbench-preview small{color:#a59c91;font-size:10px}
+.workbench-brief strong{font-size:16px;color:#f2ece1}
+.workbench-brief strong.up,.market-workbench-preview strong.up{color:#f06262}
+.workbench-brief strong.down,.market-workbench-preview strong.down{color:#36bb75}
+.market-workbench-preview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.market-workbench-preview>div{display:grid;gap:5px;border:1px solid #34302e;border-radius:9px;background:#181615;padding:15px}
+.market-workbench-preview strong{font-size:23px;color:#eee7dc;font-variant-numeric:tabular-nums}
+.market-workbench-preview span{color:#938b83;font-size:10px}
+@media(max-width:650px){.workbench-brief,.workbench-brief.count-2{grid-template-columns:1fr}.market-workbench-preview{grid-template-columns:1fr}}
+.holdings-page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin:4px 0 18px;padding-bottom:16px;border-bottom:1px solid #38343a}
+.holdings-page-title{display:flex;align-items:center;gap:16px;min-width:0}
+.holdings-page-title h1{display:flex;align-items:center;gap:12px;margin:0;color:#f4efe7;font-size:27px;font-weight:630;letter-spacing:-.035em}
+.holdings-page-title h1:before{content:'';width:3px;height:23px;border-radius:3px;background:#c9ae81}
+.holdings-page-status,.holdings-page-actions{display:flex;align-items:center;gap:10px}
+.holdings-page-status>span{color:#a69d91;font-size:11px;white-space:nowrap}
+.holdings-page-actions>.panda-button{padding:7px 11px;font-size:11px}
+.holdings-account-picker,.holdings-actions-menu{position:relative;z-index:4}
+.holdings-account-picker>summary,.holdings-actions-menu>summary{display:flex;align-items:center;gap:8px;list-style:none;cursor:pointer}
+.holdings-account-picker>summary::-webkit-details-marker,.holdings-actions-menu>summary::-webkit-details-marker{display:none}
+.holdings-account-picker>summary{max-width:250px;padding:8px 11px;border:1px solid #494148;border-radius:8px;background:#1b191b;color:#eee5d8;font-size:12px}
+.holdings-account-picker>summary span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.holdings-account-picker>summary i{width:7px;height:7px;flex:none;margin-left:2px;border-right:1px solid #b6aa9c;border-bottom:1px solid #b6aa9c;transform:translateY(-2px) rotate(45deg)}
+.holdings-account-picker[open]>summary i{transform:translateY(2px) rotate(225deg)}
+.holdings-account-options,.holdings-actions-menu>div{position:absolute;top:calc(100% + 7px);right:0;z-index:12;display:grid;gap:4px;min-width:230px;max-width:min(340px,80vw);padding:6px;border:1px solid #51494b;border-radius:10px;background:#201e20;box-shadow:0 18px 38px #000b}
+.holdings-account-options{left:0;right:auto}
+.holdings-account-options button,.holdings-actions-menu>div button{display:grid;gap:3px;width:100%;padding:8px 10px;border:0;border-radius:6px;background:transparent;color:#e4dbd0;text-align:left;font:inherit;font-size:11px;cursor:pointer}
+.holdings-account-options button:hover,.holdings-account-options button.active,.holdings-actions-menu>div button:hover{background:#363039}
+.holdings-account-options small{color:#a39788;font-size:10px}
+.holdings-actions-menu>summary{height:32px;padding:0 10px;border:1px solid #494148;border-radius:8px;color:#ddd1c0;font-size:19px;line-height:1}
+.holdings-actions-menu>div{min-width:170px}
+.holdings-summary{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) auto;align-items:stretch;margin:0 0 12px}
+.holdings-summary>div{padding:17px 20px}
+.holdings-summary>.holdings-summary-main strong{font-size:clamp(25px,2.5vw,34px)}
+.holdings-summary>.holdings-summary-income strong{font-size:clamp(20px,2vw,27px)}
+.holdings-summary>.holdings-summary-daily{display:flex;align-items:center;justify-content:center;min-width:165px;padding:12px 16px}
+.holdings-daily-status{display:grid;gap:5px;color:#a99e91;font-size:11px;white-space:nowrap}
+.holdings-daily-status b{color:#eee;font-size:15px;font-weight:600}
+.holdings-daily-status b.up{color:var(--gain)}.holdings-daily-status b.down{color:var(--loss)}
+.holdings-daily-status.is-unavailable{color:#d1ad77}
+.holdings-summary-note{margin:-3px 0 13px;padding:0 2px;color:#c4ac88;font-size:10px}
+.holdings-module{border-color:#39343a;background:#151416}
+.holdings-tabbar{gap:21px;padding:0 18px;background:#151416}
+.holdings-tabbar button{padding:12px 0 10px;font-size:12px}
+.holdings-list-section{padding:15px}
+.holdings-list-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.holdings-list-head h2{white-space:nowrap}
+.holdings-list-tools{display:flex;align-items:center;gap:8px;min-width:0}
+.holdings-metric-toggle{display:flex;flex:none;gap:2px;padding:2px;border:1px solid #383238;border-radius:7px;background:#0f0e10}
+.holdings-metric-toggle button{padding:5px 7px;border:0;border-radius:5px;background:transparent;color:#9e9488;font-size:10px;white-space:nowrap;cursor:pointer}
+.holdings-metric-toggle button[aria-pressed=true]{background:#393128;color:#f0dfc4}
+.holdings-search{min-width:125px;max-width:210px}.holdings-search input{width:100%}
+.holdings-sort-label{gap:5px;white-space:nowrap}.holdings-sort-label span{color:#a99e90;font-size:10px}
+.holdings-split{grid-template-columns:minmax(260px,.42fr) minmax(0,.58fr);gap:14px}
+.holdings-fund-list-frame{height:min(520px,calc(100vh - 360px));min-height:340px;align-self:start}
+.holdings-fund-list-frame .holdings-fund-list{gap:5px;padding-right:6px}
+.holding-fund-card-wrap .holding-fund-card{padding:9px 11px;border-color:#353035;background:#171618}
+.holding-fund-card-wrap[hidden]{display:none}
+.holding-fund-card.active{border-color:#a99371;background:#252019;box-shadow:inset 3px 0 #cbb793}
+.holding-fund-card-head strong{font-size:12px;line-height:1.35}
+.holding-fund-card-head small{margin-top:3px;font-size:9px}
+.holding-fund-card-head>b{font-size:12px;white-space:nowrap}
+.holding-fund-card-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:7px;font-size:10px}
+.holding-fund-card-meta span{min-width:0;white-space:nowrap}
+.holding-fund-card-meta b{display:inline;margin:0 0 0 4px;overflow:visible;font-size:11px}
+.holding-weight{display:flex;align-items:center;gap:5px;color:#9f9487}
+.holding-weight i{display:block;width:34px;height:3px;overflow:hidden;border-radius:4px;background:#38333a}
+.holding-weight i em{display:block;height:100%;border-radius:4px;background:#baa37e}
+.holding-fund-card .holding-status{margin-top:6px}
+.holding-detail{padding:15px;border-color:#39343a;background:#181719}
+.holding-detail-head{margin-bottom:10px}.holding-detail-head h3{margin:0 0 5px}
+.holding-detail-refresh{width:27px;height:27px;padding:0;font-size:17px}
+.holding-detail-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:0;margin:0 0 4px;border-bottom:1px solid #383238}
+.holding-detail-kpis>div{padding:9px 12px 11px;border:0;border-radius:0;background:transparent}
+.holding-detail-kpis>div:first-child{padding-left:0}.holding-detail-kpis>div+div{border-left:1px solid #383238}
+.holding-detail-kpis small{font-size:10px}.holding-detail-kpis strong{margin-top:5px;font-size:clamp(16px,1.5vw,21px)}
+.holding-detail-day{margin:6px 0 13px;color:#9f958a;font-size:10px}.holding-detail-day b{margin-left:5px;color:#e8e1d7}.holding-detail-day b.up{color:var(--gain)}.holding-detail-day b.down{color:var(--loss)}
+.holding-detail-chart{margin:12px 0 10px}.holding-detail-chart .panda-chart{min-height:230px}
+.holding-detail-secondary{display:grid;gap:0;margin-top:11px;border-top:1px solid #373237}
+.holding-detail-more{border-bottom:1px solid #373237}
+.holding-detail-more>summary{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 2px;list-style:none;color:#d6cbbf;font-size:11px;font-weight:580;cursor:pointer}
+.holding-detail-more>summary::-webkit-details-marker{display:none}
+.holding-detail-more>summary:after{content:'⌄';margin-left:auto;color:#b3a595;font-size:15px;transition:transform .15s}
+.holding-detail-more[open]>summary:after{transform:rotate(180deg)}
+.holding-detail-more>summary small{margin-left:auto;color:#908579;font-size:10px;font-weight:400}
+.holding-detail-more>div,.holding-detail-more>p{margin:0 0 11px}
+.holdings-source-single{color:#a69a8c;font-size:10px}
+.holding-detail-more .holding-history-kpis{padding:8px 0 12px}
+.holdings-method-note{margin-top:9px}
+.holdings-backtest-card{padding:17px;background:transparent;border:0}
+.holdings-card-head{margin-bottom:13px}.holdings-card-head h2{margin:0 0 5px}.holdings-card-head p{margin:0;color:#ad9f8e;font-size:11px}
+.holdings-backtest-kpis{grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin:0 0 16px;border:1px solid #373238;border-radius:9px;overflow:hidden}
+.holdings-backtest-kpis>div{padding:13px 15px;border:0;border-radius:0;background:#1b191b}
+.holdings-backtest-kpis>div+div{border-left:1px solid #373238}
+.holdings-backtest-kpis small{font-size:10px}.holdings-backtest-kpis strong{font-size:19px}
+.holdings-analysis-grid{grid-template-columns:minmax(0,1.6fr) minmax(220px,.75fr)}
+.holdings-simulation-more{display:grid;gap:3px;margin-top:13px}
+.holdings-simulation-more .panda-disclosure{margin:0;border-top:1px solid #383238}
+.holdings-simulation-more .panda-disclosure>summary{padding:9px 0;color:#cbbda9;font-size:11px}
+.holdings-extra-metrics{display:flex;flex-wrap:wrap;gap:12px 25px;padding:8px 0 12px;color:#a99d8e;font-size:10px}
+.holdings-extra-metrics b{margin-left:5px;color:#e8e1d7}.holdings-extra-metrics b.up{color:var(--gain)}.holdings-extra-metrics b.down{color:var(--loss)}
+.holdings-simulation-more .holdings-allocation{padding:7px 0 12px}
+body.panda-holdings-page .panda-quick-agent{max-width:740px;gap:4px;bottom:12px;padding:7px 10px;border-color:#52493d}
+body.panda-holdings-page .panda-quick-agent-prompts{gap:6px;padding:0}
+body.panda-holdings-page .panda-quick-agent-label{display:none}
+body.panda-holdings-page .panda-quick-agent-prompts button{min-height:26px;padding:4px 9px;font-size:10px}
+body.panda-holdings-page .panda-quick-agent:focus-within .panda-quick-agent-prompts{display:none}
+body.panda-holdings-page .panda-quick-agent textarea{min-height:31px;max-height:90px;padding:4px 3px}
+body.panda-holdings-page .panda-quick-agent button[type=submit]{min-width:56px;padding:7px 9px}
+@media(max-width:1150px){.holdings-list-head{align-items:flex-start;flex-wrap:wrap}.holdings-list-tools{width:100%;flex-wrap:wrap}.holdings-search{flex:1;max-width:none}}
+@media(max-width:900px){.holdings-page-head{align-items:flex-start;flex-wrap:wrap}.holdings-page-status{width:100%;justify-content:space-between}.holdings-split{grid-template-columns:1fr}.holdings-fund-list-frame{height:320px;min-height:0}.holdings-analysis-grid{grid-template-columns:1fr}}
+@media(max-width:650px){.holdings-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.holdings-summary>.holdings-summary-daily{grid-column:1/-1;justify-content:flex-start;min-width:0;border-top:1px solid #353136;border-left:0;padding:10px 13px}.holdings-daily-status{display:block}.holdings-daily-status b{margin-left:6px}.holdings-list-tools{gap:6px}.holdings-metric-toggle{order:1}.holdings-search{order:2;flex:1 1 100%}.holdings-sort-label{order:3}.holding-detail-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.holdings-backtest-kpis strong{font-size:15px}}
+.holdings-summary{grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:0}
+.holdings-summary-status{display:flex;align-items:center;gap:8px 18px;flex-wrap:wrap;min-height:28px;margin:0 0 10px;padding:5px 2px}
+.holdings-summary-status .holdings-daily-status{display:inline-flex;align-items:baseline;gap:6px;font-size:10px}
+.holdings-summary-status .holdings-daily-status b{font-size:11px}
+.holdings-summary-status .holdings-summary-note{margin:0}
+@media(max-width:800px){.holdings-fund-list-frame .holdings-fund-list{grid-template-columns:1fr}}
+@media(max-width:650px){body.panda-holdings-page .panda-quick-agent{bottom:8px;padding:5px 8px}body.panda-holdings-page .panda-quick-agent-prompts{display:none}body.panda-holdings-page .panda-quick-agent textarea{min-height:30px}body.panda-holdings-page .panda-content{padding-bottom:78px}}
+
+/* Accounts remain visible; returns are plain numbers rather than progress bars. */
+.holdings-page-head{margin-bottom:10px}
+.holdings-account-bar{align-items:center;margin-bottom:14px;padding:6px;overflow:hidden}
+.holdings-account-tabs{padding-bottom:2px}
+.holdings-account-tabs button{min-width:142px;max-width:220px;padding:9px 12px}
+.holdings-account-tabs button:first-child{min-width:106px}
+.holdings-account-tabs button strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
+.holdings-account-tabs button small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px}
+.holdings-add-account{display:flex;align-items:center;justify-content:center;gap:6px;min-width:112px;min-height:49px;text-align:center}
+.holdings-add-account span{color:#d1b990;font-size:19px;line-height:1}
+.holdings-add-account strong{font-size:11px}
+.holdings-account-live-link{flex:1 0 100%;padding-top:3px}
+.holdings-account-live-link .panda-button{font-size:10px}
+.holdings-summary{grid-template-columns:minmax(0,1.3fr) repeat(4,minmax(0,1fr));margin:0 0 5px}
+.holdings-summary>div{padding:15px 13px}
+.holdings-summary>div+div{border-left:1px solid #353136;border-top:0}
+.holdings-summary small{font-size:10px;white-space:nowrap}
+.holdings-summary strong,.holdings-summary>.holdings-summary-main strong,.holdings-summary>.holdings-summary-income strong{margin-top:9px;font-size:clamp(16px,1.65vw,23px);white-space:nowrap}
+.holdings-summary-status{margin-bottom:12px;color:#a69d91;font-size:10px}
+.holdings-summary-status .is-unavailable{color:#c4ac88}
+.holding-fund-card-meta{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:9px}
+.holding-fund-card-meta span{white-space:nowrap}
+.holding-fund-card-meta b.up{color:var(--gain)}
+.holding-fund-card-meta b.down{color:var(--loss)}
+.holding-weight i{display:none}
+body.panda-agent-side .holdings-summary{grid-template-columns:repeat(3,minmax(0,1fr))}
+body.panda-agent-side .holdings-summary>div:nth-child(4){border-left:0;border-top:1px solid #353136}
+body.panda-agent-side .holdings-summary>div:nth-child(5){border-top:1px solid #353136}
+@media(max-width:1200px){.holdings-summary{grid-template-columns:repeat(3,minmax(0,1fr))}.holdings-summary>div:nth-child(4){border-left:0;border-top:1px solid #353136}.holdings-summary>div:nth-child(5){border-top:1px solid #353136}}
+@media(max-width:780px){.holdings-summary,body.panda-agent-side .holdings-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.holdings-summary>div:nth-child(3),body.panda-agent-side .holdings-summary>div:nth-child(3){border-left:0;border-top:1px solid #353136}.holdings-summary>div:nth-child(4),body.panda-agent-side .holdings-summary>div:nth-child(4){border-left:1px solid #353136}.holdings-summary>div:nth-child(5),body.panda-agent-side .holdings-summary>div:nth-child(5){border-left:0}.holdings-account-bar{flex-direction:row}.holdings-account-tabs{width:auto}.holdings-add-account{align-self:auto}}
+@media(max-width:550px){.holdings-account-tabs button{min-width:118px}.holdings-add-account{min-width:48px;padding:8px}.holdings-add-account strong{display:none}.holding-fund-card-meta{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.holding-fund-card-meta .holding-weight{grid-column:1/-1}.holdings-summary strong,.holdings-summary>.holdings-summary-main strong,.holdings-summary>.holdings-summary-income strong{font-size:17px}}
+
+/* Portfolio simulation: secondary metrics stay visible below the headline row. */
+.holdings-backtest-kpis{margin-bottom:0;border-radius:9px 9px 0 0}
+.holdings-backtest-secondary{display:flex;align-items:baseline;gap:8px 24px;flex-wrap:wrap;margin:0 0 16px;padding:10px 15px;border:1px solid #373238;border-top:0;border-radius:0 0 9px 9px;background:#181719;color:#a99d8e;font-size:10px;line-height:1.45}
+.holdings-backtest-secondary span{white-space:nowrap}
+.holdings-backtest-secondary b{margin-left:6px;color:#e8e1d7;font-size:11px;font-weight:600;font-variant-numeric:tabular-nums}
+.holdings-backtest-secondary b.up{color:var(--gain)}
+.holdings-backtest-secondary b.down{color:var(--loss)}
+.holdings-analysis-side{align-content:start}
+.holdings-classification{min-width:0;padding:13px 14px;border:1px solid #373238;border-radius:9px;background:#1b191b}
+.holdings-classification .holdings-subhead{margin-bottom:3px}
+.holdings-classification .holdings-subhead strong{color:#e9e1d6;font-size:12px}
+.holdings-classification-note{margin:0 0 10px;color:#928778;font-size:10px}
+.holdings-classification .holding-allocation-row{margin:6px 0;padding:9px 10px;border-color:#353035;background:#151416;color:#c3b8aa;font-size:10px}
+.holdings-classification .holding-allocation-row>span small{color:#8c8174;font-size:9px}
+.holdings-classification .holding-allocation-row>strong{color:#eee2d1;font-size:11px}
+body.panda-agent-side .holdings-analysis-grid{grid-template-columns:1fr}
+body.panda-agent-side .holdings-analysis-side{grid-template-columns:1fr}
+@media(max-width:900px){.holdings-analysis-side{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.holdings-analysis-side{grid-template-columns:1fr}.holdings-backtest-secondary{gap:7px 15px;padding:9px 11px}.holdings-backtest-kpis strong{font-size:15px}}
+
+/* One contextual assistant on every page. The guidance lives with the composer. */
+.panda-content,body.panda-holdings-page .panda-content{padding-bottom:230px}
+.panda-quick-agent,body.panda-holdings-page .panda-quick-agent{box-sizing:border-box;left:264px;right:32px;bottom:12px;max-width:1480px;gap:7px;padding:11px 14px 12px;border:1px solid #393638;border-radius:13px;background:#171618;box-shadow:0 12px 32px #0009}
+.panda-quick-agent:focus-within,body.panda-holdings-page .panda-quick-agent:focus-within{border-color:#786b57;box-shadow:0 12px 34px #000a}
+.panda-quick-agent-prompts,body.panda-holdings-page .panda-quick-agent-prompts,body.panda-holdings-page .panda-quick-agent:focus-within .panda-quick-agent-prompts{display:block;min-width:0;padding:0}
+.panda-quick-agent-heading{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+.panda-quick-agent-heading strong{color:#ede8e1;font-size:14px;font-weight:650;letter-spacing:-.015em}
+.panda-quick-agent-heading span{overflow:hidden;color:#c3ab83;font-size:11px;text-overflow:ellipsis;white-space:nowrap}
+.panda-quick-agent-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.panda-quick-agent-cards.count-1{grid-template-columns:minmax(0,1fr)}
+.panda-quick-agent-cards.count-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.panda-quick-agent-cards.count-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.panda-quick-agent .panda-quick-agent-card,body.panda-holdings-page .panda-quick-agent .panda-quick-agent-card{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;min-width:0;max-width:none;min-height:64px;padding:10px 13px;border:1px solid #3d3a3c;border-radius:9px;background:linear-gradient(145deg,#211f20,#1b1a1b);box-shadow:inset 0 1px 0 #ffffff08;color:#ece6df;text-align:left;transition:border-color .16s,background .16s,box-shadow .16s}
+.panda-quick-agent .panda-quick-agent-card:hover,.panda-quick-agent .panda-quick-agent-card:focus-visible{border-color:#9b8564;background:#282420;box-shadow:inset 0 1px 0 #ffffff0d,0 4px 14px #0004;outline:none}
+.panda-quick-agent-card strong{overflow:hidden;max-width:100%;font-size:12px;line-height:1.3;text-overflow:ellipsis;white-space:nowrap}
+.panda-quick-agent-card small{overflow:hidden;max-width:100%;margin-top:4px;color:#a8a09a;font-size:10px;font-weight:400;line-height:1.3;text-overflow:ellipsis;white-space:nowrap}
+.panda-quick-agent-example{display:flex;align-items:center;gap:7px;min-width:0;margin-top:5px;color:#99918b;font-size:10px}
+.panda-quick-agent-example>span{flex:none}
+.panda-quick-agent .panda-quick-agent-example button{min-height:20px;max-width:none;padding:1px 4px;border:0;background:transparent;color:#c9af88;font-size:10px;font-weight:500;white-space:nowrap}
+.panda-quick-agent .panda-quick-agent-example button[data-agent-prompt]{flex:1;overflow:hidden;text-align:left;text-overflow:ellipsis}
+.panda-quick-agent .panda-quick-agent-example button[data-assistant-rotate]{flex:none;color:#aea69c}
+.panda-quick-agent .panda-quick-agent-example button:hover{color:#ffe5b9;text-decoration:underline}
+.panda-quick-agent-entry{align-items:center;min-height:46px;padding:4px 6px 4px 12px;border:1px solid #655844;border-radius:9px;background:#111113}
+.panda-quick-agent-entry:focus-within{border-color:#a58d69}
+.panda-quick-agent textarea,body.panda-holdings-page .panda-quick-agent textarea{min-height:34px;max-height:105px;padding:6px 0;color:#f3eee7;font-size:12px;resize:none}
+.panda-quick-agent button[type=submit],body.panda-holdings-page .panda-quick-agent button[type=submit]{min-width:60px;padding:8px 11px;border:1px solid #867253;border-radius:7px;background:#28231e;color:#dcc298;font-size:11px}
+.panda-quick-agent button[type=submit]:hover{border-color:#bca178;background:#352b22;color:#fff0d5}
+@media(max-width:1150px){.panda-quick-agent-cards,.panda-quick-agent-cards.count-3{grid-template-columns:repeat(2,minmax(0,1fr))}.panda-content,body.panda-holdings-page .panda-content{padding-bottom:290px}}
+@media(max-width:900px){.panda-quick-agent,body.panda-holdings-page .panda-quick-agent{left:16px;right:16px;bottom:11px;max-width:none}}
+@media(max-width:650px){.panda-quick-agent,body.panda-holdings-page .panda-quick-agent{left:8px;right:8px;bottom:8px;gap:6px;padding:9px}.panda-quick-agent-heading{margin-bottom:8px}.panda-quick-agent-heading strong{font-size:14px}.panda-quick-agent-cards,.panda-quick-agent-cards.count-2,.panda-quick-agent-cards.count-3{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(205px,64vw);grid-template-columns:none;overflow-x:auto;scrollbar-width:thin;scrollbar-color:#675941 transparent}.panda-quick-agent .panda-quick-agent-card,body.panda-holdings-page .panda-quick-agent .panda-quick-agent-card{min-height:60px;padding:8px 10px}.panda-quick-agent-example{margin-top:6px}.panda-quick-agent-entry{min-height:43px;padding:3px 5px 3px 9px}.panda-quick-agent textarea,body.panda-holdings-page .panda-quick-agent textarea{min-height:32px;padding:5px 0}.panda-content,body.panda-holdings-page .panda-content{padding-bottom:210px}}

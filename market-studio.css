@@ -1,0 +1,460 @@
+.ms-root{color:#e8e5df;max-width:1600px;margin:0 auto;padding:0 20px 44px;font-size:13px;line-height:1.45}
+.ms-workspace-toolbar,.ms-my-pages>header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0 16px;border-bottom:1px solid #393432}
+.ms-workspace-toolbar>div:first-child,.ms-my-pages>header>div{display:grid;gap:4px}
+.ms-workspace-toolbar strong{font-size:17px;font-weight:650;color:#f0ece6}
+.ms-workspace-toolbar small,.ms-my-pages p{color:#9b948d;font-size:11px;margin:0}
+.ms-workspace-toolbar>div:last-child{display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap}
+.ms-workspace-toolbar button,.ms-my-pages button{border:1px solid #514a41;border-radius:7px;background:#201d1a;color:#e5dac8;padding:7px 10px;font:inherit;cursor:pointer}
+.ms-workspace-toolbar button:hover,.ms-my-pages button:hover{border-color:#c4a873;background:#2d261e}
+.ms-my-pages{margin:0 0 22px}
+.ms-my-pages h1{margin:0;color:#f3efe8;font-size:23px;font-weight:600}
+.ms-my-pages-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:13px}
+.ms-my-page-card{display:grid;text-align:left;gap:8px;min-height:105px}
+.ms-my-page-card strong{font-size:14px;color:#f0e9dd}
+.ms-my-page-card small{font-size:10px;color:#a99f91}
+.ms-my-page-card span{color:#d4bc90;font-size:10px}
+.ms-my-page-card{align-content:start;min-height:166px;padding:14px!important;transition:border-color .16s,transform .16s}
+.ms-my-page-card:hover{transform:translateY(-2px)}
+.ms-my-page-top{display:flex;justify-content:space-between;align-items:center}
+.ms-my-page-top em{font-style:normal;color:#d8bd91}
+.ms-my-page-widgets{display:flex;gap:5px;flex-wrap:wrap;min-height:23px}
+.ms-my-page-widgets i{font-style:normal;color:#a9a198;border:1px solid #39342f;border-radius:100px;padding:2px 7px}
+.ms-my-page-card .ms-my-page-open{align-self:end;color:#e6d1ad;font-size:11px}
+.ms-my-page-draft{border-color:#a48654!important;background:#262019!important}
+.ms-my-pages>header>div:last-child{display:flex;align-items:center;gap:8px}
+.ms-my-pages>header>div:last-child button:first-child{background:#d5c29f;border-color:#d5c29f;color:#1b1918}
+.ms-more-views{margin-top:14px;border-top:1px solid #343238;padding-top:10px}
+.ms-more-views>summary{color:#c9b895;cursor:pointer;font-size:12px}
+.ms-more-views .ms-template-grid{margin-top:12px}
+.ms-new-page-dialog{display:grid;gap:12px;min-width:min(420px,80vw);color:#eee8df}
+.ms-new-page-dialog h2,.ms-new-page-dialog p{margin:0}
+.ms-new-page-dialog p{color:#a9a198;font-size:12px}
+.ms-new-page-dialog>div{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ms-new-page-dialog>div button{display:grid;gap:6px;padding:16px;text-align:left;border:1px solid #49443c;border-radius:8px;background:#1d1b19;color:#e9e2d7}
+.ms-new-page-dialog>div button:hover{border-color:#b7a37e;background:#26221c}
+.ms-new-page-dialog>div small{color:#a8a096;font-size:10px}
+.ms-new-page-dialog>button{justify-self:end}
+@media(max-width:900px){.ms-workspace-toolbar,.ms-my-pages>header{align-items:flex-start;flex-direction:column}.ms-workspace-toolbar>div:last-child{justify-content:flex-start}.ms-my-pages-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.ms-my-pages-grid{grid-template-columns:1fr}}
+.ms-root *{box-sizing:border-box}
+.ms-root button,.ms-root input,.ms-root select{font:inherit}
+.ms-root button{cursor:pointer}
+.ms-root button:disabled{cursor:default;opacity:.4}
+.ms-root button:focus-visible,.ms-root input:focus-visible,.ms-root select:focus-visible{outline:2px solid #d3bd95;outline-offset:2px}
+.ms-nav,.ms-toolbar,.ms-edit-tools,.ms-preview-bar,.ms-backline{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;border-bottom:1px solid #333235}
+.ms-nav>div,.ms-toolbar>div,.ms-edit-tools{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.ms-nav button,.ms-toolbar button,.ms-edit-tools button,.ms-preview-bar button,.ms-backline button,.ms-widget button,.ms-index-page button,.ms-community button,.ms-picker button,.ms-side-sheet button,.ms-ask button{border:1px solid #464348;background:#201f21;color:#e5ded3;border-radius:7px;padding:7px 10px}
+.ms-nav button.active{background:#e6ded2;color:#161617;border-color:#e6ded2;font-weight:650}
+.ms-toolbar{padding:8px 0}
+.ms-toolbar .ms-page-title{border:0;background:transparent;color:#f2eee8;font-size:17px;font-weight:650;padding-left:0}
+.ms-toolbar>div{justify-content:flex-end}
+.ms-toolbar>div button{white-space:nowrap}
+.ms-preview-bar,.ms-edit-tools,.ms-notice{border:1px solid #766447;border-radius:8px;background:#25221f;padding:9px 11px;margin:8px 0}
+.ms-preview-bar button:first-child,.ms-edit-tools [data-ms-action="save"]{background:#d5c29f;color:#1a1919;border-color:#d5c29f}
+.ms-notice{display:flex;justify-content:space-between;align-items:center}
+.ms-notice button{background:transparent;border:0;color:inherit}
+.ms-saved-inline{color:#9ebaa8!important;font-size:11px!important;font-weight:500}
+.ms-workspace-toolbar [data-ms-action="design-current"]{border-color:#b49a6e;background:#2b251c;color:#ead6b4}
+.ms-designing-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #514432;border-radius:8px;background:#201b16;padding:9px 12px;margin:10px 0;color:#d4c3a9;font-size:11px}
+.ms-designing-bar button{border:0;background:transparent;color:#b7ab9d;text-decoration:underline;text-underline-offset:3px}
+.ms-new-page{max-width:960px;margin:12px auto 0}
+.ms-new-page>header{display:grid;gap:7px;margin:0 0 24px}
+.ms-new-page>header button{justify-self:start;border:0;background:transparent;color:#baa784;padding:0 0 8px}
+.ms-new-page h1{margin:0;color:#f3ede4;font-size:25px;letter-spacing:.01em}
+.ms-new-page p{margin:0;color:#aba197;font-size:12px;line-height:1.55}
+.ms-new-page-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.ms-new-page-card{display:grid;grid-template-rows:auto 1fr auto;gap:22px;min-height:294px;padding:22px;border:1px solid #494039;border-radius:13px;background:linear-gradient(145deg,#201d1a,#171617);box-shadow:inset 0 1px #ffffff08}
+.ms-new-page-card:hover{border-color:#8f785a}
+.ms-new-page-icon{display:grid;place-items:center;width:42px;height:42px;border:1px solid #5a4b39;border-radius:11px;background:#2a231b;color:#dec398;font-size:21px}
+.ms-new-page-card small{color:#c1a67b;font-size:10px}
+.ms-new-page-card h2{margin:7px 0 8px;color:#f2ece3;font-size:21px}
+.ms-new-page-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.ms-new-page-actions button{border:1px solid #5a4d3f;border-radius:8px;background:#27211c;color:#e5d3b5;padding:9px 12px}
+.ms-new-page-actions button:first-child{background:#d3bc95;border-color:#d3bc95;color:#1d1915;font-weight:650}
+.ms-new-page-actions button:hover{filter:brightness(1.1)}
+.ms-new-page .ms-new-page-note{margin-top:15px;color:#837d77;font-size:11px}
+@media(max-width:700px){.ms-new-page-grid{grid-template-columns:1fr}.ms-new-page-card{min-height:240px}}
+.ms-layout{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:12px;padding-top:12px}
+.ms-widget-frame{min-width:0;grid-column:span 12}
+.ms-layout-balanced-home [data-widget="indices"],.ms-layout-trend-home [data-widget="index-focus"],.ms-layout-news-home [data-widget="indices"],.ms-layout-long-home [data-widget="indices"],.ms-layout-compact-home [data-widget="indices"]{grid-column:span 12}
+.ms-layout-balanced-home [data-widget="watchlist"],.ms-layout-trend-home [data-widget="watchlist"],.ms-layout-news-home [data-widget="events"],.ms-layout-long-home [data-widget="long-watchlist"],.ms-layout-compact-home [data-widget="watchlist"]{grid-column:span 8}
+.ms-layout-balanced-home [data-widget="events"],.ms-layout-trend-home [data-widget="drawdown-list"],.ms-layout-news-home [data-widget="watchlist"],.ms-layout-long-home [data-widget="watchlist"]{grid-column:span 4}
+.ms-layout-balanced-home [data-widget="alerts"],.ms-layout-trend-home [data-widget="indices"],.ms-layout-news-home [data-widget="alerts"],.ms-layout-long-home [data-widget="alerts"]{grid-column:span 12}
+.ms-layout-compact-home [data-widget="watchlist"]{grid-column:span 12}
+.ms-layout-trend-home [data-widget="index-focus"]{grid-column:span 4}
+.ms-layout-trend-home [data-widget="indices"]{grid-column:span 8}
+.ms-layout-trend-home .ms-focus-value{margin:12px 0 8px}
+@media(max-width:1050px){.ms-layout-trend-home [data-widget="index-focus"],.ms-layout-trend-home [data-widget="indices"]{grid-column:span 12}}
+.ms-layout-balanced-detail [data-widget="fund-chart"],.ms-layout-trend-detail [data-widget="fund-chart"],.ms-layout-long-detail [data-widget="fund-chart"],.ms-layout-compact-detail [data-widget="fund-chart"]{grid-column:span 8}
+.ms-layout-balanced-detail [data-widget="fund-performance"],.ms-layout-trend-detail [data-widget="fund-drawdown"],.ms-layout-long-detail [data-widget="fund-performance"],.ms-layout-compact-detail [data-widget="fund-performance"]{grid-column:span 4}
+.ms-layout-news-detail [data-widget="fund-events"]{grid-column:span 8}
+.ms-layout-news-detail [data-widget="fund-chart"],.ms-layout-news-detail [data-widget="fund-profile"]{grid-column:span 4}
+.ms-widget{height:100%;min-height:130px;background:#18181a;border:1px solid #353438;border-radius:9px;padding:13px 14px;overflow:hidden}
+.ms-widget>header,.ms-index-page header,.ms-community header,.ms-side-sheet header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.ms-widget h2,.ms-index-page h2,.ms-community h2,.ms-side-sheet h2{margin:0;color:#e9e4db;font-size:15px;line-height:1.3}
+.ms-widget>header>span{font-size:11px;color:#aaa39a}
+.ms-watch-search{display:flex;align-items:center;gap:5px}
+.ms-watch-search input{width:145px;min-width:0;padding:6px 8px;border:1px solid #464348;border-radius:6px;background:#111113;color:#eee}
+.ms-watch-search button{padding:5px 8px}
+.ms-widget-choices{display:flex;flex-wrap:wrap;gap:8px}
+.ms-widget-choices button{min-width:145px;text-align:left}
+.ms-source{display:block;color:#98938a;font-size:10px;line-height:1.5;margin-top:9px}
+.ms-index-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.ms-index-tile{text-align:left!important;display:grid;gap:4px;background:#202023!important;border:1px solid #3b393d!important;padding:11px!important;min-width:0}
+.ms-index-tile>span{color:#cfc8bc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ms-index-tile strong,.ms-index-detail>strong,.ms-focus-value strong{font-size:20px;color:#f2eee8;font-variant-numeric:tabular-nums}
+.ms-index-tile b,.ms-index-detail b,.ms-focus-value b{font-size:14px;font-variant-numeric:tabular-nums}
+.ms-index-tile small{font-size:10px;color:#aaa39a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ms-root .up{color:#e59892!important}.ms-root .down{color:#8fc4aa!important}
+.ms-watch-table-wrap{overflow-x:auto;width:100%}
+.ms-watch-table{width:100%;min-width:720px;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.ms-watch-table th,.ms-watch-table td{padding:10px 8px;text-align:left;border-bottom:1px solid #302f33;white-space:nowrap}
+.ms-watch-table th{color:#a7a097;font-size:10px;font-weight:500}
+.ms-watch-table td{color:#e6e1d8}
+.ms-watch-table td button{border:0;background:transparent;padding:0;color:#f0ece4;text-align:left;display:grid;gap:2px}
+.ms-watch-table td small{display:block;color:#97918a;font-size:10px;margin-top:2px}
+.ms-watch-table td span{color:#bcb6ab}
+.ms-watch-table td button.ms-estimate-cell{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:150px;cursor:pointer}
+.ms-watch-table td button.ms-estimate-cell strong{font-size:13px;font-variant-numeric:tabular-nums;color:inherit}
+.ms-watch-table td button.ms-estimate-cell:hover strong{text-decoration:underline;text-underline-offset:3px}
+.ms-watch-table td button.ms-estimate-cell small{white-space:normal;line-height:1.35}
+.ms-estimate-dialog{display:grid;gap:12px;max-width:520px}
+.ms-estimate-dialog h2{font-size:18px}
+.ms-estimate-dialog p{margin:0;color:#e6e1d8;line-height:1.6}
+.ms-estimate-dialog .ms-estimate-value{font-size:20px;color:#dbc7a3;font-variant-numeric:tabular-nums}
+.ms-estimate-dialog small{color:#a7a097;line-height:1.6}
+.ms-estimate-dialog button{justify-self:start}
+.ms-fund-estimate{display:flex;align-items:center;gap:12px;width:100%;margin:0 0 14px;padding:10px 14px;border:1px solid #3d3835;border-radius:8px;background:#1c1b1d;color:#e9e3d8;text-align:left;cursor:pointer}
+.ms-fund-estimate span{color:#aa9f91;font-size:11px}
+.ms-fund-estimate strong{font-size:13px;font-variant-numeric:tabular-nums}
+.ms-fund-estimate small{margin-left:auto;color:#a89c8e;font-size:10px}
+.ms-fund-estimate:hover{border-color:#a99572}
+@media(max-width:760px){.ms-fund-estimate{flex-wrap:wrap}.ms-fund-estimate small{margin-left:0;width:100%}}
+.ms-empty{border:1px dashed #3d3b3e;border-radius:7px;padding:16px;color:#aca59d;font-size:12px}
+.ms-empty button{margin-left:6px}
+.ms-list{display:grid;gap:3px}
+.ms-list>div,.ms-list-row{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #313034;padding:9px 1px}
+.ms-list>div>strong,.ms-list-row>strong{color:#e6dfd3}
+.ms-announcements{display:grid;gap:0}
+.ms-announcements>div{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #302f33}
+.ms-announcements>div>span{display:grid;gap:3px;min-width:0}
+.ms-announcements small{font-size:10px;color:#aaa39a}
+.ms-announcements strong{font-size:12px;font-weight:500;color:#e8e3da;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ms-announcements a{flex:none;color:#d4be9b;text-decoration:none;font-size:11px}
+.ms-alert-evidence{margin-top:12px;padding:12px;border:1px solid #655a47;border-radius:7px;background:#24211e}
+.ms-alert-evidence p{margin:7px 0}
+.ms-alert-evidence small{color:#aaa39a}
+.ms-chart{width:100%;height:155px;display:block;background:linear-gradient(0deg,#2c2a2c 1px,transparent 1px) 0 0/100% 33%;margin:6px 0}
+.ms-fund-chart .ms-chart{height:220px}
+.ms-range{display:flex;gap:4px;flex-wrap:wrap}
+.ms-range button{padding:4px 7px;font-size:10px}
+.ms-range button.active{background:#cdbb9b;color:#1d1c1b}
+.ms-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.ms-metrics>div{display:grid;gap:7px;padding:11px;border:1px solid #343237;border-radius:7px;min-width:0}
+.ms-metrics small,.ms-metrics span{color:#aaa39a;font-size:10px}
+.ms-metrics strong{font-size:17px;font-variant-numeric:tabular-nums}
+.ms-backline{justify-content:flex-start;border:0;padding-top:6px}
+.ms-backline>span{margin-right:auto;color:#d5cbbb}
+.ms-fund-identity{display:flex;justify-content:space-between;align-items:end;border-bottom:1px solid #353438;padding:9px 0 15px}
+.ms-fund-identity>div{display:grid;gap:4px}
+.ms-fund-identity small,.ms-fund-identity>span{color:#aba49c;font-size:11px}
+.ms-fund-identity strong{font-size:25px;font-variant-numeric:tabular-nums}
+.ms-index-page{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(300px,1fr);gap:12px;padding-top:12px}
+.ms-index-list,.ms-index-detail,.ms-index-compare,.ms-community,.ms-side-sheet{background:#18181a;border:1px solid #353438;border-radius:9px;padding:14px;min-width:0}
+.ms-index-row{display:grid;grid-template-columns:minmax(130px,1fr) 100px 80px 75px;align-items:center;gap:8px;border-top:1px solid #302f33;padding:8px 0;font-variant-numeric:tabular-nums}
+.ms-index-row>button:first-child{text-align:left;border:0;background:transparent;padding:0;display:grid;gap:2px}
+.ms-index-row small,.ms-index-detail>small{font-size:10px;color:#aba49c}
+.ms-index-detail{display:grid;align-content:start;gap:10px}
+.ms-index-compare{grid-column:1/-1}
+.ms-index-compare .ms-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}
+.ms-community{margin-top:12px}
+.ms-template-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.ms-template-card{display:grid;gap:8px;text-align:left;background:#202023!important;border:1px solid #3b393d!important;border-radius:8px;padding:10px;min-width:0}
+.ms-template-card>strong{color:#eee8dd}
+.ms-template-card>small{color:#a9a29a}
+.ms-template-preview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;min-height:96px;padding:8px;border:1px solid #484449;border-radius:6px;background:#131314}
+.ms-template-preview span{border:1px solid #555057;border-radius:3px;padding:6px;color:#bdb2a2;font-size:10px;overflow:hidden}
+.ms-picker,.ms-side-sheet{margin-top:12px}
+.ms-picker{background:#1b1a1c;border:1px solid #514b46;border-radius:9px;padding:14px}
+.ms-picker-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.ms-picker h2{margin:0;font-size:16px}
+.ms-side-sheet label{display:grid;gap:5px;margin:10px 0;color:#bfb9b0}
+.ms-side-sheet input,.ms-side-sheet select{width:100%;padding:9px;border:1px solid #555057;border-radius:6px;background:#111113;color:#eee}
+.ms-widget-tools{display:flex;align-items:center;gap:4px;padding:5px;border:1px solid #625943;border-radius:6px;background:#29251e;margin-bottom:5px}
+.ms-widget-tools span{margin-right:auto;color:#dfccaa}
+.ms-widget-tools button{border:1px solid #6d6049;background:#27231e;color:#e8d9bb;border-radius:4px}
+.ms-ask{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 0;color:#99938d;font-size:11px}
+.ms-focus-value{display:flex;align-items:center;gap:16px;margin:20px 0}
+@media(max-width:1220px){.ms-layout .ms-widget-frame{grid-column:span 12}.ms-index-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.ms-template-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ms-index-page{grid-template-columns:1fr}}
+@media(max-width:760px){.ms-root{padding:0 12px 30px}.ms-toolbar{align-items:flex-start;flex-direction:column}.ms-toolbar>div{justify-content:flex-start}.ms-index-tiles,.ms-template-grid{grid-template-columns:1fr 1fr}.ms-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.ms-index-row{grid-template-columns:minmax(90px,1fr) 70px 60px;gap:3px}.ms-index-row>button:last-child{grid-column:1/-1}.ms-nav{overflow-x:auto}.ms-nav>div{flex-wrap:nowrap}.ms-nav button{white-space:nowrap}}
+@media(max-width:500px){.ms-index-tiles,.ms-template-grid{grid-template-columns:1fr}.ms-index-tile{grid-template-columns:1fr 1fr}.ms-index-tile small{grid-column:1/-1}.ms-index-compare .ms-metrics{grid-template-columns:1fr}.ms-range{margin-top:7px}}
+
+/* Market content begins immediately below the desktop title bar. */
+.ms-root{padding-top:0}
+.ms-layout{padding-top:0}
+.ms-layout [data-widget="account"]{grid-column:span 12}
+.ms-layout [data-widget="watchlist"],.ms-layout [data-widget="long-watchlist"]{grid-column:span 12}
+.ms-widget>header>div,.ms-index-list>header>div{display:flex;align-items:center;gap:7px}
+.ms-watch-actions{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap}
+.ms-watch-actions .ms-watch-search{margin:0}
+.ms-watch-status{margin:-2px 0 7px;color:#aaa39a;font-size:11px}
+.ms-account-widget{min-height:0}
+.ms-account-widget>header{margin-bottom:8px}
+.ms-account-widget>header>div{display:flex;align-items:center;gap:12px}
+.ms-account-time{color:#9e968c;font-size:11px}
+.ms-account-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
+.ms-account-strip>div{display:grid;gap:5px;min-width:0;padding:4px 17px;border-left:1px solid #3a373a}
+.ms-account-strip>div:first-child{padding-left:0;border-left:0}
+.ms-account-strip small{color:#aaa39a;font-size:11px}
+.ms-account-strip small em{margin-left:4px;color:#998e80;font-size:10px;font-style:normal}
+.ms-account-strip strong{font-size:19px;font-variant-numeric:tabular-nums}
+.ms-account-empty{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#aaa39a}
+.ms-account-widget .ms-source{margin-top:8px}
+.ms-community-entry{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding:12px 2px;border-top:1px solid #343238;color:#b6a996}
+.ms-community-entry button,.ms-subpage-title button{border:0!important;background:transparent!important;color:#d8c19d!important;padding:3px 0!important}
+.ms-subpage-title{display:flex;align-items:center;gap:13px}
+.ms-subpage-title h2{margin:0}
+.ms-sync-dialog{display:grid;gap:11px;max-width:470px;padding:5px 2px}
+.ms-sync-dialog h2{margin:0;font-size:18px;color:#eee8df}
+.ms-sync-dialog p{margin:0;color:#bcb3a6;font-size:13px;line-height:1.65}
+.ms-sync-dialog>div{display:flex;justify-content:flex-end;gap:8px;margin-top:4px}
+@media(max-width:760px){.ms-watch-actions{justify-content:flex-start}.ms-watch-actions .ms-watch-search{width:100%}.ms-watch-table{min-width:780px}}
+@media(max-width:760px){.ms-account-strip{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:14px}.ms-account-strip>div:nth-child(3){padding-left:0;border-left:0}.ms-account-widget>header>div{align-items:flex-start;flex-direction:column;gap:4px}}
+
+/* Fund detail: formal NAV, live reference, history, disclosures and notices. */
+.ms-fund-top{padding:12px 0 16px;border-bottom:1px solid #343237}
+.ms-fund-back{border:0!important;background:transparent!important;color:#bfb4a3!important;padding:0 0 10px!important}
+.ms-fund-title{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:19px}
+.ms-fund-title>div:first-child{display:flex;align-items:center;gap:9px;min-width:0;flex-wrap:wrap}
+.ms-fund-title h1{margin:0 2px 0 0;font-size:22px;line-height:1.2;font-weight:650;color:#f1ede7}
+.ms-fund-title span{color:#a9a39a;font-size:12px}
+.ms-fund-title .ms-fund-chip{padding:3px 7px;border:1px solid #4b4540;border-radius:20px;color:#d8cab5;font-size:10px;white-space:nowrap}
+.ms-fund-actions{display:flex;gap:7px;flex:none}
+.ms-fund-actions button,.ms-fund-snapshot button{border:1px solid #514a43;border-radius:6px;background:#211f20;color:#e1d1b7;padding:7px 10px;cursor:pointer}
+.ms-fund-actions button:last-child{background:#d3bf9a;color:#1b1918;border-color:#d3bf9a;font-weight:650}
+.ms-fund-snapshot{display:grid;grid-template-columns:1.25fr 1.25fr 1fr 1fr;gap:0;background:#1a191b;border:1px solid #3b3839;border-radius:9px;overflow:hidden}
+.ms-fund-snapshot>div,.ms-fund-snapshot>button{display:grid;align-content:center;gap:5px;text-align:left;padding:17px 20px;min-height:104px;border:0;border-right:1px solid #3b3839;border-radius:0;background:transparent;color:#e8e3db;min-width:0}
+.ms-fund-snapshot>button:hover{background:#252220}
+.ms-fund-snapshot>*:last-child{border-right:0}
+.ms-fund-snapshot span{color:#b9b1a5;font-size:12px}
+.ms-fund-snapshot span small{color:#938d86}
+.ms-fund-snapshot strong{color:#f0e9dd;font-size:24px;line-height:1.1;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ms-fund-snapshot small{font-size:10px;color:#999188;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ms-fund-snapshot em{font-style:normal;color:#d3bd95;border:1px solid #665945;border-radius:4px;padding:1px 4px;font-size:9px}
+.ms-layout-balanced-detail [data-widget="fund-chart"],.ms-layout-trend-detail [data-widget="fund-chart"],.ms-layout-long-detail [data-widget="fund-chart"],.ms-layout-compact-detail [data-widget="fund-chart"]{grid-column:span 7}
+.ms-layout-balanced-detail [data-widget="fund-performance"],.ms-layout-trend-detail [data-widget="fund-performance"],.ms-layout-long-detail [data-widget="fund-performance"],.ms-layout-compact-detail [data-widget="fund-performance"]{grid-column:span 5}
+.ms-layout-balanced-detail [data-widget="fund-disclosures"],.ms-layout-long-detail [data-widget="fund-disclosures"]{grid-column:span 7}
+.ms-layout-balanced-detail [data-widget="fund-profile"]{grid-column:span 5}
+.ms-layout-balanced-detail [data-widget="fund-events"]{grid-column:span 12}
+.ms-detail-chart{display:block;width:100%;height:250px;margin:10px 0 3px;overflow:visible}
+.ms-detail-gridline{stroke:#38363a;stroke-width:1}
+.ms-detail-axis{fill:#8f8b86;font-size:10px;font-family:inherit}
+.ms-detail-area{fill:#bca478;opacity:.1}
+.ms-detail-line{fill:none;stroke:#d6bc8e;stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round}
+.ms-detail-end{fill:#e7cf9f;stroke:#171719;stroke-width:2}
+.ms-chart-summary{display:flex;align-items:end;gap:27px;border-bottom:1px solid #353237;padding:2px 0 10px}
+.ms-chart-summary>div{display:grid;gap:3px}
+.ms-chart-summary span{color:#9d968f;font-size:10px}
+.ms-chart-summary strong{color:#eee8dd;font-size:18px;font-variant-numeric:tabular-nums}
+.ms-chart-summary button{margin-left:auto;border:0;background:transparent;color:#d5bf9b;padding:5px 0;white-space:nowrap}
+.ms-performance-head,.ms-performance-row{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:8px;align-items:center;padding:8px 3px;border-bottom:1px solid #353338;font-variant-numeric:tabular-nums}
+.ms-performance-head{color:#948e87;font-size:10px}
+.ms-performance-row{font-size:12px}
+.ms-performance-row strong{font-weight:600}
+.ms-performance-row>span:last-child{color:#b8aca0}
+.ms-performance .ms-source{margin-top:12px}
+.ms-holdings-head,.ms-holdings-row{display:grid;grid-template-columns:minmax(0,1.5fr) 1fr 1fr;align-items:center;gap:10px;padding:7px 3px;border-bottom:1px solid #353338;font-variant-numeric:tabular-nums}
+.ms-holdings-head{font-size:10px;color:#918b83}
+.ms-holdings-row>span{display:flex;align-items:baseline;gap:7px;min-width:0}
+.ms-holdings-row strong{font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ms-holdings-row small{font-size:10px;color:#8e8881}
+.ms-holdings-row b{font-size:12px;font-weight:550}
+.ms-profile dl{display:grid;grid-template-columns:1fr 1fr;gap:0 20px;margin:0}
+.ms-profile dl>div{display:grid;gap:3px;padding:10px 0;border-bottom:1px solid #353338}
+.ms-profile dt{font-size:10px;color:#9d968f}
+.ms-profile dd{margin:0;color:#e9e4da;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:960px){.ms-layout .ms-widget-frame{grid-column:span 12}.ms-fund-snapshot{grid-template-columns:1fr 1fr}.ms-fund-snapshot>*:nth-child(2){border-right:0}.ms-fund-snapshot>*:nth-child(-n+2){border-bottom:1px solid #3b3839}}
+@media(max-width:600px){.ms-fund-title{align-items:flex-start;flex-direction:column}.ms-fund-title h1{font-size:19px}.ms-fund-snapshot>div,.ms-fund-snapshot>button{padding:14px 11px;min-height:90px}.ms-fund-snapshot strong{font-size:18px}.ms-widget>header{align-items:flex-start;flex-direction:column}.ms-detail-chart{height:190px}.ms-chart-summary{gap:14px;flex-wrap:wrap}.ms-chart-summary button{margin-left:0}.ms-profile dl{grid-template-columns:1fr 1fr}}
+
+/* Change percentages are the primary scan targets. NAV and index points are evidence. */
+.ms-index-tile{grid-template-rows:auto auto auto auto;gap:3px!important}
+.ms-index-tile b{font-size:24px!important;line-height:1.05;font-weight:650}
+.ms-index-tile strong{font-size:12px!important;font-weight:500;color:#aaa39a!important}
+.ms-focus-value{display:grid;gap:3px;align-items:start}
+.ms-focus-value span,.ms-focus-value small{color:#a8a198;font-size:11px}
+.ms-focus-value b{font-size:30px!important;line-height:1.1}
+.ms-watch-table{min-width:780px}
+.ms-watch-table th:nth-child(2),.ms-watch-table td:nth-child(2){min-width:250px}
+.ms-watch-table td:nth-child(3) strong,.ms-watch-table td:nth-child(4) strong{font-size:16px;font-weight:650;font-variant-numeric:tabular-nums}
+.ms-watch-table td button.ms-estimate-cell strong{font-size:19px;line-height:1.1}
+.ms-watch-table td button.ms-estimate-cell small{max-width:240px;white-space:normal}
+.ms-watch-table td button.ms-fund-name-link{cursor:pointer}
+.ms-watch-table td button.ms-fund-name-link:hover strong{text-decoration:underline;text-underline-offset:3px}
+.ms-my-page-card{align-content:start;padding:14px;border:1px solid #3a3839!important;background:#171719!important;border-radius:8px!important}
+.ms-my-page-card:hover{border-color:#8a7758!important;background:#1d1b19!important}
+.ms-fund-snapshot{grid-template-columns:1.35fr 1fr 1fr .95fr}
+.ms-fund-snapshot>button:first-child{background:#211f1e;box-shadow:inset 3px 0 #cbb995}
+.ms-fund-snapshot>button:first-child strong{font-size:30px}
+.ms-fund-snapshot>*:last-child strong{font-size:18px;color:#d5ccc0}
+.ms-detail-zero{stroke:#7d7468;stroke-width:1;stroke-dasharray:4 5}
+.ms-analysis-widget{display:flex;flex-direction:column;gap:0}
+.ms-analysis-hero{display:grid;gap:5px;padding:10px 2px 14px;border-bottom:1px solid #353338}
+.ms-analysis-hero small,.ms-analysis-hero span{color:#aaa39a;font-size:11px}
+.ms-analysis-hero strong{color:#eee8dd;font-size:27px;line-height:1.2;font-weight:650;font-variant-numeric:tabular-nums}
+.ms-analysis-hero strong.ms-person-name{font-size:25px}
+.ms-analysis-hero strong.ms-event-title{font-size:15px;line-height:1.45;font-weight:550}
+.ms-analysis-rows{display:grid;grid-template-columns:1fr 1fr;gap:13px;padding:12px 0}
+.ms-analysis-rows>div{display:grid;gap:4px}
+.ms-analysis-rows span,.ms-analysis-rows small{font-size:10px;color:#98918a}
+.ms-analysis-rows b{font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.ms-analysis-widget>button{align-self:flex-start;margin-top:auto;background:#2b2722;border-color:#5c503d;color:#dfc99f}
+.ms-manager-notices{display:grid;gap:8px;padding:12px 0}
+.ms-manager-notices>strong{font-size:11px;color:#c9bba7}
+.ms-manager-notices>a{display:flex;justify-content:space-between;gap:12px;color:#e5ddd0;text-decoration:none;border-bottom:1px solid #353338;padding-bottom:6px;font-size:11px}
+.ms-manager-notices>a span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.ms-manager-notices>a small,.ms-manager-notices>span{color:#999188;font-size:10px;white-space:nowrap}
+.ms-month-list{display:grid;gap:6px;padding:12px 0}
+.ms-month-list>div{display:grid;grid-template-columns:62px 1fr 72px;gap:8px;align-items:center;font-size:10px;font-variant-numeric:tabular-nums}
+.ms-month-list>div>span{color:#aaa39a}
+.ms-month-list i{display:block;height:7px;border-radius:5px;background:#2c292a;overflow:hidden}
+.ms-month-list em{display:block;height:100%;border-radius:5px;background:#b6a38a}
+.ms-month-list em.up{background:#d98984}.ms-month-list em.down{background:#86bea2}
+.ms-month-list b{text-align:right;font-weight:600}
+.ms-community{margin-top:0}
+.ms-community-entry>div{display:flex;gap:14px;align-items:center}
+.ms-fund-actions{flex-wrap:wrap;justify-content:flex-end}
+.ms-community-tabs{display:flex;gap:5px;border-bottom:1px solid #393639;margin:1px 0 18px;overflow-x:auto}
+.ms-community-tabs button{border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;color:#aaa39a;padding:10px 14px;white-space:nowrap}
+.ms-community-tabs button.active{color:#e6d0a9;border-bottom-color:#d5bf98;font-weight:650}
+.ms-community-head{display:flex;align-items:baseline;gap:12px;margin-bottom:12px}
+.ms-community-head strong{font-size:17px;color:#eee8de}
+.ms-community-head span{font-size:11px;color:#999188}
+.ms-community .ms-template-card{min-height:178px;grid-template-rows:1fr auto auto;text-align:left}
+.ms-community .ms-template-preview{min-height:72px}
+.ms-community .ms-template-preview span{font-size:10px}
+.ms-community .ms-template-card>button{justify-self:start;padding:7px 10px;color:#dac49d}
+.ms-community .ms-template-card>small{min-height:30px}
+.ms-workspace-form{display:grid;gap:14px;min-width:min(420px,80vw);color:#e7e0d5}
+.ms-workspace-form h2{margin:0;font-size:18px}
+.ms-workspace-form label{display:grid;gap:5px;color:#bdb4a8}
+.ms-workspace-form select,.ms-workspace-form input:not([type=checkbox]){padding:9px;border:1px solid #62594f;border-radius:6px;background:#171618;color:#eee7db}
+.ms-workspace-choices{display:flex;gap:10px;flex-wrap:wrap}
+.ms-workspace-choices label,.ms-workspace-toggle{display:flex!important;align-items:center;gap:7px!important}
+.ms-workspace-form>div:last-child{display:flex;gap:8px;justify-content:flex-end}
+.ms-workspace-form button{border:1px solid #675a45;border-radius:6px;background:#d6c19b;color:#211d1a;padding:8px 12px;cursor:pointer}
+.ms-workspace-form button:last-child{background:#242224;color:#e5dccc}
+@media(min-width:961px){
+ .ms-layout-holdings-detail [data-widget="fund-holdings-impact"],.ms-layout-holdings-detail [data-widget="fund-performance"]{grid-column:span 5}
+ .ms-layout-holdings-detail [data-widget="fund-disclosures"],.ms-layout-holdings-detail [data-widget="fund-events"]{grid-column:span 7}
+ .ms-layout-manager-detail [data-widget="fund-manager"]{grid-column:span 5}
+ .ms-layout-manager-detail [data-widget="fund-performance"]{grid-column:span 7}
+ .ms-layout-manager-detail [data-widget="fund-chart"]{grid-column:span 8}
+ .ms-layout-manager-detail [data-widget="fund-events"]{grid-column:span 4}
+ .ms-layout-technical-detail [data-widget="fund-chart"],.ms-layout-technical-detail [data-widget="fund-performance"]{grid-column:span 8}
+ .ms-layout-technical-detail [data-widget="fund-technical"],.ms-layout-technical-detail [data-widget="fund-drawdown"]{grid-column:span 4}
+ .ms-layout-news-focus-detail [data-widget="fund-event-pulse"],.ms-layout-news-focus-detail [data-widget="fund-profile"]{grid-column:span 4}
+ .ms-layout-news-focus-detail [data-widget="fund-events"],.ms-layout-news-focus-detail [data-widget="fund-performance"]{grid-column:span 8}
+ .ms-layout-performance-detail [data-widget="fund-performance"],.ms-layout-performance-detail [data-widget="fund-drawdown"]{grid-column:span 5}
+ .ms-layout-performance-detail [data-widget="fund-return-profile"],.ms-layout-performance-detail [data-widget="fund-chart"]{grid-column:span 7}
+}
+@media(max-width:960px){.ms-fund-snapshot{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){.ms-fund-snapshot{grid-template-columns:1fr 1fr}.ms-fund-snapshot>button:first-child strong{font-size:23px}.ms-community-head{display:grid;gap:3px}.ms-month-list>div{grid-template-columns:55px 1fr 66px}.ms-community-entry{align-items:flex-start;flex-direction:column}.ms-community-entry>div{flex-wrap:wrap}.ms-fund-actions{justify-content:flex-start}.ms-fund-snapshot small{white-space:normal}}
+
+/* Page plaza: six fund views have distinct information shapes and restrained palettes. */
+.ms-plaza{padding:18px}
+.ms-plaza>header{margin-bottom:8px}
+.ms-plaza .ms-community-tabs{margin-bottom:16px}
+.ms-plaza-heading{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 0 13px}
+.ms-plaza-heading strong{font-size:18px;color:#f0eae0}
+.ms-plaza-heading span{font-size:11px;color:#9d958b}
+.ms-plaza .ms-template-grid{gap:14px}
+.ms-plaza .ms-template-card.ms-plaza-card{display:flex;flex-direction:column;gap:0;min-height:274px;padding:13px!important;border:1px solid #464248!important;border-radius:11px;background:#1d1c1e!important;transition:transform .16s,border-color .16s}
+.ms-plaza .ms-template-card.ms-plaza-card:hover{transform:translateY(-2px);border-color:#a39179!important}
+.ms-plaza-card-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:10px;color:#d4c2a8}
+.ms-plaza-card-label em{color:#827e7a;font-style:normal}
+.ms-plaza-card-copy{display:grid;gap:4px;margin:12px 0 11px}
+.ms-plaza-card-copy strong{font-size:16px;color:#f0e9de}
+.ms-plaza-card-copy small{color:#a69d93;font-size:11px}
+.ms-plaza .ms-plaza-card>button{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:auto;padding:9px 10px!important;border:1px solid #5b534b!important;background:#292520!important;color:#e9d2ad!important;font-size:11px}
+.ms-plaza .ms-plaza-card>button:hover{border-color:#d3bc92!important;background:#352d23!important}
+.ms-plaza-mini{display:flex;flex-direction:column;gap:8px;height:142px;min-height:142px;overflow:hidden;padding:12px;border:1px solid var(--mini-line,#49434a);border-radius:8px;background:var(--mini-bg,#171719);color:var(--mini-fg,#e4dbce)}
+.ms-mini-title{font-size:10px;letter-spacing:.03em;color:var(--mini-accent,#cab68f)}
+.ms-mini-holdings{--mini-bg:#14201f;--mini-line:#31544d;--mini-accent:#80b7a7}
+.ms-mini-stock{display:grid;grid-template-columns:70px 1fr 48px;align-items:center;gap:5px;font-size:9px}
+.ms-mini-stock span{color:#c8d9d3}
+.ms-mini-stock i{height:5px;background:linear-gradient(90deg,#75ad9c var(--bar),#2a3e38 var(--bar));border-radius:5px}
+.ms-mini-stock b{color:#80b7a7;font-size:8px;font-weight:500;text-align:right}
+.ms-mini-holdings>small,.ms-mini-news>small{margin-top:auto;color:#94aaa2;font-size:9px}
+.ms-mini-manager{--mini-bg:#261d24;--mini-line:#624455;--mini-accent:#d8a9bc;justify-content:center}
+.ms-mini-person{display:flex;align-items:center;gap:11px}
+.ms-mini-person>i{display:grid;place-items:center;width:42px;height:42px;border:1px solid #9d7388;border-radius:50%;background:#5a3b4d;color:#f1d8e3;font-size:17px;font-style:normal}
+.ms-mini-person>div{display:grid;gap:4px}
+.ms-mini-person b{font-size:14px}
+.ms-mini-person span,.ms-mini-manager-line span{color:#c8aab9;font-size:9px}
+.ms-mini-manager-line{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:6px}
+.ms-mini-manager-line i{flex:1;height:1px;background:#916a7f}
+.ms-mini-manager-note{padding:6px 8px;border-radius:4px;background:#352531;color:#d8bccc;font-size:9px}
+.ms-mini-technical{--mini-bg:#111d2b;--mini-line:#325572;--mini-accent:#87b9da}
+.ms-mini-technical svg{width:100%;height:70px;overflow:visible}
+.ms-mini-technical svg path{fill:none;stroke:#8ed4ec;stroke-width:2}
+.ms-mini-technical svg path+path{stroke:#5d7da5;stroke-dasharray:4 3}
+.ms-mini-legend{display:flex;gap:12px;color:#9cbed2;font-size:9px}
+.ms-mini-news{--mini-bg:#29241c;--mini-line:#6a5435;--mini-accent:#deb57b}
+.ms-mini-news>div:not(.ms-mini-title){display:flex;gap:12px;align-items:center;padding-bottom:5px;border-bottom:1px solid #554834;font-size:10px}
+.ms-mini-news time{color:#d7ac72;font-variant-numeric:tabular-nums}
+.ms-mini-news span{color:#e4d2b7}
+.ms-mini-news>small{color:#bca786}
+.ms-mini-performance{--mini-bg:#20211b;--mini-line:#5a6542;--mini-accent:#bacb82}
+.ms-mini-perf-top{display:flex;justify-content:space-between;color:#c3cca5;font-size:9px}
+.ms-mini-bars{display:flex;align-items:end;justify-content:space-around;gap:8px;flex:1;padding:5px 10px 0;border-bottom:1px solid #708154}
+.ms-mini-bars i{flex:1;max-width:23px;background:linear-gradient(0deg,#61764a,#b1c37f);border-radius:2px 2px 0 0}
+.ms-mini-balanced{--mini-bg:#222019;--mini-line:#5f5541;--mini-accent:#d2bd91}
+.ms-mini-balanced-top,.ms-mini-balanced-foot{display:flex;justify-content:space-between;gap:5px;color:#c8b89c;font-size:9px}
+.ms-mini-balanced svg{width:100%;height:54px}
+.ms-mini-balanced svg path{fill:none;stroke:#d8bc87;stroke-width:2}
+.ms-mini-balanced-foot span{padding:3px 8px;border:1px solid #655742;border-radius:3px}
+.ms-plaza-card.ms-plaza-holdings-detail .ms-plaza-card-label span{color:#80b7a7}
+.ms-plaza-card.ms-plaza-manager-detail .ms-plaza-card-label span{color:#d8a9bc}
+.ms-plaza-card.ms-plaza-technical-detail .ms-plaza-card-label span{color:#87b9da}
+.ms-plaza-card.ms-plaza-news-focus-detail .ms-plaza-card-label span{color:#deb57b}
+.ms-plaza-card.ms-plaza-performance-detail .ms-plaza-card-label span{color:#bacb82}
+.ms-fund-top.ms-detail-style-holdings-detail,.ms-detail-layout.ms-detail-style-holdings-detail{--detail-accent:#80b7a7;--detail-tint:#182322;--detail-edge:#385a51}
+.ms-fund-top.ms-detail-style-manager-detail,.ms-detail-layout.ms-detail-style-manager-detail{--detail-accent:#d8a9bc;--detail-tint:#271f26;--detail-edge:#62485a}
+.ms-fund-top.ms-detail-style-technical-detail,.ms-detail-layout.ms-detail-style-technical-detail{--detail-accent:#87b9da;--detail-tint:#15212e;--detail-edge:#395874}
+.ms-fund-top.ms-detail-style-news-focus-detail,.ms-detail-layout.ms-detail-style-news-focus-detail{--detail-accent:#deb57b;--detail-tint:#2a241b;--detail-edge:#665238}
+.ms-fund-top.ms-detail-style-performance-detail,.ms-detail-layout.ms-detail-style-performance-detail{--detail-accent:#bacb82;--detail-tint:#22251b;--detail-edge:#576546}
+.ms-fund-top.ms-detail-style-balanced-detail,.ms-detail-layout.ms-detail-style-balanced-detail{--detail-accent:#d2bd91;--detail-tint:#242119;--detail-edge:#5f5541}
+.ms-fund-top[class*="ms-detail-style-"]{padding:15px 14px;border:1px solid var(--detail-edge,#383638);border-radius:9px;background:linear-gradient(120deg,var(--detail-tint,#1a191b),#19191b 70%)}
+.ms-fund-top[class*="ms-detail-style-"] .ms-fund-chip{border-color:var(--detail-edge);color:var(--detail-accent)}
+.ms-fund-top[class*="ms-detail-style-"] .ms-fund-snapshot{border-color:var(--detail-edge);background:#19191b}
+.ms-fund-top[class*="ms-detail-style-"] .ms-fund-actions [data-ms-action="community-detail"]{border-color:#d3bf9a;background:#d3bf9a;color:#1b1918}
+.ms-detail-layout[class*="ms-detail-style-"] .ms-widget{border-color:var(--detail-edge);background:linear-gradient(145deg,var(--detail-tint),#19191b 60%)}
+.ms-detail-layout[class*="ms-detail-style-"] .ms-widget h2{color:var(--detail-accent)}
+.ms-detail-layout[class*="ms-detail-style-"] .ms-detail-line{stroke:var(--detail-accent)}
+.ms-detail-layout[class*="ms-detail-style-"] .ms-detail-area{fill:var(--detail-accent)}
+@media(max-width:760px){.ms-plaza .ms-template-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:540px){.ms-plaza{padding:12px}.ms-plaza .ms-template-grid{grid-template-columns:1fr}.ms-plaza-heading{display:block}.ms-plaza-heading span{display:block;margin-top:3px}}
+
+/* Keep the default detail page a single, compact workspace instead of stacked cards. */
+.ms-fund-top.ms-detail-style-balanced-detail{padding:12px 16px 14px;border-radius:8px 8px 0 0;background:#19191b;border-color:#363438}
+.ms-fund-back{padding-bottom:7px!important}
+.ms-fund-title{margin-bottom:12px}
+.ms-fund-title h1{font-size:21px}
+.ms-fund-actions [data-ms-action="edit"]{border-color:#9c8866;color:#ead9b8}
+.ms-fund-top.ms-detail-style-balanced-detail .ms-fund-snapshot{border:0!important;border-top:1px solid #383638!important;border-radius:0;background:transparent!important}
+.ms-fund-top.ms-detail-style-balanced-detail .ms-fund-snapshot>div,.ms-fund-top.ms-detail-style-balanced-detail .ms-fund-snapshot>button{min-height:89px;padding:12px 16px}
+.ms-fund-top.ms-detail-style-balanced-detail .ms-fund-snapshot>button:first-child{box-shadow:none;background:#211e1b}
+.ms-detail-layout.ms-detail-style-balanced-detail{gap:0;padding-top:0;border:1px solid #363438;border-top:0;border-radius:0 0 8px 8px;overflow:hidden}
+.ms-detail-layout.ms-detail-style-balanced-detail .ms-widget-frame{border-top:1px solid #363438}
+.ms-detail-layout.ms-detail-style-balanced-detail .ms-widget{border:0!important;border-radius:0;background:#171719!important;padding:15px 17px}
+.ms-detail-layout.ms-detail-style-balanced-detail [data-widget="fund-chart"]{grid-column:span 7}
+.ms-detail-layout.ms-detail-style-balanced-detail [data-widget="fund-performance"]{grid-column:span 5}
+.ms-detail-layout.ms-detail-style-balanced-detail .ms-detail-chart{height:205px;margin:7px 0 0}
+.ms-detail-layout.ms-detail-style-balanced-detail .ms-detail-line{stroke:#e1c99c;stroke-width:2.8;opacity:1}
+.ms-detail-layout.ms-detail-style-balanced-detail .ms-detail-area{opacity:.15}
+.ms-detail-layout.ms-detail-style-balanced-detail .ms-chart-summary{gap:20px}
+.ms-fund-actions button{white-space:nowrap}
+.ms-preview-bar>div{display:flex;align-items:center;gap:8px}
+@media(min-width:901px) and (max-width:1220px){.ms-layout.ms-detail-layout.ms-detail-style-balanced-detail [data-widget="fund-chart"]{grid-column:span 7}.ms-layout.ms-detail-layout.ms-detail-style-balanced-detail [data-widget="fund-performance"]{grid-column:span 5}}
+@media(max-width:900px){.ms-detail-layout.ms-detail-style-balanced-detail .ms-widget-frame{grid-column:span 12}}
+@media(max-width:760px){.ms-fund-top.ms-detail-style-balanced-detail{padding:10px 11px}.ms-fund-actions{gap:5px}.ms-fund-actions button{padding:6px 8px}.ms-detail-layout.ms-detail-style-balanced-detail .ms-widget{padding:13px 11px}.ms-detail-layout.ms-detail-style-balanced-detail .ms-detail-chart{height:185px}}

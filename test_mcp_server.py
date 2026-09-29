@@ -20,6 +20,7 @@ class HarnessMcp(unittest.TestCase):
             'list_trade_drafts', 'save_trade_draft', 'remove_trade_draft',
             'get_connection_status', 'start_fund_login', 'get_fund_login_status',
             'list_investment_strategies', 'run_investment_backtest', 'save_strategy_variant',
+            'read_uploaded_holdings_image',
         }
         self.assertEqual(names, expected)
         self.assertFalse(any(name in names for name in ('buy', 'redeem', 'cancel_order', 'pay')))

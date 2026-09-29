@@ -7,6 +7,8 @@
   <title>同花顺理财 · 基金研究</title>
   <link rel="stylesheet" href="panda-strategy-agent.css">
   <link rel="stylesheet" href="panda-strategy-agent-fixes.css">
+  <link rel="stylesheet" href="market-studio.css">
+  <script src="market-studio.js" defer></script>
   <script src="panda-strategy-agent.js" defer></script>
 </head>
 <body>
@@ -18,31 +20,35 @@
       <div class="panda-section-label">最近对话</div>
       <div id="panda-sessions" class="panda-session-list"><span>桌面版启动后显示会话</span></div>
       <nav class="panda-nav" aria-label="主导航">
-        <div class="panda-section-label">策略</div>
-        <button data-nav="library"><span class="nav-symbol">◈</span>策略库</button>
+        <div class="panda-section-label">工作区</div>
+        <button data-nav="market"><span class="nav-symbol">⌁</span>看行情</button>
+        <button data-nav="library"><span class="nav-symbol">◈</span>找策略</button>
         <button data-nav="history"><span class="nav-symbol">◷</span>回测记录</button>
         <div class="panda-section-label">我的</div>
-        <button data-nav="holdings"><span class="nav-symbol">◫</span>持仓</button>
-        <button data-nav="watchlist"><span class="nav-symbol">☆</span>自选</button>
-        <button data-nav="plans"><span class="nav-symbol">▤</span>计划</button>
+        <button data-nav="holdings"><span class="nav-symbol">◫</span>看持仓</button>
+        <button data-nav="watchlist"><span class="nav-symbol">☆</span>自选基金</button>
+        <button data-nav="plans"><span class="nav-symbol">▤</span>我的计划</button>
+        <button data-nav="pages"><span class="nav-symbol">▦</span>我的页面</button>
       </nav>
       <div class="panda-sidebar-bottom"><button class="panda-quiet" data-nav="account">连接与设置 <span>⚙</span></button></div>
     </aside>
     <main class="panda-main">
 <header class="panda-topbar"><span id="panda-page-title">对话工作台</span><div class="panda-top-actions"><span id="panda-data-status">正在连接本地服务</span></div></header>
       <section id="panda-content" class="panda-content" aria-live="polite"></section>
+      <form id="quick-agent-form" class="panda-quick-agent" aria-label="向理财助手提问"><div id="quick-agent-prompts" class="panda-quick-agent-prompts" aria-label="按当前页面推荐的问题"></div><div class="panda-quick-agent-entry"><textarea id="quick-agent-input" maxlength="12000" rows="1" placeholder="输入你想问的问题…"></textarea><button type="submit" aria-label="发送问题">发送 ↑</button></div></form>
     </main>
   </div>
   <aside id="agent-panel" class="panda-agent-panel" aria-label="基金研究对话" hidden>
     <div id="agent-shell" class="panda-agent-shell">
-      <div class="panda-agent-head"><div><strong id="agent-session-title">基金研究</strong><small id="agent-provider">正在连接模型</small></div><details class="panda-menu"><summary aria-label="管理会话">⋯</summary><div><button id="agent-rename" type="button">重命名</button><button id="agent-pin" type="button">置顶</button><button id="agent-archive" type="button">归档</button><button id="agent-delete" type="button">删除会话</button></div></details></div>
+      <div class="panda-agent-head"><div><strong id="agent-session-title">基金研究</strong><small id="agent-provider">正在连接模型</small></div><div class="panda-agent-head-actions"><button id="agent-close" type="button" aria-label="收起对话">收起</button><details class="panda-menu"><summary aria-label="管理会话">⋯</summary><div><button id="agent-rename" type="button">重命名</button><button id="agent-pin" type="button">置顶</button><button id="agent-project" type="button">移动到项目</button><button id="agent-archive" type="button">归档</button><button id="agent-delete" type="button">删除会话</button></div></details></div></div>
+      <div id="agent-open-tabs" class="panda-agent-open-tabs" aria-label="已打开的对话"></div>
       <div id="agent-status" class="panda-agent-status">正在启动 Agent…</div>
       <div id="agent-messages" class="panda-agent-messages" aria-live="polite"></div>
       <div id="agent-question" class="panda-agent-question" hidden></div>
       <form id="agent-form" class="panda-agent-composer">
-        <textarea id="agent-input" maxlength="12000" placeholder="说说你的想法…"></textarea>
+        <textarea id="agent-input" maxlength="12000" placeholder="继续提问…"></textarea>
         <div id="agent-context-chip" hidden></div>
-        <div class="panda-agent-controls"><span class="panda-agent-data-scope" title="可查询账户和工作台数据，实际交易由你本人完成。">只读研究</span><button class="panda-agent-setting" type="button" data-nav="settings" id="agent-model-setting">模型 / 推理</button><span id="agent-run-state">就绪</span><button id="agent-stop" class="panda-button quiet" type="button" hidden>停止</button><button id="agent-send" class="panda-button primary">发送 ↑</button></div>
+        <div class="panda-agent-controls"><label class="panda-agent-data-consent" title="仅在本次对话中读取账户、持仓和订单；不会执行交易"><input id="agent-data-consent" type="checkbox"><span>允许查询账户</span></label><button class="panda-agent-setting" type="button" data-nav="settings" id="agent-model-setting">模型 · 思考</button><span id="agent-run-state"></span><button id="agent-stop" class="panda-button quiet" type="button" hidden>停止</button><button id="agent-send" class="panda-button primary">发送 ↑</button></div>
       </form>
     </div>
   </aside>

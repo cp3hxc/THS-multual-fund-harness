@@ -1,6 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('fundDesktop', Object.freeze({
+  platform: process.platform,
   getStatus: () => ipcRenderer.invoke('agent:get-status'),
   listSessions: () => ipcRenderer.invoke('agent:list-sessions'),
   newSession: (options) => ipcRenderer.invoke('agent:new-session', options),
@@ -10,6 +11,7 @@ contextBridge.exposeInMainWorld('fundDesktop', Object.freeze({
   updateSession: (payload) => ipcRenderer.invoke('agent:update-session', payload),
   readSession: (threadId) => ipcRenderer.invoke('agent:read-session', { threadId }),
   sendMessage: (payload) => ipcRenderer.invoke('agent:send-message', payload),
+  recognizeHoldingsImages: (payload) => ipcRenderer.invoke('agent:recognize-holdings-images', payload),
   answerUserInput: (payload) => ipcRenderer.invoke('agent:answer-user-input', payload),
   interrupt: () => ipcRenderer.invoke('agent:interrupt'),
   startSubscriptionLogin: () => ipcRenderer.invoke('agent:login-subscription'),

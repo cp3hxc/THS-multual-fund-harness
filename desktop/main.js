@@ -7,6 +7,7 @@ const path = require('node:path');
 const http = require('node:http');
 const QRCode = require('qrcode');
 const { CodexAgentRuntime, PUBLIC_TOOLS, ACCOUNT_DATA_TOOLS, BLOCKED_AGENT_TOOLS } = require('./agent-runtime');
+const { parseHoldingsRecognition } = require('./holdings-recognition');
 const { validateFundLoginUrl } = require('./fund-login-url');
 
 function venvPython(root = ROOT) {
@@ -27,7 +28,7 @@ const DEFAULT_REASONING_EFFORT = 'high';
 const STRATEGY_SHARE_SCHEME = 'fund-ai-workbench';
 const REASONING_EFFORTS = new Set(['minimal', 'low', 'medium', 'high', 'xhigh', 'max', 'ultra']);
 const TOOLS = [
-  'open_workbench', 'get_dashboard', 'get_account_brief', 'list_holdings', 'analyze_portfolio',
+  'open_workbench', 'read_uploaded_holdings_image', 'get_dashboard', 'get_account_brief', 'list_holdings', 'analyze_portfolio',
   'get_fund_accounts', 'get_buy_preview', 'get_redeem_preview', 'list_orders',
   'get_order', 'list_strategy_templates', 'list_strategies', 'create_strategy',
   'archive_strategy', 'list_watchlist', 'set_watchlist', 'list_trade_drafts',
@@ -43,6 +44,7 @@ let runtime = null;
 let currentThreadId = null;
 let isQuitting = false;
 let pendingStrategyShare = null;
+const hiddenAgentThreads = new Set();
 
 function cleanStrategyShare(value) {
   if (!value || typeof value !== 'object' || value.version !== 1) throw new Error('分享策略格式不受支持。');
@@ -272,9 +274,13 @@ function createRuntime() {
     mcpEnv: runtimeEnvironment(),
     mcpScript: path.join(ROOT, 'harness/mcp_server.py'),
     skillPath: path.join(ROOT, 'harness/skills/fund-workbench/SKILL.md'),
+    recommendationSkillPath: path.join(ROOT, 'harness/skills/strategy-recommender/SKILL.md'),
     enabledTools: TOOLS
   });
-  next.on('event', payload => sendToRenderer('agent:event', payload));
+  next.on('event', payload => {
+    if (hiddenAgentThreads.has(payload?.params?.threadId)) return;
+    sendToRenderer('agent:event', payload);
+  });
   next.on('status', payload => sendToRenderer('agent:event', { method: 'runtime/status', params: payload }));
   next.on('business-changed', payload => sendToRenderer('agent:business-changed', payload));
   next.on('navigate', route => sendToRenderer('agent:navigate', route));
@@ -284,6 +290,7 @@ function createRuntime() {
 async function restartRuntime() {
   runtime?.stop();
   currentThreadId = null;
+  hiddenAgentThreads.clear();
   runtime = createRuntime();
   await runtime.start();
 }
@@ -341,9 +348,11 @@ async function ensureWorkbench() {
 function readSessions() {
   const rows = readJson(sessionsPath(), []);
   if (!Array.isArray(rows)) return [];
-  return rows.map(({ dataAuthorized: _legacyPermission, ...row }) => ({
+  return rows.map(row => ({
     ...row,
     pinned: row.pinned === true,
+    dataAuthorized: row.dataAuthorized === true,
+    project: typeof row.project === 'string' ? row.project.slice(0, 40) : '',
     model: row.model || (row.mode === 'api' ? null : DEFAULT_SUBSCRIPTION_MODEL),
     effort: REASONING_EFFORTS.has(row.effort) ? row.effort : DEFAULT_REASONING_EFFORT
   })).sort((a, b) => Number(b.pinned) - Number(a.pinned) || String(b.updatedAt).localeCompare(String(a.updatedAt)));
@@ -383,7 +392,7 @@ function providerForSession(session) {
     name: provider.name, mode: 'api' };
 }
 
-function recordSession(thread, provider, title = '新会话') {
+function recordSession(thread, provider, title = '新会话', dataAuthorized = false) {
   const rows = readSessions().filter(row => row.threadId !== thread.id);
   rows.unshift({
     threadId: thread.id,
@@ -393,6 +402,7 @@ function recordSession(thread, provider, title = '新会话') {
     providerName: provider.name,
     model: provider.model,
     effort: provider.effort,
+    dataAuthorized: dataAuthorized === true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   });
@@ -402,9 +412,15 @@ function recordSession(thread, provider, title = '新会话') {
 
 function sanitizePageContext(value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
-  const routes = new Set(['home', 'workbench', 'holdings', 'account', 'trades', 'watchlist', 'library', 'strategy-detail', 'strategies', 'strategy-invest', 'settings', 'plans', 'history']);
+  const routes = new Set(['home', 'workbench', 'market', 'holdings', 'account', 'trades', 'watchlist', 'library', 'strategy-detail', 'strategies', 'strategy-invest', 'settings', 'plans', 'history']);
   const context = {};
   const text = (raw, max = 120) => typeof raw === 'string' ? raw.slice(0, max) : '';
+  const screenshotImagePath = raw => {
+    if (typeof raw !== 'string') return '';
+    const imageRoot = path.resolve(runtimeDirectory(), 'holdings-import-images');
+    const candidate = path.resolve(raw);
+    return path.dirname(candidate) === imageRoot && /^[a-f0-9]{32}\.jpg$/.test(path.basename(candidate)) ? candidate : '';
+  };
   const number = raw => {
     if (raw === null || raw === undefined || raw === '') return null;
     const parsed = Number(raw);
@@ -435,6 +451,54 @@ function sanitizePageContext(value) {
   if (typeof value.tab === 'string') context.tab = value.tab.slice(0, 40);
   if (typeof value.filter === 'string') context.filter = value.filter.slice(0, 60);
   if (typeof value.sort === 'string') context.sort = value.sort.slice(0, 40);
+  if (value.marketLayout && typeof value.marketLayout === 'object') {
+    const layout = value.marketLayout;
+    const cleanWidgets = list => Array.isArray(list) ? list.slice(0, 25).filter(id => typeof id === 'string' && /^[a-z0-9:-]{2,80}$/.test(id)) : [];
+    context.marketLayout = {
+      kind: layout.kind === 'detail' ? 'detail' : 'home',
+      scope: text(layout.scope, 80), name: text(layout.name, 60),
+      baseVersion: text(layout.baseVersion, 80),
+      widgets: cleanWidgets(layout.widgets), allowedWidgets: cleanWidgets(layout.allowedWidgets),
+      readyWidgets: cleanWidgets(layout.readyWidgets),
+      widgetCatalog: Object.fromEntries(Object.entries(layout.widgetCatalog || {}).filter(([id, label]) => /^[a-z0-9:-]{2,80}$/.test(id) && typeof label === 'string').slice(0, 25).map(([id, label]) => [id, label.slice(0, 40)])),
+      selectedFundCode: /^\d{6}$/.test(String(layout.selectedFundCode || '')) ? layout.selectedFundCode : null,
+      draft: layout.draft === true,
+      intradayReferences: layout.intradayReferences && typeof layout.intradayReferences === 'object' ? {
+        source: text(layout.intradayReferences.source, 100),
+        note: text(layout.intradayReferences.note, 180),
+        funds: (Array.isArray(layout.intradayReferences.funds) ? layout.intradayReferences.funds : []).slice(0, 25).map(row => ({
+          code: /^\d{6}$/.test(String(row?.code || '')) ? row.code : null,
+          name: text(row?.name, 60), changePct: number(row?.changePct),
+          metricLabel: text(row?.metricLabel, 60), referenceNav: number(row?.referenceNav),
+          quoteTime: text(row?.quoteTime, 40), reportDate: text(row?.reportDate, 20),
+          status: text(row?.status, 80)
+        })).filter(row => row.code)
+      } : null,
+      evidence: layout.evidence && typeof layout.evidence === 'object' ? {
+        source: text(layout.evidence.source, 80), asOf: text(layout.evidence.asOf, 20),
+        manager: text(layout.evidence.manager, 80),
+        oneMonthReturnPct: number(layout.evidence.oneMonthReturnPct),
+        oneYearReturnPct: number(layout.evidence.oneYearReturnPct),
+        oneYearMaxDrawdownPct: number(layout.evidence.oneYearMaxDrawdownPct),
+        unitNavValue: number(layout.evidence.unitNavValue), unitNavDate: text(layout.evidence.unitNavDate, 20),
+        intradayReferenceChangePct: number(layout.evidence.intradayReferenceChangePct),
+        intradayReferenceTime: text(layout.evidence.intradayReferenceTime, 40),
+        holdingsReportDate: text(layout.evidence.holdingsReportDate, 20)
+      } : null
+    };
+  }
+  if (value.market && typeof value.market === 'object') {
+    context.market = {
+      source: text(value.market.indexQuotes?.source, 80),
+      quotes: (Array.isArray(value.market.indexQuotes?.quotes) ? value.market.indexQuotes.quotes : []).slice(0, 12).map(row => ({
+        code: text(row?.code, 20), name: text(row?.name, 50), point: number(row?.point),
+        changePct: number(row?.changePct), asOf: text(row?.asOf, 40), status: text(row?.status, 30)
+      })),
+      watchlist: (Array.isArray(value.market.watchlist) ? value.market.watchlist : []).slice(0, 25).map(row => ({
+        code: /^\d{6}$/.test(String(row?.code || '')) ? row.code : null, name: text(row?.name, 60)
+      })).filter(row => row.code)
+    };
+  }
   if (value.selectedFund && typeof value.selectedFund === 'object' && /^\d{6}$/.test(String(value.selectedFund.code || ''))) {
     const recentPoints = (Array.isArray(value.selectedFund.recentPoints) ? value.selectedFund.recentPoints : []).slice(-12).map(row => ({
       date: text(row?.date, 20), value: number(row?.value)
@@ -547,11 +611,20 @@ function sanitizePageContext(value) {
     const snapshot = value.holdingsSnapshot;
     const summary = snapshot.summary && typeof snapshot.summary === 'object' ? snapshot.summary : {};
     const simulation = snapshot.simulation && typeof snapshot.simulation === 'object' ? snapshot.simulation : null;
+    const accountRows = raw => (Array.isArray(raw) ? raw : []).slice(0, 20).map(row => ({
+      platform: text(row?.platform, 40), accountName: text(row?.accountName, 60),
+      source: text(row?.source, 60), asOf: text(row?.asOf, 20), amount: number(row?.amount),
+      holdingIncome: number(row?.holdingIncome), dailyIncome: number(row?.dailyIncome),
+      dailyIncomeDate: text(row?.dailyIncomeDate, 20)
+    }));
     const selectedFund = snapshot.selectedFund && typeof snapshot.selectedFund === 'object' && /^\d{6}$/.test(String(snapshot.selectedFund.code || ''))
-      ? { code: String(snapshot.selectedFund.code), name: text(snapshot.selectedFund.name, 80) } : null;
+      ? { code: String(snapshot.selectedFund.code), name: text(snapshot.selectedFund.name, 80),
+          amount: number(snapshot.selectedFund.amount), holdingIncome: number(snapshot.selectedFund.holdingIncome),
+          latestIncome: number(snapshot.selectedFund.latestIncome), weightPct: number(snapshot.selectedFund.weightPct),
+          accounts: accountRows(snapshot.selectedFund.accounts) } : null;
     const selectedDetail = snapshot.selectedDetail && typeof snapshot.selectedDetail === 'object' ? snapshot.selectedDetail : null;
     context.holdingsSnapshot = {
-      asOf: text(snapshot.asOf, 40),
+      asOf: text(snapshot.asOf, 40), scope: text(snapshot.scope, 100),
       source: text(snapshot.source || '同花顺爱基金 · thsfund', 100),
       summary: {
         totalAmount: number(summary.totalAmount), confirmedAmount: number(summary.confirmedAmount),
@@ -563,7 +636,8 @@ function sanitizePageContext(value) {
         code: /^\d{6}$/.test(String(row?.code || '')) ? String(row.code) : null,
         name: text(row?.name, 80), amount: number(row?.amount), weightPct: number(row?.weightPct),
         holdingIncome: number(row?.holdingIncome), holdingIncomeRate: text(row?.holdingIncomeRate, 24),
-        latestIncome: number(row?.latestIncome), shareStatus: row?.shareStatus === '待确认' ? '待确认' : '已确认'
+        latestIncome: number(row?.latestIncome), shareStatus: text(row?.shareStatus, 30),
+        accounts: accountRows(row?.accounts)
       })).filter(row => row.code),
       selectedFund,
       selectedDetail: selectedDetail ? {
@@ -585,6 +659,16 @@ function sanitizePageContext(value) {
         benchmarkReturnPct: number(simulation.benchmarkReturnPct), dataCoveragePct: number(simulation.dataCoveragePct),
         source: text(simulation.source, 100)
       } : null
+    };
+  }
+  if (value.holdingsImport && typeof value.holdingsImport === 'object') {
+    const draft = value.holdingsImport;
+    context.holdingsImport = {
+      accountName: text(draft.accountName, 100), asOf: text(draft.asOf, 20),
+      images: (Array.isArray(draft.images) ? draft.images : []).slice(0, 12).map(image => {
+        const safePath = screenshotImagePath(image?.agentPath);
+        return { name: text(image?.name, 120), imageId: safePath ? path.basename(safePath).replace(/\.jpg$/, '') : '' };
+      }).filter(image => image.imageId)
     };
   }
   return Object.keys(context).length ? context : null;
@@ -620,21 +704,23 @@ function registerIpc() {
       activeProfile: activeProvider(), settings: publicSettings() };
   });
   handle('agent:list-sessions', async () => readSessions());
-  handle('agent:new-session', async () => {
-    if (runtime.active) throw new Error('请先停止或等待当前 Agent 任务完成。');
+  handle('agent:new-session', async ({ authorizeAccountData } = {}) => {
     const provider = activeProvider();
-    const thread = await runtime.startThread(provider, false);
+    const dataAuthorized = authorizeAccountData === true;
+    const thread = await runtime.startThread(provider, false, dataAuthorized);
     currentThreadId = thread.id;
-    const session = recordSession(thread, provider);
+    const session = recordSession(thread, provider, '新会话', dataAuthorized);
     return { session, thread };
   });
   handle('agent:resume-session', async ({ threadId }) => {
-    if (runtime.active) throw new Error('请先停止或等待当前 Agent 任务完成。');
     const session = readSessions().find(row => row.threadId === threadId);
     if (!session) throw new Error('未找到这个基金工作台会话。');
     let thread;
     try {
-      thread = await runtime.resumeThread(threadId, providerForSession(session));
+      thread = await runtime.resumeThread(threadId, providerForSession(session), session.dataAuthorized === true);
+      // thread/resume returns the active thread but can omit the recorded items.
+      // Read them explicitly so switching tabs restores the visible conversation.
+      try { thread = await runtime.readThread(threadId); } catch {}
     } catch (error) {
       if (/no rollout found|thread.*not found|not found.*thread/i.test(error.message || '')) {
         const sessions = readSessions().filter(row => row.threadId !== threadId);
@@ -649,7 +735,7 @@ function registerIpc() {
   });
   handle('agent:read-session', async ({ threadId }) => runtime.readThread(String(threadId || '')));
   handle('agent:archive-session', async ({ threadId }) => {
-    if (runtime.active) throw new Error('请先停止或等待当前 Agent 任务完成。');
+    if (runtime.active?.threadId === threadId) throw new Error('请先停止这个对话的任务。');
     await runtime.archiveThread(String(threadId || ''));
     const rows = readSessions().filter(row => row.threadId !== threadId);
     writeSessions(rows);
@@ -657,8 +743,8 @@ function registerIpc() {
     return rows;
   });
   handle('agent:delete-session', async ({ threadId }) => {
-    if (runtime.active) throw new Error('请先停止或等待当前 Agent 任务完成。');
     const id = String(threadId || '');
+    if (runtime.active?.threadId === id) throw new Error('请先停止这个对话的任务。');
     if (!readSessions().some(row => row.threadId === id)) throw new Error('未找到这个基金工作台会话。');
     let warning = null;
     try {
@@ -671,12 +757,16 @@ function registerIpc() {
     if (currentThreadId === id) currentThreadId = null;
     return { sessions: rows, warning };
   });
-  handle('agent:update-session', async ({ threadId, pinned, title }) => {
-    if (runtime.active) throw new Error('请先停止或等待当前 Agent 任务完成。');
+  handle('agent:update-session', async ({ threadId, pinned, title, project }) => {
     const rows = readSessions();
     const session = rows.find(row => row.threadId === String(threadId || ''));
     if (!session) throw new Error('未找到这个基金工作台会话。');
     if (typeof pinned === 'boolean') session.pinned = pinned;
+    if (project !== undefined) {
+      const clean = String(project || '').trim();
+      if (clean.length > 40) throw new Error('项目名称最多 40 字。');
+      session.project = clean;
+    }
     if (title !== undefined) {
       const clean = String(title || '').trim();
       if (!clean || clean.length > 60) throw new Error('会话名称须为 1 至 60 字。');
@@ -686,20 +776,74 @@ function registerIpc() {
     writeSessions(rows);
     return readSessions();
   });
-  handle('agent:send-message', async ({ threadId, text, pageContext }) => {
+  handle('agent:send-message', async ({ threadId, text, authorizeAccountData, pageContext }) => {
     const message = String(text || '').trim();
     if (!message || message.length > 12000) throw new Error('请输入 1 至 12000 字的问题。');
     if (!threadId || threadId !== currentThreadId) throw new Error('请先选择或新建会话。');
     if (runtime.active) throw new Error('已有一个 Agent 任务正在运行。');
     const sessions = readSessions();
-    const session = sessions.find(row => row.threadId === threadId);
+    let session = sessions.find(row => row.threadId === threadId);
     if (!session) throw new Error('会话索引不存在。');
-    await runtime.resumeThread(threadId, providerForSession(session));
-    delete session.dataAuthorized; // discard the legacy permission field from older session indexes
+    const provider = providerForSession(session);
+    const requestAccountData = authorizeAccountData === true;
+    let targetThreadId = threadId;
+    let recovered = false;
+    if (!runtime.hasThread(threadId) || (requestAccountData && !session.dataAuthorized)) {
+      try {
+        await runtime.resumeThread(threadId, provider, session.dataAuthorized === true || requestAccountData);
+      } catch (error) {
+        if (!/no rollout found|thread.*not found|not found.*thread/i.test(error.message || '')) throw error;
+        // A stale/empty rollout must not block both chat and screenshot recognition.
+        // Replace only this unavailable session and replay the user's current request.
+        const replacement = await runtime.startThread(provider, false, session.dataAuthorized === true || requestAccountData);
+        targetThreadId = replacement.id;
+        session = recordSession(replacement, provider, session.title || '新会话', session.dataAuthorized === true || requestAccountData);
+        currentThreadId = targetThreadId;
+        recovered = true;
+      }
+    }
+    const currentSessions = readSessions().filter(row => !recovered || row.threadId !== threadId);
+    session = currentSessions.find(row => row.threadId === targetThreadId) || session;
+    session.dataAuthorized = Boolean(session.dataAuthorized || requestAccountData);
     if (session.title === '新会话') session.title = message.slice(0, 28);
     session.updatedAt = new Date().toISOString();
-    writeSessions(sessions.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)));
-    return runtime.sendMessage(threadId, message, providerForSession(session), sanitizePageContext(pageContext));
+    writeSessions(currentSessions.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)));
+    if (recovered) {
+      const refreshed = readSessions().find(row => row.threadId === targetThreadId) || session;
+      runtime.emit('event', { method: 'thread/recovered', params: { threadId: targetThreadId, session: refreshed } });
+    }
+    const turn = await runtime.sendMessage(targetThreadId, message, provider, sanitizePageContext(pageContext));
+    return { turn, session: readSessions().find(row => row.threadId === targetThreadId) || session, recovered };
+  });
+  handle('agent:recognize-holdings-images', async ({ text, pageContext }) => {
+    const message = String(text || '').trim();
+    if (!message || message.length > 12000) throw new Error('截图识别请求无效，请重试。');
+    if (runtime.active) throw new Error('请先等待当前 Agent 任务完成。');
+    const context = sanitizePageContext(pageContext);
+    if (!context?.holdingsImport?.images?.length) throw new Error('没有找到本次上传的截图，请重新选择图片。');
+    const imageRoot = path.resolve(runtimeDirectory(), 'holdings-import-images');
+    for (const image of context.holdingsImport.images) {
+      const imagePath = path.join(imageRoot, `${image.imageId}.jpg`);
+      let stat;
+      try { stat = fs.statSync(imagePath); } catch { throw new Error('截图已上传，但本机文件不存在；请移除后重新上传。'); }
+      if (!stat.isFile() || stat.size < 4 || stat.size > 7_000_000) throw new Error('截图文件无效或超过 7 MB，请重新上传。');
+      const fd = fs.openSync(imagePath, 'r');
+      const header = Buffer.alloc(3);
+      try { fs.readSync(fd, header, 0, header.length, 0); } finally { fs.closeSync(fd); }
+      if (header[0] !== 0xff || header[1] !== 0xd8 || header[2] !== 0xff) throw new Error('上传文件不是有效的 JPG 图片，请重新上传。');
+    }
+    const result = await runtime.runEphemeralMessage(message, activeProvider(), context, {
+      timeoutMs: 120000,
+      onThreadStarted: threadId => hiddenAgentThreads.add(threadId)
+    });
+    const reads = (result.toolCalls || []).filter(call => /(?:^|__)read_uploaded_holdings_image$/.test(call.tool));
+    const failedRead = reads.find(call => call.status && call.status !== 'completed' || call.error);
+    if (failedRead) throw new Error(failedRead.error ? `AI 读取截图失败：${failedRead.error}` : 'AI 读取截图失败，请重试。');
+    const imageIds = new Set(reads.map(call => call.imageId).filter(Boolean));
+    if (reads.length < context.holdingsImport.images.length || (imageIds.size && context.holdingsImport.images.some(image => !imageIds.has(image.imageId)))) {
+      throw new Error(`AI 没有成功读取全部截图（${Math.min(reads.length, context.holdingsImport.images.length)}/${context.holdingsImport.images.length} 张）。请重试，或更换支持图片识别的模型。`);
+    }
+    return { funds: parseHoldingsRecognition(result.text) };
   });
   handle('agent:answer-user-input', async ({ requestId, answers }) => {
     if (!requestId || !answers || typeof answers !== 'object' || Array.isArray(answers)) {
