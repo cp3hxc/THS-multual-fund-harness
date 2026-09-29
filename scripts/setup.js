@@ -11,6 +11,7 @@ const venvPython = path.join(root, '.venv', process.platform === 'win32' ? 'Scri
 const cli = path.join(root, '.venv', process.platform === 'win32' ? 'Scripts' : 'bin',
   process.platform === 'win32' ? 'aijijin.exe' : 'aijijin');
 const sdkWheel = path.join(root, 'reference', 'thsfund', 'vendor', 'aijijin_sdk-0.2.3-py3-none-any.whl');
+const runtimeRequirements = path.join(root, 'requirements-runtime.txt');
 
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, {
@@ -77,6 +78,13 @@ function checkCli() {
   }
 }
 
+function checkRuntimeDependencies() {
+  const result = spawnSync(venvPython, ['-c',
+    'import importlib.metadata as m; import requests; v=tuple(map(int,m.version("requests").split(".")[:2])); raise SystemExit(0 if v >= (2,31) else 1)'],
+  { cwd: root, stdio: 'ignore', windowsHide: true });
+  return result.status === 0;
+}
+
 try {
   if (!fs.existsSync(venvPython)) {
     const python = findPython();
@@ -90,7 +98,13 @@ try {
       '--no-deps', '--force-reinstall', sdkWheel], { windowsHide: true });
     if (result.status !== 0) throw result.error || new Error('安装同花顺 SDK 失败，请检查网络后重试。');
   }
-  if (!checkSdk() || !checkCli()) {
+  if (!checkRuntimeDependencies()) {
+    if (!fs.existsSync(runtimeRequirements)) throw new Error('项目运行依赖清单不存在。');
+    const result = run(venvPython, ['-m', 'pip', 'install', '--disable-pip-version-check',
+      '-r', runtimeRequirements], { windowsHide: true });
+    if (result.status !== 0) throw result.error || new Error('安装项目运行依赖失败，请检查网络后重试。');
+  }
+  if (!checkSdk() || !checkCli() || !checkRuntimeDependencies()) {
     throw new Error('基金接口运行环境未完整安装，请重新运行 npm run setup。');
   }
   process.stdout.write(`项目 Python 环境已就绪：${venvPython}\n`);
